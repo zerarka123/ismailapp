@@ -1,0 +1,9 @@
+{
+  "appId": "app.marsadz.marsa",
+  "appName": "مرسى",
+  "webDir": "dist",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css" }
+  }
+}
