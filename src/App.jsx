@@ -1,7 +1,9 @@
-import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
 import Icon from './components/Icon.jsx';
+import JobTypeSelectorModal from './components/jobs/jobTypeselectormodal.jsx';
 import Home from './pages/Home.jsx';
 import Search from './pages/Search.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
@@ -19,8 +21,10 @@ import Admin from './pages/Admin.jsx';
 import Legal from './pages/Legal.jsx';
 
 function Shell() {
-  const { loading, recovery } = useAuth();
+  const { loading, recovery, user } = useAuth();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
 
   if (loading) return <div className="splash"><img src="/logo.png" alt="مرسى" /></div>;
   if (recovery) return <ResetPassword />;
@@ -36,6 +40,9 @@ function Shell() {
           <Route path="/search" element={<Search />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/sell" element={<Sell />} />
+          <Route path="/post/boat-sale" element={<Sell />} />
+          <Route path="/post/job-offer" element={<Sell />} />
+          <Route path="/post/job-request" element={<Sell />} />
           <Route path="/my-listings" element={<MyListings />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/account" element={<Account />} />
@@ -56,11 +63,18 @@ function Shell() {
         <nav className="tabbar">
           <NavLink to="/" end className="tab"><Icon name="home" />الرئيسية</NavLink>
           <NavLink to="/search" className="tab"><Icon name="search" />البحث</NavLink>
-          <NavLink to="/sell" className="fab" aria-label="بيع"><Icon name="plus" size={26} /></NavLink>
+          <button className="fab" aria-label="بيع" onClick={() => setShowModal(true)}><Icon name="plus" size={26} /></button>
           <NavLink to="/favorites" className="tab"><Icon name="star" />المفضلة</NavLink>
           <NavLink to="/account" className="tab"><Icon name="user" />حسابي</NavLink>
         </nav>
       )}
+
+      <JobTypeSelectorModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        isAuthenticated={!!user}
+        onNavigate={(path) => navigate(path)}
+      />
     </div>
   );
 }
