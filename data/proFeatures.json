@@ -1,0 +1,56 @@
+{
+  "pro_dashboard_sections": [
+    {
+      "section_id": "portfolio_gallery",
+      "title_ar": "معرض الأعمال والفيديوهات",
+      "description_ar": "رفع صور وفيديوهات قصيرة لعرض المشاريع والورشة"
+    },
+    {
+      "section_id": "digital_catalog",
+      "title_ar": "كتالوج المنتجات والخدمات",
+      "description_ar": "قائمة المنتجات مع الأسعار وحالة التوفر"
+    },
+    {
+      "section_id": "interactive_contact",
+      "title_ar": "وسائل التواصل المباشر",
+      "description_ar": "زر واتساب، اتصال مباشر، وتوجيه عبر خريطة GPS"
+    },
+    {
+      "section_id": "trust_analytics",
+      "title_ar": "إحصائيات وشارة التوثيق",
+      "description_ar": "شارة محترف معتمد ولوحة تحليلات لعدد المشاهدات والاتصالات"
+    }
+  ],
+  "comparison_table": [
+    {
+      "feature_ar": "الصور والفيديوهات",
+      "free_plan": "صورة شخصية + غلاف فقط",
+      "pro_plan": "معرض صور وفيديوهات مفتوح/موسع"
+    },
+    {
+      "feature_ar": "المنتجات والخدمات",
+      "free_plan": "وصف نصي بسيط",
+      "pro_plan": "كتالوج منتجات كامل مع الأسعار وحالة التوفر"
+    },
+    {
+      "feature_ar": "خيارات التواصل",
+      "free_plan": "رقم هاتف عادي",
+      "pro_plan": "زر واتساب مباشر + موقع GPS + خريطة التوجيه"
+    },
+    {
+      "feature_ar": "الظهور في البحث",
+      "free_plan": "ظهور عادي في الترتيب",
+      "pro_plan": "أولوية الظهور في أعلى النتائج (Top Search)"
+    },
+    {
+      "feature_ar": "شارة التوثيق",
+      "free_plan": "لا توجد",
+      "pro_plan": "شارة 'محترف معتمد' (Verified Badge)"
+    },
+    {
+      "feature_ar": "لوحة التحليلات (Analytics)",
+      "free_plan": "غير متاحة",
+      "pro_plan": "تتبع عدد الزيارات والضغط على زر الاتصال"
+    }
+  ]
+}
