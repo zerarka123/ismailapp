@@ -19,6 +19,7 @@ import ProDetail from './pages/ProDetail.jsx';
 import ProRegister from './pages/ProRegister.jsx';
 import Admin from './pages/Admin.jsx';
 import Legal from './pages/Legal.jsx';
+import PostJob from './pages/PostJob.jsx';
 
 function Shell() {
   const { loading, recovery, user } = useAuth();
@@ -41,8 +42,8 @@ function Shell() {
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/post/boat-sale" element={<Sell />} />
-          <Route path="/post/job-offer" element={<Sell />} />
-          <Route path="/post/job-request" element={<Sell />} />
+        <Route path="/post/job-offer" element={<PostJob kind="job_offer" />} />
+<Route path="/post/job-request" element={<PostJob kind="job_request" />} />
           <Route path="/my-listings" element={<MyListings />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/account" element={<Account />} />
