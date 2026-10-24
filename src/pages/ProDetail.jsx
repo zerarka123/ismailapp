@@ -7,8 +7,10 @@ import { mapsLink, telLink, waLink } from '../lib/format';
 import { publicUrl } from '../lib/images';
 import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
+import VerifiedBadge from '../components/VerifiedBadge.jsx';
+import ProfileTabs from '../components/ProfileTabs.jsx';
 
-const SELECT = 'id, owner_id, business_name, description, address, latitude, longitude, wilayas(name_ar), guide_categories(name_ar), professional_images(storage_path, sort_order)';
+const SELECT = 'id, owner_id, pro_type, verified_at, business_name, description, address, latitude, longitude, wilayas(name_ar), guide_categories(name_ar), professional_images(storage_path, sort_order)';
 
 export default function ProDetail() {
   const { id } = useParams();
@@ -55,6 +57,7 @@ export default function ProDetail() {
   const urls = [...item.professional_images].sort((a, b) => a.sort_order - b.sort_order).map((i) => publicUrl('pro-images', i.storage_path));
   const here = `/pro/${item.id}`;
   const mine = user?.id === item.owner_id;
+  const isBusiness = item.pro_type !== 'fisherman';
 
   async function sendReport(e) {
     e.preventDefault();
@@ -73,7 +76,10 @@ export default function ProDetail() {
         <Carousel urls={urls} />
       </div>
       <div className="sheet">
-        <h1>{item.business_name}</h1>
+        <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {item.business_name}
+          {isBusiness && item.verified_at && <VerifiedBadge size={22} />}
+        </h1>
         <span className="pill">{item.guide_categories?.name_ar}</span>
         <span className="where"><Icon name="pin" size={14} /> {item.wilayas?.name_ar}{item.address ? ` · ${item.address}` : ''}</span>
         {item.description && <p className="desc">{item.description}</p>}
@@ -93,6 +99,9 @@ export default function ProDetail() {
             </div>
           </form>
         )}
+
+        {/* Tabs: products & services + work portfolio (businesses only) */}
+        <ProfileTabs ownerId={item.owner_id} showPortfolio={isBusiness} />
       </div>
 
       <div className="cta">
