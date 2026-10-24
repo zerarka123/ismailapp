@@ -20,6 +20,7 @@ import ProRegister from './pages/ProRegister.jsx';
 import Admin from './pages/Admin.jsx';
 import Legal from './pages/Legal.jsx';
 import PostJob from './pages/PostJob.jsx';
+import UserProfile from './pages/UserProfile.jsx';
 
 function Shell() {
   const { loading, recovery, user } = useAuth();
@@ -56,6 +57,7 @@ function Shell() {
           <Route path="/privacy" element={<Legal kind="privacy" />} />
           <Route path="/terms" element={<Legal kind="terms" />} />
           <Route path="/delete-account" element={<Legal kind="delete" />} />
+          <Route path="/u/:id" element={<UserProfile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
