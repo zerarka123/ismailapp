@@ -10,7 +10,7 @@ import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ProfileTabs from '../components/ProfileTabs.jsx';
 
-const SELECT = 'id, owner_id, pro_type, verified_at, business_name, description, address, latitude, longitude, wilayas(name_ar), guide_categories(name_ar), professional_images(storage_path, sort_order)';
+const SELECT = 'id, owner_id, pro_type,badge_verified, business_name, description, address, latitude, longitude, wilayas(name_ar), guide_categories(name_ar), professional_images(storage_path, sort_order)';
 
 export default function ProDetail() {
   const { id } = useParams();
@@ -78,7 +78,7 @@ export default function ProDetail() {
       <div className="sheet">
         <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {item.business_name}
-          {isBusiness && item.verified_at && <VerifiedBadge size={22} />}
+            {item.badge_verified && <VerifiedBadge size={22} />}
         </h1>
         <span className="pill">{item.guide_categories?.name_ar}</span>
         <span className="where"><Icon name="pin" size={14} /> {item.wilayas?.name_ar}{item.address ? ` · ${item.address}` : ''}</span>
