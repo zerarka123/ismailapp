@@ -21,12 +21,22 @@ export async function bumpListing(listingId) {
   const { error } = await supabase.rpc('bump_listing', { p_listing_id: listingId });
   if (!error) return { ok: true, message: 'تم رفع إعلانك إلى الأعلى.' };
 
-  if ((error.message || '').includes('bump_too_soon')) {
-    const left = remainingText(error.message);
+  const raw = error.message || '';
+
+  if (raw.includes('bump_too_soon')) {
+    const left = remainingText(raw);
     return {
       ok: false,
       message: left ? `يمكنك رفع هذا الإعلان بعد ${left}.` : 'لا يمكنك رفع هذا الإعلان الآن، حاول لاحقاً.',
     };
   }
-  return { ok: false, message: arabicError(error) };
+  if (raw.includes('not_found')) {
+    return { ok: false, message: 'لم يُعثر على هذا الإعلان ضمن إعلاناتك.' };
+  }
+
+  const known = arabicError(error, '');
+  if (known) return { ok: false, message: known };
+
+  // Unknown error: show the technical reason so it can be fixed
+  return { ok: false, message: `تعذّر رفع الإعلان. (السبب التقني: ${error.code || ''} ${raw})` };
 }
