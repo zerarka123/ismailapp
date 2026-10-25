@@ -101,8 +101,7 @@ export default function ProDetail() {
         )}
 
         {/* Tabs: products & services + work portfolio (businesses only) */}
-        <ProfileTabs ownerId={item.owner_id} showPortfolio={isBusiness} />
-      </div>
+<ProfileTabs ownerId={item.owner_id} showPortfolio={item.pro_type === 'craftsman' || item.pro_type === 'mechanic'} />      </div>
 
       <div className="cta">
         {!user ? (
