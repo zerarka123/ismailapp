@@ -22,4 +22,6 @@ export const hasActivePro = (profile) =>
   ['active', 'trial'].includes(profile?.subscription_status);
 
 // Same rule as can_publish_portfolio() in the database
-export const canUsePortfolio = hasActivePro;
+export const canUsePortfolio = (profile) =>
+  profile?.user_type === 'workshop' &&
+  ['active', 'trial'].includes(profile?.subscription_status);
