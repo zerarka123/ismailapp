@@ -39,7 +39,7 @@ export default function Sell() {
   }, []);
 
   useEffect(() => {
-    if (profile) setF((p) => ({ ...p, phone: p.phone || profile.phone || '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));
+    if (profile) setF((p) => ({ ...p, phone: p.phone  profile.phone  '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));
   }, [profile?.id]);
 
   useEffect(() => {
@@ -52,11 +52,13 @@ export default function Sell() {
 
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
-// Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
-  const isOwner = user?.email === 'alizerrarka@gmail.com';
+  // Active professional accounts (workshop / supplier / shop) & Owner account: no free limit + can post products & services
+  const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
-  const effectiveQuota = isOwner ? { limit: 999, used: 0 } : quota;
+  const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
+
+  function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
     if (t.length < 5 || t.length > 120) return 'العنوان بين 5 و120 حرفًا.';
@@ -67,7 +69,7 @@ export default function Sell() {
     }
     if (f.kind !== 'gear' && f.year) {
       const y = Number(f.year);
-      if (!Number.isInteger(y) || y < 1900 || y > YEAR + 1) return 'سنة الصنع غير صحيحة.';
+      if (!Number.isInteger(y)  y < 1900  y > YEAR + 1) return 'سنة الصنع غير صحيحة.';
     }
     if (!f.wilayaId) return 'اختر الولاية.';
     if (!PHONE_RE.test(cleanPhone(f.phone))) return 'رقم الهاتف غير صالح (أرقام فقط).';
@@ -100,7 +102,7 @@ export default function Sell() {
           price_dzd: f.price ? Number(f.price) : null,
           length_m: f.kind === 'boat' && f.length ? Number(f.length.replace(',', '.')) : null,
           year_built: !isGear && f.year ? Number(f.year) : null,
-          engine_info: !isGear ? f.engine.trim().slice(0, 200) || null : null,
+          engine_info: !isGear ? f.engine.trim().slice(0, 200) : null,
           wilaya_id: Number(f.wilayaId),
           place_text: f.place.trim().slice(0, 150) || null,
           condition: f.condition || null,
@@ -111,7 +113,7 @@ export default function Sell() {
       listingId = row.id;
 
       setStep('نرفع الصور…');
-      await uploadImages('listing-images', `${user.id}/${listingId}`, images.map((i) => i.blob), uploaded);
+      await uploadImages('listing-images', ${user.id}/${listingId}, images.map((i) => i.blob), uploaded);
       const { error: e2 } = await supabase.from('listing_images').insert(uploaded.map((p, i) => ({ listing_id: listingId, storage_path: p, sort_order: i })));
       if (e2) throw e2;
       const { error: e3 } = await supabase.from('listing_contacts').insert({ listing_id: listingId, phone: cleanPhone(f.phone), whatsapp: f.whatsapp ? cleanPhone(f.whatsapp) : null });
@@ -159,7 +161,8 @@ export default function Sell() {
         )}
         <div className="field"><label>{f.kind === 'gear' ? 'اسم المنتج أو الخدمة' : 'عنوان الإعلان'}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={TITLE_HINT[f.kind]} /></div>
         <div className="row2">
-          <div className="field"><label>السعر (دج)</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder="اتركه فارغًا للتفاهم" /></div>
+          <div className="field"><label>السعر (دج)</label><input className="input" inputMode="numeric" value={f.
+            price} onChange={set('price')} maxLength={12} placeholder="اتركه فارغًا للتفاهم" /></div>
           <div className="field"><label>الحالة</label>
             <select className="input" value={f.condition} onChange={set('condition')}>
               <option value="">غير محددة</option><option value="new">جديد</option><option value="used">مستعمل</option>
