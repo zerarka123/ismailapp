@@ -10,7 +10,27 @@ import ImagePicker from '../components/ImagePicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
 const YEAR = new Date().getFullYear();
+
+// Professional accounts with an active subscription (workshop / supplier / shop)
+const PRO_TYPES = ['workshop', 'supplier', 'shop'];
+const isActivePro = (p) =>
+  PRO_TYPES.includes(p?.user_type) &&
+  ['active', 'trial'].includes(p?.subscription_status) &&
+  (!p?.subscription_ends_at || new Date(p.subscription_ends_at) > new Date());
+
+const KNOWN_ERRORS = {
+  listing_limit_reached: 'وصلت إلى الحد الأقصى من الإعلانات النشطة.',
+  rate_limit: 'نشرت إعلانات كثيرة في وقت قصير. حاول بعد قليل.',
+  duplicate_listing: 'هذا الإعلان منشور عندك بالفعل. استعمل زر «رفع الإعلان للأعلى» بدل إعادة النشر.',
+  gear_pro_only: 'نشر المنتجات والخدمات متاح للمحلات والموردين والورشات الذين لديهم حساب محترف فعّال.',
+};
 const INIT = { kind: 'boat', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
+
+const TITLE_HINT = {
+  boat: 'مثال: قارب صيد 9 م بمحرك ياماها',
+  engine: 'مثال: محرك ياماها 40 حصان',
+  gear: 'مثال: مضخة مياه 12 فولت / خدمة طلاء بدن القارب',
+};
 
 export default function Sell() {
   const { user, profile } = useAuth();
@@ -43,7 +63,11 @@ export default function Sell() {
   }, [user?.id]);
 
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
-  const full = quota && quota.used >= quota.limit;
+
+  // Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
+  // The app owner (is_admin) and active professionals have no free limit
+  const isPro = !!profile?.is_admin || isActivePro(profile);
+  const full = !isPro && quota && quota.used >= quota.limit;
 
   function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
@@ -54,7 +78,7 @@ export default function Sell() {
       const n = Number(f.length.replace(',', '.'));
       if (!(n >= 1 && n <= 400)) return 'الطول بين 1 و400 متر.';
     }
-    if (f.year) {
+    if (f.kind !== 'gear' && f.year) {
       const y = Number(f.year);
       if (!Number.isInteger(y) || y < 1900 || y > YEAR + 1) return 'سنة الصنع غير صحيحة.';
     }
@@ -76,6 +100,7 @@ export default function Sell() {
     try {
       setStep('ننشر الإعلان…');
       const sellerName = profile?.full_name?.trim().length >= 2 ? profile.full_name.trim().slice(0, 80) : 'بائع';
+      const isGear = f.kind === 'gear';
       const { data: row, error } = await supabase
         .from('listings')
         .insert({
@@ -87,8 +112,8 @@ export default function Sell() {
           description: f.description.trim().slice(0, 4000),
           price_dzd: f.price ? Number(f.price) : null,
           length_m: f.kind === 'boat' && f.length ? Number(f.length.replace(',', '.')) : null,
-          year_built: f.year ? Number(f.year) : null,
-          engine_info: f.engine.trim().slice(0, 200) || null,
+          year_built: !isGear && f.year ? Number(f.year) : null,
+          engine_info: !isGear ? f.engine.trim().slice(0, 200) || null : null,
           wilaya_id: Number(f.wilayaId),
           place_text: f.place.trim().slice(0, 150) || null,
           condition: f.condition || null,
@@ -109,7 +134,9 @@ export default function Sell() {
       // undo everything so no half-published listing remains
       if (uploaded.length) await removeFiles('listing-images', uploaded);
       if (listingId) await supabase.from('listings').delete().eq('id', listingId);
-      setMsg({ type: 'err', text: arabicError(err) });
+      const raw = err?.message || '';
+      const key = Object.keys(KNOWN_ERRORS).find((k) => raw.includes(k));
+      setMsg({ type: 'err', text: key ? KNOWN_ERRORS[key] : arabicError(err) });
       setBusy(false);
       setStep('');
     }
@@ -118,12 +145,15 @@ export default function Sell() {
   return (
     <>
       <div className="topbar"><h2>أضف إعلانًا</h2></div>
-      {quota && <p className={`msg ${full ? 'err' : 'info'}`}>إعلاناتك النشطة: {quota.used} من {quota.limit}.{full && ' لا يمكنك نشر إعلان جديد قبل إنهاء أحدها.'} <Link to="/my-listings" className="linkbtn">إدارة إعلاناتي</Link></p>}
+      {quota && !isPro && <p className={`msg ${full ? 'err' : 'info'}`}>إعلاناتك النشطة: {quota.used} من {quota.limit}.{full && ' لا يمكنك نشر إعلان جديد قبل إنهاء أحدها.'} <Link to="/my-listings" className="linkbtn">إدارة إعلاناتي</Link></p>}
 
       <form onSubmit={submit} noValidate>
         <div className="seg">
           <button type="button" className={`btn ${f.kind === 'boat' ? '' : 'alt'} sm`} onClick={() => setF({ ...f, kind: 'boat' })}>قارب / سفينة</button>
           <button type="button" className={`btn ${f.kind === 'engine' ? '' : 'alt'} sm`} onClick={() => setF({ ...f, kind: 'engine' })}>محرك</button>
+          {isPro && (
+            <button type="button" className={`btn ${f.kind === 'gear' ? '' : 'alt'} sm`} onClick={() => setF({ ...f, kind: 'gear' })}>منتج / خدمة</button>
+          )}
         </div>
 
         <div className="section-title">الصور</div>
@@ -138,7 +168,7 @@ export default function Sell() {
             </select>
           </div>
         )}
-        <div className="field"><label>عنوان الإعلان</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={f.kind === 'boat' ? 'مثال: قارب صيد 9 م بمحرك ياماها' : 'مثال: محرك ياماها 40 حصان'} /></div>
+        <div className="field"><label>{f.kind === 'gear' ? 'اسم المنتج أو الخدمة' : 'عنوان الإعلان'}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={TITLE_HINT[f.kind]} /></div>
         <div className="row2">
           <div className="field"><label>السعر (دج)</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder="اتركه فارغًا للتفاهم" /></div>
           <div className="field"><label>الحالة</label>
@@ -147,11 +177,15 @@ export default function Sell() {
             </select>
           </div>
         </div>
-        <div className="row2">
-          {f.kind === 'boat' && <div className="field"><label>الطول (م)</label><input className="input" inputMode="decimal" value={f.length} onChange={set('length')} maxLength={6} /></div>}
-          <div className="field"><label>سنة الصنع</label><input className="input" inputMode="numeric" value={f.year} onChange={set('year')} maxLength={4} /></div>
-        </div>
-        <div className="field"><label>المحرك</label><input className="input" value={f.engine} onChange={set('engine')} maxLength={200} placeholder="مثال: YAMAHA 40 حصان" /></div>
+        {f.kind !== 'gear' && (
+          <div className="row2">
+            {f.kind === 'boat' && <div className="field"><label>الطول (م)</label><input className="input" inputMode="decimal" value={f.length} onChange={set('length')} maxLength={6} /></div>}
+            <div className="field"><label>سنة الصنع</label><input className="input" inputMode="numeric" value={f.year} onChange={set('year')} maxLength={4} /></div>
+          </div>
+        )}
+        {f.kind !== 'gear' && (
+          <div className="field"><label>المحرك</label><input className="input" value={f.engine} onChange={set('engine')} maxLength={200} placeholder="مثال: YAMAHA 40 حصان" /></div>
+        )}
         <div className="row2">
           <div className="field"><label>الولاية</label>
             <select className="input" value={f.wilayaId} onChange={set('wilayaId')}>
