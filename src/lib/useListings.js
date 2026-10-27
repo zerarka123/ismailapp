@@ -4,9 +4,10 @@ import { PAGE_SIZE } from '../config';
 import { likeEscape } from './format';
 
 export const LISTING_SELECT =
-  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, expires_at, status, wilayas(name_ar), boat_types(name_ar), listing_images(storage_path, sort_order)';
+  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, bumped_at, expires_at, status, seller_id, seller_name, profiles(user_type, is_verified), wilayas(name_ar), boat_types(name_ar), listing_images(storage_path, sort_order)';
 
-// Paged list of visible listings. filters: { q, typeId, kind, wilayaId, minPrice, maxPrice, ids }
+// Paged list of visible listings.
+// filters: { q, typeId, kind, wilayaId, minPrice, maxPrice, ids, sellerId, excludeKind }
 export function useListings(filters) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,15 +33,17 @@ export function useListings(filters) {
         .select(LISTING_SELECT)
         .eq('status', 'published')
         .gt('expires_at', new Date().toISOString())
-        .order('published_at', { ascending: false })
+        .order('bumped_at', { ascending: false })
         .range(page.current * PAGE_SIZE, page.current * PAGE_SIZE + PAGE_SIZE - 1);
       if (f.q) q = q.ilike('title', `%${likeEscape(f.q)}%`);
       if (f.kind) q = q.eq('kind', f.kind);
+      if (f.excludeKind) q = q.neq('kind', f.excludeKind);
       if (f.typeId) q = q.eq('boat_type_id', f.typeId);
       if (f.wilayaId) q = q.eq('wilaya_id', f.wilayaId);
       if (f.minPrice) q = q.gte('price_dzd', f.minPrice);
       if (f.maxPrice) q = q.lte('price_dzd', f.maxPrice);
       if (f.ids) q = q.in('id', f.ids);
+      if (f.sellerId) q = q.eq('seller_id', f.sellerId);
       const { data, error: err } = await q;
       if (err) {
         setError(true);
