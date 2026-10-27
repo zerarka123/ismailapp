@@ -65,8 +65,6 @@ export default function Sell() {
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
 
   function validate() {
-
-  function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
     if (t.length < 5 || t.length > 120) return 'العنوان بين 5 و120 حرفًا.';
