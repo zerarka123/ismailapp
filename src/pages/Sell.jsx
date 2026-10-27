@@ -52,13 +52,11 @@ export default function Sell() {
 
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
-  // Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
-const isOwner = user?.email === 'alizerrarka@gmail.com';
+ // Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
+  const isOwner = user?.email === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
-  // فرض حصوة وهمية بلا حدود للمالك لتخطي أي قيد في النشر
   const effectiveQuota = isOwner ? { limit: 999, used: 0 } : quota;
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
-  const full = !isPro && quota && quota.used >= quota.limit;
   function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
