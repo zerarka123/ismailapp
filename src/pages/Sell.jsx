@@ -61,7 +61,7 @@ export default function Sell() {
 // Active professional accounts & Owner account: no free limit + can post products & services
   const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
-  const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
+const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
 
   function validate() {
