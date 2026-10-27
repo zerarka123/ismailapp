@@ -15,7 +15,7 @@ export default function ListingCard({ item }) {
   const faved = ids.has(item.id);
   const sub = [
     item.length_m ? `${Number(item.length_m)} م` : null,
-    item.boat_types?.name_ar || (item.kind === 'engine' ? 'محرك' : null),
+    item.boat_types?.name_ar || (item.kind === 'engine' ? 'محرك' : item.kind === 'gear' ? 'منتج / خدمة' : null),
     item.year_built,
     CONDITIONS[item.condition],
   ].filter(Boolean).join(' · ');
