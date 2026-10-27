@@ -4,7 +4,7 @@ import { PAGE_SIZE } from '../config';
 import { likeEscape } from './format';
 
 export const LISTING_SELECT =
-  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, bumped_at, expires_at, status, seller_id, seller_name, profiles(user_type, is_verified), wilayas(name_ar), boat_types!left(name_ar), listing_images(storage_path, sort_order)';
+  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, bumped_at, expires_at, status, seller_id, seller_name, profiles!listings_seller_id_fkey(user_type, is_verified), wilayas(name_ar), boat_types!left(name_ar), listing_images(storage_path, sort_order)';
 
 // Paged list of visible listings.
 // filters: { q, typeId, kind, wilayaId, minPrice, maxPrice, ids, sellerId, excludeKind }
