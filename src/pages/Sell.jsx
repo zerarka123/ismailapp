@@ -53,9 +53,9 @@ export default function Sell() {
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
   // Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
-  const isPro = hasActivePro(profile);
+const isOwner = user?.email === 'alizerrarka@gmail.com';
+  const isPro = hasActivePro(profile) || isOwner;
   const full = !isPro && quota && quota.used >= quota.limit;
-
   function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
