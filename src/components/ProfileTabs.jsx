@@ -34,10 +34,11 @@ function Empty({ children }) {
   return <p style={{ textAlign: 'center', color: C.muted, padding: '40px 16px', fontSize: 15 }}>{children}</p>;
 }
 
-function Products({ ownerId, mine }) {
-  const { items, loading, error, done, more, reload } = useListings({ sellerId: ownerId });
+function Products({ ownerId, mine, excludeKind }) {
+  const { items, loading, error, done, more, reload } = useListings({ sellerId: ownerId, excludeKind });
   if (error) return <Empty>تعذّر تحميل الإعلانات. تحقق من اتصالك وحاول مرة أخرى.</Empty>;
-  if (!loading && items.length === 0) return <Empty>لا توجد إعلانات منشورة بعد.</Empty>;
+  if (!loading && items.length === 0)
+    return <Empty>{excludeKind ? 'لا توجد منتجات أو خدمات منشورة بعد.' : 'لا توجد إعلانات منشورة بعد.'}</Empty>;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18, padding: '16px 0' }}>
       {items.map((it) => (
@@ -126,9 +127,10 @@ function Portfolio({ ownerId, mine }) {
   );
 }
 
-// Tabs shown on a seller's page: products/services (+ work portfolio for professionals)
-// Usage: <ProfileTabs ownerId={profileId} showPortfolio />
-export default function ProfileTabs({ ownerId, showPortfolio = false }) {
+// Tabs shown on a seller's page: products/services (+ work portfolio for workshops)
+// excludeKind="boat": boat-sale ads are NOT listed on a professional's page (home only)
+// Usage: <ProfileTabs ownerId={profileId} showPortfolio excludeKind="boat" />
+export default function ProfileTabs({ ownerId, showPortfolio = false, excludeKind }) {
   const { user } = useAuth();
   const mine = !!user && user.id === ownerId;
   const [tab, setTab] = useState('products');
@@ -145,7 +147,11 @@ export default function ProfileTabs({ ownerId, showPortfolio = false }) {
           </button>
         )}
       </div>
-      {tab === 'portfolio' && showPortfolio ? <Portfolio ownerId={ownerId} mine={mine} /> : <Products ownerId={ownerId} mine={mine} />}
+      {tab === 'portfolio' && showPortfolio ? (
+        <Portfolio ownerId={ownerId} mine={mine} />
+      ) : (
+        <Products ownerId={ownerId} mine={mine} excludeKind={excludeKind} />
+      )}
     </div>
   );
 }
