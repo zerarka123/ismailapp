@@ -6,24 +6,12 @@ import { arabicError } from '../errors';
 import { MAX_IMAGES } from '../config';
 import { PHONE_RE, cleanPhone } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
+import { hasActivePro } from '../lib/accountTypes';
+import { arabicError as marsaError } from '../lib/marsaErrors';
 import ImagePicker from '../components/ImagePicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
 const YEAR = new Date().getFullYear();
-
-// Professional accounts with an active subscription (workshop / supplier / shop)
-const PRO_TYPES = ['workshop', 'supplier', 'shop'];
-const isActivePro = (p) =>
-  PRO_TYPES.includes(p?.user_type) &&
-  ['active', 'trial'].includes(p?.subscription_status) &&
-  (!p?.subscription_ends_at || new Date(p.subscription_ends_at) > new Date());
-
-const KNOWN_ERRORS = {
-  listing_limit_reached: 'وصلت إلى الحد الأقصى من الإعلانات النشطة.',
-  rate_limit: 'نشرت إعلانات كثيرة في وقت قصير. حاول بعد قليل.',
-  duplicate_listing: 'هذا الإعلان منشور عندك بالفعل. استعمل زر «رفع الإعلان للأعلى» بدل إعادة النشر.',
-  gear_pro_only: 'نشر المنتجات والخدمات متاح للمحلات والموردين والورشات الذين لديهم حساب محترف فعّال.',
-};
 const INIT = { kind: 'boat', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
 
 const TITLE_HINT = {
@@ -65,8 +53,7 @@ export default function Sell() {
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
   // Active professional accounts (workshop / supplier / shop): no free limit + can post products & services
-  // The app owner (is_admin) and active professionals have no free limit
-  const isPro = !!profile?.is_admin || isActivePro(profile);
+  const isPro = hasActivePro(profile);
   const full = !isPro && quota && quota.used >= quota.limit;
 
   function validate() {
@@ -135,8 +122,10 @@ export default function Sell() {
       if (uploaded.length) await removeFiles('listing-images', uploaded);
       if (listingId) await supabase.from('listings').delete().eq('id', listingId);
       const raw = err?.message || '';
-      const key = Object.keys(KNOWN_ERRORS).find((k) => raw.includes(k));
-      setMsg({ type: 'err', text: key ? KNOWN_ERRORS[key] : arabicError(err) });
+      const known = raw.includes('gear_pro_only')
+        ? 'نشر المنتجات والخدمات متاح للمحلات والموردين والورشات الذين لديهم حساب محترف فعّال.'
+        : marsaError(err, '');
+      setMsg({ type: 'err', text: known || arabicError(err) });
       setBusy(false);
       setStep('');
     }
