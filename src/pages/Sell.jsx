@@ -42,7 +42,7 @@ export default function Sell() {
     if (profile) {
       setF((p) => ({
         ...p,
-        phone: p.phone  profile.phone  '',
+        phone: p.phone || profile.phone || '',
         wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : ''),
       }));
     }
@@ -58,24 +58,24 @@ export default function Sell() {
 
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
-// Active professional accounts & Owner account: no free limit + can post products & services
-const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
+  // Owner account + active professional accounts: no free limit, and can post products & services
+  const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
-  const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : quota;
-  const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
+  const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
+  const full = !isPro && effectiveQuota.used >= effectiveQuota.limit;
 
   function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
     if (t.length < 5 || t.length > 120) return 'العنوان بين 5 و120 حرفًا.';
-   if (f.price && (isNaN(f.price) || Number(f.price) <= 0)) return 'السعر أرقام فقط وأكبر من صفر.';
+    if (f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return 'السعر أرقام فقط وأكبر من صفر.';
     if (f.kind === 'boat' && f.length) {
       const n = Number(f.length.replace(',', '.'));
       if (!(n >= 1 && n <= 400)) return 'الطول بين 1 و400 متر.';
     }
     if (f.kind !== 'gear' && f.year) {
       const y = Number(f.year);
-      if (!Number.isInteger(y)  y < 1900  y > YEAR + 1) return 'سنة الصنع غير صحيحة.';
+      if (!Number.isInteger(y) || y < 1900 || y > YEAR + 1) return 'سنة الصنع غير صحيحة.';
     }
     if (!f.wilayaId) return 'اختر الولاية.';
     if (!PHONE_RE.test(cleanPhone(f.phone))) return 'رقم الهاتف غير صالح (أرقام فقط).';
@@ -119,7 +119,7 @@ const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
       listingId = row.id;
 
       setStep('نرفع الصور…');
-      await uploadImages('listing-images', ${user.id}/${listingId}, images.map((i) => i.blob), uploaded);
+      await uploadImages('listing-images', `${user.id}/${listingId}`, images.map((i) => i.blob), uploaded);
       const { error: e2 } = await supabase.from('listing_images').insert(uploaded.map((p, i) => ({ listing_id: listingId, storage_path: p, sort_order: i })));
       if (e2) throw e2;
       const { error: e3 } = await supabase.from('listing_contacts').insert({ listing_id: listingId, phone: cleanPhone(f.phone), whatsapp: f.whatsapp ? cleanPhone(f.whatsapp) : null });
@@ -167,8 +167,7 @@ const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
         )}
         <div className="field"><label>{f.kind === 'gear' ? 'اسم المنتج أو الخدمة' : 'عنوان الإعلان'}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={TITLE_HINT[f.kind]} /></div>
         <div className="row2">
-          <div className="field"><label>السعر (دج)</label><input className="input" inputMode="numeric" value={f.
-            price} onChange={set('price')} maxLength={12} placeholder="اتركه فارغًا للتفاهم" /></div>
+          <div className="field"><label>السعر (دج)</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder="اتركه فارغًا للتفاهم" /></div>
           <div className="field"><label>الحالة</label>
             <select className="input" value={f.condition} onChange={set('condition')}>
               <option value="">غير محددة</option><option value="new">جديد</option><option value="used">مستعمل</option>
