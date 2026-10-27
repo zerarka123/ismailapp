@@ -4,7 +4,7 @@ import { PAGE_SIZE } from '../config';
 import { likeEscape } from './format';
 
 export const LISTING_SELECT =
-  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, bumped_at, expires_at, status, seller_id, seller_name, profiles(user_type, is_verified), wilayas(name_ar), boat_types(name_ar), listing_images(storage_path, sort_order)';
+  'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, published_at, bumped_at, expires_at, status, seller_id, seller_name, profiles(user_type, is_verified), wilayas(name_ar), boat_types!left(name_ar), listing_images(storage_path, sort_order)';
 
 // Paged list of visible listings.
 // filters: { q, typeId, kind, wilayaId, minPrice, maxPrice, ids, sellerId, excludeKind }
@@ -35,6 +35,7 @@ export function useListings(filters) {
         .gt('expires_at', new Date().toISOString())
         .order('bumped_at', { ascending: false })
         .range(page.current * PAGE_SIZE, page.current * PAGE_SIZE + PAGE_SIZE - 1);
+
       if (f.q) q = q.ilike('title', `%${likeEscape(f.q)}%`);
       if (f.kind) q = q.eq('kind', f.kind);
       if (f.excludeKind) q = q.neq('kind', f.excludeKind);
@@ -44,8 +45,10 @@ export function useListings(filters) {
       if (f.maxPrice) q = q.lte('price_dzd', f.maxPrice);
       if (f.ids) q = q.in('id', f.ids);
       if (f.sellerId) q = q.eq('seller_id', f.sellerId);
+
       const { data, error: err } = await q;
       if (err) {
+        console.error('Supabase fetch error:', err);
         setError(true);
         setLoading(false);
         return;
