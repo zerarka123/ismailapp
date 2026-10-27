@@ -39,7 +39,13 @@ export default function Sell() {
   }, []);
 
   useEffect(() => {
-    if (profile) setF((p) => ({ ...p, phone: p.phone  profile.phone  '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));
+    if (profile) {
+      setF((p) => ({
+        ...p,
+        phone: p.phone  profile.phone  '',
+        wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : ''),
+      }));
+    }
   }, [profile?.id]);
 
   useEffect(() => {
@@ -52,10 +58,11 @@ export default function Sell() {
 
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
-  // Active professional accounts (workshop / supplier / shop) & Owner account: no free limit + can post products & services
+  // Active professional accounts & Owner account: no free limit + can post products & services
   const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
   const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
+  const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
 
   function validate() {
