@@ -59,16 +59,16 @@ export default function Sell() {
   if (!user) return <NeedLogin text="سجّل الدخول لتنشر إعلانك." />;
 
 // Active professional accounts & Owner account: no free limit + can post products & services
-  const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
+const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = hasActivePro(profile) || isOwner;
-const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
+  const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : quota;
   const full = !isPro && effectiveQuota && effectiveQuota.used >= effectiveQuota.limit;
 
   function validate() {
     if (f.kind === 'boat' && !f.typeId) return 'اختر نوع القارب.';
     const t = f.title.trim();
     if (t.length < 5 || t.length > 120) return 'العنوان بين 5 و120 حرفًا.';
-    if (f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return 'السعر أرقام فقط وأكبر من صفر.';
+   if (f.price && (isNaN(f.price) || Number(f.price) <= 0)) return 'السعر أرقام فقط وأكبر من صفر.';
     if (f.kind === 'boat' && f.length) {
       const n = Number(f.length.replace(',', '.'));
       if (!(n >= 1 && n <= 400)) return 'الطول بين 1 و400 متر.';
