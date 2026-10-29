@@ -23,6 +23,7 @@ import PostJob from './pages/PostJob.jsx';
 import UserProfile from './pages/UserProfile.jsx';
   import PortfolioManage from './components/PortfolioManage.jsx';
 import AdminBadges from './pages/AdminBadges.jsx';
+import InstallPrompt from './components/InstallPrompt.jsx';
 
 function Shell() {
   const { loading, recovery, user } = useAuth();
@@ -38,6 +39,7 @@ function Shell() {
 
   return (
     <div className="app">
+       <InstallPrompt />
       <main className={isLogin ? '' : 'page'}>
         <Routes>
           <Route path="/" element={<Home />} />
