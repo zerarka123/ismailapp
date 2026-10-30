@@ -416,6 +416,12 @@ export const MESSAGES = {
   'notif.new_work': ['📸 أعمال جديدة من {business}', '📸 Nouvelles réalisations de {business}', '📸 New work from {business}'],
   'notif.generic': ['إشعار جديد', 'Nouvelle notification', 'New notification'],
 
+  // share
+  'share.button': ['مشاركة', 'Partager', 'Share'],
+  'share.text': ['شاهد «{title}» على مرسى', 'Voir « {title} » sur Marsa', 'See “{title}” on Marsa'],
+  'share.copy': ['نسخ الرابط', 'Copier le lien', 'Copy link'],
+  'share.copied': ['تم النسخ', 'Copié', 'Copied'],
+
   // admin
   'admin.title': ['لوحة الإدارة', 'Administration', 'Admin panel'],
   'admin.tab_pros': ['الأنشطة', 'Activités', 'Businesses'],

@@ -12,6 +12,7 @@ import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ProfileTabs from '../components/ProfileTabs.jsx';
+import ShareButton from '../components/ShareButton.jsx';
 
 const SELECT =
   'id, owner_id, pro_type, badge_verified, business_name, description, address, latitude, longitude, status, subscription_ends_at, wilayas(*), guide_categories(*), professional_images(storage_path, sort_order)';
@@ -102,6 +103,7 @@ export default function ProDetail() {
     <>
       <div className="detail-top">
         <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <ShareButton path={here} title={item.business_name} solo />
         <Carousel urls={urls} />
       </div>
       <div className="sheet">
