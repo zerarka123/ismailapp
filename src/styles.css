@@ -241,3 +241,7 @@ input[dir='ltr'] { text-align: start; }
 .share-target.tg { background: #229ed9; }
 .share-link { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .share-link .input { height: 44px; font-size: 13px; }
+
+/* new version banner */
+.update-banner { position: fixed; top: calc(10px + var(--sat)); inset-inline: 12px; max-width: 456px; margin: 0 auto; z-index: 1150; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--ink); color: #fff; border-radius: 18px; padding: 10px 12px 10px 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); font-size: 14px; font-weight: 600; }
+.update-banner .btn.sm { flex: none; background: var(--sand); color: var(--sand-ink); }

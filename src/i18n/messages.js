@@ -416,6 +416,10 @@ export const MESSAGES = {
   'notif.new_work': ['📸 أعمال جديدة من {business}', '📸 Nouvelles réalisations de {business}', '📸 New work from {business}'],
   'notif.generic': ['إشعار جديد', 'Nouvelle notification', 'New notification'],
 
+  // app update
+  'update.available': ['يتوفر تحديث جديد لمرسى.', 'Une nouvelle version de Marsa est disponible.', 'A new version of Marsa is available.'],
+  'update.now': ['تحديث الآن', 'Mettre à jour', 'Update now'],
+
   // share
   'share.button': ['مشاركة', 'Partager', 'Share'],
   'share.text': ['شاهد «{title}» على مرسى', 'Voir « {title} » sur Marsa', 'See “{title}” on Marsa'],

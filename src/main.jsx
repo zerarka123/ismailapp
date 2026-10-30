@@ -4,7 +4,8 @@ import '@fontsource/cairo/400.css';
 import '@fontsource/cairo/600.css';
 import '@fontsource/cairo/800.css';
 import App from './App.jsx';
-import './styles.css'; 
+import './styles.css';
+import { startAppUpdates } from './lib/appUpdate';
 
 window.__bip = null;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -12,6 +13,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
   window.__bip = e;
   window.dispatchEvent(new Event('bip-ready'));
 });
+startAppUpdates();
+
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

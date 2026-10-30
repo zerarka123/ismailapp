@@ -6,10 +6,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      // the new version installs itself; src/lib/appUpdate.js registers it and reloads the app onto it
       registerType: 'autoUpdate',
+      injectRegister: false,
       includeAssets: ['icon-192.png', 'icon-512.png'],
       // notification click handling for web notifications (public/sw-notify.js)
-      workbox: { importScripts: ['sw-notify.js'], navigateFallbackDenylist: [/^\/(privacy|terms|delete-account|support)\.html$/] },
+      workbox: { cleanupOutdatedCaches: true, clientsClaim: true, skipWaiting: true, importScripts: ['sw-notify.js'], navigateFallbackDenylist: [/^\/(privacy|terms|delete-account|support)\.html$/] },
       manifest: {
         name: 'Marsa',
         short_name: 'Marsa',

@@ -27,6 +27,7 @@ import Support from './pages/Support.jsx';
 import Notifications from './pages/Notifications.jsx';
 import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
+import UpdateBanner from './components/UpdateBanner.jsx';
 
 function Shell() {
   const { loading, recovery, user } = useAuth();
@@ -44,6 +45,7 @@ function Shell() {
   return (
     <div className="app">
       <InstallPrompt />
+      <UpdateBanner />
       <main className={isLogin ? '' : 'page'}>
         <Routes>
           <Route path="/" element={<Home />} />
