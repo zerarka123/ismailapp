@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useI18n } from '../i18n/index.jsx';
 
-// يظهر زر التثبيت فقط عندما يأتي الزائر من الموقع برابط ?install=1
+// The install button only shows when the visitor arrives with ?install=1
 export default function InstallPrompt() {
+  const { t } = useI18n();
   const [ready, setReady] = useState(!!window.__bip);
   const [done, setDone] = useState(false);
   const wanted = new URLSearchParams(location.search).get('install') === '1';
@@ -31,7 +33,7 @@ export default function InstallPrompt() {
 
   return (
     <div style={{ position: 'fixed', insetInline: 16, bottom: 'calc(16px + var(--sab))', zIndex: 50 }}>
-      <button className="btn sand" onClick={install}>📲 ثبّت تطبيق مرسى</button>
+      <button className="btn sand" onClick={install}>📲 {t('install.button')}</button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../i18n/index.jsx';
 
 const overlay = {
   position: 'fixed',
@@ -41,7 +42,7 @@ const optionBtn = {
   display: 'flex',
   alignItems: 'center',
   gap: 12,
-  textAlign: 'right',
+  textAlign: 'start',
   padding: 14,
   marginBottom: 10,
   borderRadius: 12,
@@ -53,37 +54,38 @@ const optionBtn = {
 };
 
 const OPTIONS = [
-  { route: '/post/boat-sale', icon: '🚤', title: 'بيع قاربك', desc: 'سفن، قوارب صيد، ومعدات بحرية' },
-  { route: '/post/job-offer', icon: '💼', title: 'عرض عمل (أصحاب العمل)', desc: 'خاص بملاك السفن، الورش، ومحلات قطع الغيار' },
-  { route: '/post/job-request', icon: '🧑‍🔧', title: 'طلب عمل (الباحثين عن عمل)', desc: 'خاص بالحرفيين والصيادين والميكانيكيين' },
+  { route: '/post/boat-sale', icon: '🚤', key: 'sell' },
+  { route: '/post/job-offer', icon: '💼', key: 'job_offer' },
+  { route: '/post/job-request', icon: '🧑‍🔧', key: 'job_request' },
 ];
 
 const JobTypeSelectorModal = ({ isOpen, onClose, isAuthenticated, onNavigate }) => {
+  const { t } = useI18n();
   if (!isOpen) return null;
 
   const handleOptionClick = (route) => {
     onClose();
     if (!isAuthenticated) {
-      onNavigate('/login');
+      onNavigate(`/login?next=${encodeURIComponent(route)}`);
     } else {
       onNavigate(route);
     }
   };
 
   return (
-    <div style={overlay} dir="rtl" onClick={onClose}>
+    <div style={overlay} onClick={onClose}>
       <div style={box} onClick={(e) => e.stopPropagation()}>
         <div style={header}>
-          <h3 style={{ margin: 0, fontSize: 20 }}>ماذا تريد أن تنشر اليوم؟</h3>
-          <button style={closeBtn} onClick={onClose}>&times;</button>
+          <h3 style={{ margin: 0, fontSize: 20 }}>{t('post.what')}</h3>
+          <button style={closeBtn} onClick={onClose} aria-label={t('common.close')}>&times;</button>
         </div>
 
         {OPTIONS.map((o) => (
           <button key={o.route} style={optionBtn} onClick={() => handleOptionClick(o.route)}>
             <span style={{ fontSize: 28 }}>{o.icon}</span>
             <div>
-              <div style={{ fontWeight: 'bold', color: '#fbbf24' }}>{o.title}</div>
-              <div style={{ fontSize: 12, color: '#cbd5e1' }}>{o.desc}</div>
+              <div style={{ fontWeight: 'bold', color: '#fbbf24' }}>{t(`post.${o.key}`)}</div>
+              <div style={{ fontSize: 12, color: '#cbd5e1' }}>{t(`post.${o.key}_desc`)}</div>
             </div>
           </button>
         ))}

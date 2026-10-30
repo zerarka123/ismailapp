@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from './Icon.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 // Full-screen photo viewer: swipe between photos, zoom button / double-tap, Android back button closes it.
-function Lightbox({ urls, start, onClose }) {
+export function Lightbox({ urls, start, onClose }) {
+  const { t } = useI18n();
   const row = useRef(null);
   const [i, setI] = useState(start);
   const [zoom, setZoom] = useState(false);
@@ -47,16 +49,16 @@ function Lightbox({ urls, start, onClose }) {
   };
 
   return (
-    <div className="lb" role="dialog" aria-modal="true" aria-label="عرض الصور">
+    <div className="lb" role="dialog" aria-modal="true" aria-label={t('photos.viewer')}>
       <div className="lb-top">
-        <button className="lb-btn" onClick={close} aria-label="إغلاق"><Icon name="x" /></button>
+        <button className="lb-btn" onClick={close} aria-label={t('common.close')}><Icon name="x" /></button>
         <span className="lb-count" dir="ltr">{i + 1} / {urls.length}</span>
-        <button className="lb-btn" onClick={() => setZoom((z) => !z)} aria-label={zoom ? 'تصغير' : 'تكبير'}><Icon name={zoom ? 'zoomout' : 'zoom'} /></button>
+        <button className="lb-btn" onClick={() => setZoom((z) => !z)} aria-label={zoom ? t('photos.zoom_out') : t('photos.zoom_in')}><Icon name={zoom ? 'zoomout' : 'zoom'} /></button>
       </div>
       <div className={`lb-row${zoom ? ' locked' : ''}`} ref={row} onScroll={onScroll}>
         {urls.map((u, n) => (
           <div key={`${n}-${u}`} className={`lb-slide${zoom && n === i ? ' zoomed' : ''}`}>
-            <img src={u} alt={`صورة ${n + 1}`} draggable={false} onDoubleClick={() => setZoom((z) => !z)} />
+            <img src={u} alt={t('photos.n', { n: n + 1 })} draggable={false} onDoubleClick={() => setZoom((z) => !z)} />
           </div>
         ))}
       </div>
@@ -65,6 +67,7 @@ function Lightbox({ urls, start, onClose }) {
 }
 
 export default function Carousel({ urls }) {
+  const { t } = useI18n();
   const [i, setI] = useState(0);
   const [open, setOpen] = useState(null);
   if (!urls.length) return <div className="car-empty" />;
@@ -75,7 +78,7 @@ export default function Carousel({ urls }) {
         onScroll={(e) => setI(Math.round(Math.abs(e.currentTarget.scrollLeft) / e.currentTarget.clientWidth))}
       >
         {urls.map((u, n) => (
-          <img key={`${n}-${u}`} src={u} alt={`صورة ${n + 1}`} loading="lazy" onClick={() => setOpen(n)} />
+          <img key={`${n}-${u}`} src={u} alt={t('photos.n', { n: n + 1 })} loading="lazy" onClick={() => setOpen(n)} />
         ))}
       </div>
       {urls.length > 1 && <span className="car-count" dir="ltr">{Math.min(i + 1, urls.length)} / {urls.length}</span>}

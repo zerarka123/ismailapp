@@ -1,42 +1,50 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
+import { useI18n } from '../i18n/index.jsx';
+import { categoryName } from '../i18n/names.js';
 import Icon from '../components/Icon.jsx';
 
-const TITLES = { marine: 'الدليل البحري', fisher: 'دليل الصياد' };
-const ICONS = { shipyards: 'anchor', parts_suppliers: 'store', naval_mechanics: 'boat', naval_electrics: 'compass', gear_shops: 'store', fishing_trips: 'fish', jobs: 'user' };
+const SECTIONS = ['marine', 'fisher'];
+export const BRANCH_ICONS = {
+  shipyards: 'anchor', parts_suppliers: 'store', naval_mechanics: 'boat', naval_electrics: 'compass', gear_shops: 'store',
+  fishing_trips: 'fish', jobs: 'user', inox_workshops: 'shield', wood_workshops: 'anchor', cold_rooms: 'store',
+};
 
+// A guide = list of branches. Each branch shows the accounts (workshops, craftsmen, cold rooms…) registered in it.
 export default function GuideSection() {
   const { section } = useParams();
   const nav = useNavigate();
+  const { t } = useI18n();
   const [items, setItems] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!TITLES[section]) return;
+    if (!SECTIONS.includes(section)) return;
     setItems(null);
-    supabase.from('guide_categories').select('id, slug, name_ar').eq('section', section).order('sort_order').then(({ data, error: e }) => {
+    supabase.from('guide_categories').select('*').eq('section', section).order('sort_order').then(({ data, error: e }) => {
       if (e) setError(true);
       else setItems(data);
     });
   }, [section]);
 
-  if (!TITLES[section]) return <Navigate to="/" replace />;
+  if (!SECTIONS.includes(section)) return <Navigate to="/" replace />;
 
   return (
     <>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label="رجوع"><Icon name="back" /></button>
-        <h2>{TITLES[section]}</h2>
+        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <h2>{t(`guide.${section}`)}</h2>
       </div>
-      {error && <p className="msg err">تعذّر تحميل القائمة. تحقق من الاتصال وأعد المحاولة.</p>}
-      {!items && !error && <p className="muted center">جارٍ التحميل…</p>}
+      <p className="muted">{t(`guide.${section}_intro`)}</p>
+      {error && <p className="msg err">{t('guide.load_failed')}</p>}
+      {!items && !error && <p className="muted center">{t('common.loading')}</p>}
       <div className="menu">
         {items?.map((c) => (
-          <Link key={c.id} to={`/guide/${section}/${c.slug}`}><Icon name={ICONS[c.slug] || 'pin'} color="#0A6EB4" />{c.name_ar}</Link>
+          <Link key={c.id} to={`/guide/${section}/${c.slug}`}><Icon name={BRANCH_ICONS[c.slug] || 'pin'} color="#0A6EB4" />{categoryName(c)}</Link>
         ))}
       </div>
-      <Link to="/register-business" className="btn sand" style={{ marginTop: 18 }}><Icon name="plus" />سجّل نشاطك</Link>
+      <Link to="/register-business" className="btn sand" style={{ marginTop: 18 }}><Icon name="plus" />{t('guide.register')}</Link>
     </>
   );
 }

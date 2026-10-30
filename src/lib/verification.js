@@ -1,19 +1,20 @@
 import { supabase } from '../supabase';
+import { t } from '../i18n/index.jsx';
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 3;
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
 // Uploads documents to the private bucket, then marks the profile as "pending".
-// Throws an Error with an Arabic message when something is wrong.
+// Throws an Error with a translated message when something is wrong.
 export async function submitVerification(userId, files) {
   const list = Array.from(files || []);
-  if (list.length === 0) throw new Error('اختر وثيقة واحدة على الأقل.');
-  if (list.length > MAX_FILES) throw new Error(`الحد الأقصى ${MAX_FILES} ملفات.`);
+  if (list.length === 0) throw new Error(t('verify.pick_one'));
+  if (list.length > MAX_FILES) throw new Error(t('verify.max_files', { n: MAX_FILES }));
 
   for (const f of list) {
-    if (!ALLOWED.includes(f.type)) throw new Error('الملفات المقبولة: صور (jpg, png, webp) أو PDF.');
-    if (f.size > MAX_SIZE) throw new Error('حجم كل ملف يجب ألا يتجاوز 10 ميغا.');
+    if (!ALLOWED.includes(f.type)) throw new Error(t('verify.bad_type'));
+    if (f.size > MAX_SIZE) throw new Error(t('verify.too_big'));
   }
 
   const paths = [];

@@ -1,5 +1,9 @@
+import { useI18n } from '../i18n/index.jsx';
+
 // Blue "verified professional" badge. Usage: <VerifiedBadge /> next to a name.
-export default function VerifiedBadge({ size = 18, title = 'حساب محترف موثق' }) {
+export default function VerifiedBadge({ size = 18, title }) {
+  const { t } = useI18n();
+  title = title || t('badge.verified');
   return (
     <svg
       width={size}
