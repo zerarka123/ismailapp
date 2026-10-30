@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { supabase } from '../supabase';
+import { SUPABASE_HOST, supabase } from '../supabase';
 import { PAGE_SIZE } from '../config';
 import { isMissingSchema, likeEscape } from './format';
 
@@ -73,7 +73,7 @@ export function useListings(filters) {
           return;
         }
         console.error('Supabase fetch error:', err);
-        setError(`${err.code || ''} ${err.message || ''}`.trim() || true);
+        setError(`${err.code || ''} ${err.message || ''} @ ${SUPABASE_HOST}`.trim());
         setLoading(false);
         return;
       }

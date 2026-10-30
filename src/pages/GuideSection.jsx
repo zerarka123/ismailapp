@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../supabase';
+import { SUPABASE_HOST, supabase } from '../supabase';
 import { useI18n } from '../i18n/index.jsx';
 import { categoryName } from '../i18n/names.js';
 import Icon from '../components/Icon.jsx';
@@ -23,7 +23,7 @@ export default function GuideSection() {
     if (!SECTIONS.includes(section)) return;
     setItems(null);
     supabase.from('guide_categories').select('*').eq('section', section).order('sort_order').then(({ data, error: e }) => {
-      if (e) setError(`${e.code || ''} ${e.message || ''}`.trim() || true);
+      if (e) setError(`${e.code || ''} ${e.message || ''} @ ${SUPABASE_HOST}`.trim());
       else setItems(data);
     });
   }, [section]);
