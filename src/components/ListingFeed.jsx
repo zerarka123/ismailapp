@@ -14,6 +14,7 @@ export default function ListingFeed({ filters, emptyText }) {
       {error && (
         <p className="msg err">
           {t('common.load_failed')} <button className="linkbtn" onClick={reload}>{t('common.retry')}</button>
+          {typeof error === 'string' && <small dir="ltr" style={{ display: 'block', marginTop: 6, opacity: 0.75 }}>{error}</small>}
         </p>
       )}
       {!loading && !error && items.length === 0 && <p className="empty">{emptyText || t('feed.empty')}</p>}

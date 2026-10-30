@@ -73,7 +73,7 @@ export function useListings(filters) {
           return;
         }
         console.error('Supabase fetch error:', err);
-        setError(true);
+        setError(`${err.code || ''} ${err.message || ''}`.trim() || true);
         setLoading(false);
         return;
       }

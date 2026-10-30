@@ -23,7 +23,7 @@ export default function GuideSection() {
     if (!SECTIONS.includes(section)) return;
     setItems(null);
     supabase.from('guide_categories').select('*').eq('section', section).order('sort_order').then(({ data, error: e }) => {
-      if (e) setError(true);
+      if (e) setError(`${e.code || ''} ${e.message || ''}`.trim() || true);
       else setItems(data);
     });
   }, [section]);
@@ -37,7 +37,7 @@ export default function GuideSection() {
         <h2>{t(`guide.${section}`)}</h2>
       </div>
       <p className="muted">{t(`guide.${section}_intro`)}</p>
-      {error && <p className="msg err">{t('guide.load_failed')}</p>}
+      {error && <p className="msg err">{t('guide.load_failed')}{typeof error === 'string' && <small dir="ltr" style={{ display: 'block', marginTop: 6, opacity: 0.75 }}>{error}</small>}</p>}
       {!items && !error && <p className="muted center">{t('common.loading')}</p>}
       <div className="menu">
         {items?.map((c) => (
