@@ -11,6 +11,7 @@ import { publicUrl } from '../lib/images';
 import { kindKey, safetyKey } from '../lib/safety';
 import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
+import ShareButton from '../components/ShareButton.jsx';
 import { isSponsored } from '../components/ListingCard.jsx';
 
 const BASE =
@@ -128,6 +129,7 @@ export default function ListingDetail() {
       <div className="detail-top">
         <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
         <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}><Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} /></button>
+        <ShareButton path={here} title={item.title} />
         <Carousel urls={urls} />
       </div>
 

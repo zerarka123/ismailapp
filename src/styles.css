@@ -228,3 +228,16 @@ input[dir='ltr'] { text-align: start; }
 .mini.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
 .mini:disabled { opacity: 0.6; }
 .mini svg { vertical-align: -2px; }
+
+/* share */
+.sharebtn { position: absolute; top: calc(14px + var(--sat)); inset-inline-end: 66px; z-index: 2; height: 40px; border: 0; border-radius: 999px; padding: 0 14px; background: rgba(255, 255, 255, 0.92); color: var(--primary); font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.sharebtn.solo { inset-inline-end: 16px; }
+.share-overlay { position: fixed; inset: 0; z-index: 1200; background: rgba(0, 20, 40, 0.45); display: flex; align-items: flex-end; justify-content: center; }
+.share-sheet { width: 100%; max-width: 480px; background: #fff; border-radius: 24px 24px 0 0; padding: 18px 18px calc(22px + var(--sab)); }
+.share-targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+.share-target { display: grid; place-items: center; height: 48px; border-radius: 16px; color: #fff; font-weight: 800; text-decoration: none; }
+.share-target.wa { background: #1fa855; }
+.share-target.fb { background: #1877f2; }
+.share-target.tg { background: #229ed9; }
+.share-link { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.share-link .input { height: 44px; font-size: 13px; }
