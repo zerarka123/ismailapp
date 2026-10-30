@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
 import ProfileTabs from '../components/ProfileTabs.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
-import { TYPE_LABELS, isProType } from '../lib/accountTypes';
+import { isProType, userTypeLabel } from '../lib/accountTypes';
+import { useI18n } from '../i18n/index.jsx';
+import Icon from '../components/Icon.jsx';
 
-const C = { blue: '#0a6eb8', navy: '#0f2a44', muted: '#5b7488' };
+const C = { navy: '#0f2a44', muted: '#5b7488' };
 
 function Empty({ children }) {
   return <p style={{ textAlign: 'center', color: C.muted, padding: '40px 16px', fontSize: 15 }}>{children}</p>;
@@ -16,6 +18,7 @@ function Empty({ children }) {
 export default function UserProfile() {
   const { id } = useParams();
   const nav = useNavigate();
+  const { t } = useI18n();
   const [profile, setProfile] = useState(undefined); // undefined = loading, null = not found
 
   useEffect(() => {
@@ -44,26 +47,20 @@ export default function UserProfile() {
   }, [id, nav]);
 
   return (
-    <div dir="rtl" style={{ padding: '16px 16px 120px', maxWidth: 720, margin: '0 auto' }}>
-      <button
-        type="button"
-        onClick={() => nav(-1)}
-        style={{ border: 'none', background: '#fff', borderRadius: 999, padding: '10px 16px', fontFamily: 'inherit', fontWeight: 600, color: C.blue, cursor: 'pointer', boxShadow: '0 2px 10px rgba(10,110,184,.1)' }}
-      >
-        رجوع
-      </button>
+    <div style={{ padding: '16px 16px 120px', maxWidth: 720, margin: '0 auto' }}>
+      <button className="iconbtn" type="button" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
 
-      {profile === undefined && <Empty>جارٍ التحميل…</Empty>}
-      {profile === null && <Empty>هذا الحساب غير موجود.</Empty>}
+      {profile === undefined && <Empty>{t('common.loading')}</Empty>}
+      {profile === null && <Empty>{t('user.not_found')}</Empty>}
 
       {profile && (
         <>
           <div style={{ background: '#fff', borderRadius: 24, padding: 20, margin: '16px 0', boxShadow: '0 6px 24px rgba(10,110,184,.08)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h1 style={{ margin: 0, fontSize: 22, color: C.navy }}>{profile.full_name || 'حساب مرسى'}</h1>
+              <h1 style={{ margin: 0, fontSize: 22, color: C.navy }}>{profile.full_name || t('user.default_name')}</h1>
               {profile.is_verified && <VerifiedBadge size={22} />}
             </div>
-            <div style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>{TYPE_LABELS[profile.user_type] || 'حساب فردي'}</div>
+            <div style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>{userTypeLabel(profile.user_type)}</div>
           </div>
           <ProfileTabs ownerId={id} showPortfolio={isProType(profile.user_type)} />
         </>

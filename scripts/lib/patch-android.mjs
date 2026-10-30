@@ -16,7 +16,8 @@ export function patchManifest(xml) {
   setAttr('android:supportsRtl', 'true');
   out = out.replace(app[0], tag);
   const perms = [...out.matchAll(/<uses-permission[^>]*android:name="([^"]+)"/g)].map((m) => m[1]);
-  const allowed = new Set(['android.permission.INTERNET', 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION']);
+  // POST_NOTIFICATIONS / WAKE_LOCK come with @capacitor/push-notifications (smart notifications)
+  const allowed = new Set(['android.permission.INTERNET', 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION', 'android.permission.POST_NOTIFICATIONS', 'android.permission.WAKE_LOCK']);
   for (const p of perms) if (!allowed.has(p)) notes.push(`UNEXPECTED permission in manifest: ${p} (remove it, or declare it in Play Console)`);
   return { xml: out, permissions: perms, notes };
 }

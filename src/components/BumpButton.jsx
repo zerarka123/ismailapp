@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { bumpListing } from '../lib/bump';
+import { useI18n } from '../i18n/index.jsx';
 
 // "Raise listing to the top" button.
 // Usage: <BumpButton listingId={item.id} onDone={reload} />
 export default function BumpButton({ listingId, onDone }) {
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -17,7 +19,7 @@ export default function BumpButton({ listingId, onDone }) {
   }
 
   return (
-    <div dir="rtl" style={{ marginTop: 8 }}>
+    <div style={{ marginTop: 8 }}>
       <button
         type="button"
         onClick={onClick}
@@ -35,7 +37,7 @@ export default function BumpButton({ listingId, onDone }) {
           cursor: busy ? 'default' : 'pointer',
         }}
       >
-        {busy ? 'جارٍ الرفع…' : '↑ رفع الإعلان للأعلى'}
+        {busy ? t('bump.busy') : `↑ ${t('bump.button')}`}
       </button>
       {result && (
         <p

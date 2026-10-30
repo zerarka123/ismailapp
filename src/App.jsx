@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
+import { I18nProvider, useI18n } from './i18n/index.jsx';
+import { NotificationsProvider } from './notifications.jsx';
 import Icon from './components/Icon.jsx';
 import JobTypeSelectorModal from './components/jobs/jobTypeselectormodal.jsx';
 import Home from './pages/Home.jsx';
@@ -21,17 +23,19 @@ import Admin from './pages/Admin.jsx';
 import Legal from './pages/Legal.jsx';
 import PostJob from './pages/PostJob.jsx';
 import UserProfile from './pages/UserProfile.jsx';
-  import PortfolioManage from './components/PortfolioManage.jsx';
-import AdminBadges from './pages/AdminBadges.jsx';
+import Support from './pages/Support.jsx';
+import Notifications from './pages/Notifications.jsx';
+import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 
 function Shell() {
   const { loading, recovery, user } = useAuth();
+  const { t } = useI18n();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
-  if (loading) return <div className="splash"><img src="/logo.png" alt="مرسى" /></div>;
+  if (loading) return <div className="splash"><img src="/logo.png" alt={t('app.name')} /></div>;
   if (recovery) return <ResetPassword />;
 
   const isLogin = pathname === '/login';
@@ -39,7 +43,7 @@ function Shell() {
 
   return (
     <div className="app">
-       <InstallPrompt />
+      <InstallPrompt />
       <main className={isLogin ? '' : 'page'}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -47,8 +51,8 @@ function Shell() {
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/post/boat-sale" element={<Sell />} />
-        <Route path="/post/job-offer" element={<PostJob kind="job_offer" />} />
-<Route path="/post/job-request" element={<PostJob kind="job_request" />} />
+          <Route path="/post/job-offer" element={<PostJob key="job_offer" kind="job_offer" />} />
+          <Route path="/post/job-request" element={<PostJob key="job_request" kind="job_request" />} />
           <Route path="/my-listings" element={<MyListings />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/account" element={<Account />} />
@@ -58,23 +62,25 @@ function Shell() {
           <Route path="/pro/:id" element={<ProDetail />} />
           <Route path="/register-business" element={<ProRegister />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/badges" element={<Navigate to="/admin" replace />} />
           <Route path="/privacy" element={<Legal kind="privacy" />} />
           <Route path="/terms" element={<Legal kind="terms" />} />
           <Route path="/delete-account" element={<Legal kind="delete" />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/u/:id" element={<UserProfile />} />
-             <Route path="/portfolio" element={<PortfolioManage />} />
-          <Route path="/admin/badges" element={<AdminBadges />}   />
+          <Route path="/portfolio" element={<PortfolioManage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       {!hideTabs && (
         <nav className="tabbar">
-          <NavLink to="/" end className="tab"><Icon name="home" />الرئيسية</NavLink>
-          <NavLink to="/search" className="tab"><Icon name="search" />البحث</NavLink>
-          <button className="fab" aria-label="بيع" onClick={() => setShowModal(true)}><Icon name="plus" size={26} /></button>
-          <NavLink to="/favorites" className="tab"><Icon name="star" />المفضلة</NavLink>
-          <NavLink to="/account" className="tab"><Icon name="user" />حسابي</NavLink>
+          <NavLink to="/" end className="tab"><Icon name="home" />{t('nav.home')}</NavLink>
+          <NavLink to="/search" className="tab"><Icon name="search" />{t('nav.search')}</NavLink>
+          <button className="fab" aria-label={t('nav.post')} onClick={() => setShowModal(true)}><Icon name="plus" size={26} /></button>
+          <NavLink to="/favorites" className="tab"><Icon name="star" />{t('nav.favorites')}</NavLink>
+          <NavLink to="/account" className="tab"><Icon name="user" />{t('nav.account')}</NavLink>
         </nav>
       )}
 
@@ -90,12 +96,16 @@ function Shell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <FavoritesProvider>
-          <Shell />
-        </FavoritesProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <I18nProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <FavoritesProvider>
+            <NotificationsProvider>
+              <Shell />
+            </NotificationsProvider>
+          </FavoritesProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </I18nProvider>
   );
 }

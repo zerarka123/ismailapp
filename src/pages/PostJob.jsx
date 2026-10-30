@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
-import { arabicError } from '../errors';
+import { useI18n } from '../i18n/index.jsx';
+import { wilayaName } from '../i18n/names.js';
+import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone } from '../lib/format';
+import { safetyKey } from '../lib/safety';
 import NeedLogin from '../components/NeedLogin.jsx';
 
-const PROFESSIONS = [
-  'ميكانيكي محركات بحرية', 'صياد', 'بحار', 'ربان', 'نجار سفن',
-  'كهربائي بحري', 'لحّام', 'غطّاس', 'حرفي', 'مساعد على متن السفينة',
-];
+// Suggestions only (prof.<key> in messages.js); the user can type any profession
+const PROFESSIONS = ['marine_mechanic', 'fisherman', 'sailor', 'skipper', 'shipwright', 'marine_electrician', 'welder', 'diver', 'craftsman', 'deckhand'];
 
 const input = {
   width: '100%', padding: 12, marginTop: 6, marginBottom: 14,
@@ -24,6 +25,7 @@ const errBox = {
 
 export default function PostJob({ kind }) {
   const { user, profile } = useAuth();
+  const { t } = useI18n();
   const nav = useNavigate();
   const isRequest = kind === 'job_request';
 
@@ -38,7 +40,7 @@ export default function PostJob({ kind }) {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('wilayas').select('id, name_ar').order('id')
+    supabase.from('wilayas').select('*').order('id')
       .then(({ data }) => setWilayas(data || []));
   }, []);
 
@@ -61,19 +63,19 @@ export default function PostJob({ kind }) {
     ]).then(([s, c]) => setQuota({ limit: s.data?.value ?? 2, used: c.count ?? 0 }));
   }, [user?.id]);
 
-  if (!user) return <NeedLogin text="سجل الدخول لتنشر إعلانك." />;
+  if (!user) return <NeedLogin text={t('sell.login')} />;
 
   const full = quota && quota.used >= quota.limit;
 
   function validate() {
-    const t = f.title.trim();
-    if (t.length < 5 || t.length > 120) return 'العنوان بين 5 و120 حرفاً.';
-    if (isRequest && !f.profession.trim()) return 'اكتب المهنة.';
-    if (f.profession.trim().length > 80) return 'المهنة طويلة جداً.';
+    const tt = f.title.trim();
+    if (tt.length < 5 || tt.length > 120) return t('sell.v_title');
+    if (isRequest && !f.profession.trim()) return t('job.v_profession');
+    if (f.profession.trim().length > 80) return t('job.v_profession_long');
     if (f.salary && (!/^\d{1,12}$/.test(f.salary) || Number(f.salary) <= 0))
-      return 'الأجر أرقام فقط وأكبر من صفر.';
-    if (!f.wilayaId) return 'اختر الولاية.';
-    if (!PHONE_RE.test(cleanPhone(f.phone))) return 'رقم الهاتف غير صالح (أرقام فقط).';
+      return t('job.v_salary');
+    if (!f.wilayaId) return t('v.wilaya');
+    if (!PHONE_RE.test(cleanPhone(f.phone))) return t('v.phone');
     return null;
   }
 
@@ -88,7 +90,7 @@ export default function PostJob({ kind }) {
       const name = profile?.full_name?.trim();
       const sellerName = name && name.length >= 2
         ? name.slice(0, 80)
-        : (isRequest ? 'باحث عن عمل' : 'صاحب عمل');
+        : t(isRequest ? 'job.default_seeker' : 'job.default_employer');
 
       const { data: row, error } = await supabase
         .from('listings')
@@ -116,55 +118,57 @@ export default function PostJob({ kind }) {
       nav('/my-listings', { replace: true });
     } catch (err) {
           if (listingId) await supabase.from('listings').delete().eq('id', listingId);
-      setMsg(arabicError(err));
+      setMsg(errorText(err));
       setBusy(false);
     }
   }
 
   return (
-    <form onSubmit={submit} dir="rtl" style={{ padding: 16 }}>
-      <h2 style={{ marginTop: 0 }}>{isRequest ? 'أضف طلب عمل' : 'أضف عرض عمل'}</h2>
+    <form onSubmit={submit} style={{ padding: 16 }}>
+      <h2 style={{ marginTop: 0 }}>{t(isRequest ? 'job.add_request' : 'job.add_offer')}</h2>
 
       {full && (
         <div style={errBox}>
-          إعلاناتك النشطة: {quota.used} من {quota.limit}. لا يمكنك نشر إعلان جديد قبل إنهاء أحدها.
+          {t('sell.quota', { used: quota.used, limit: quota.limit })} {t('sell.quota_full')}
         </div>
       )}
 
-      <label style={label}>العنوان</label>
+      <label style={label}>{t('sell.ad_title')}</label>
       <input style={input} value={f.title} onChange={set('title')}
-        placeholder={isRequest ? 'مثال: ميكانيكي محركات بحرية يبحث عن عمل' : 'مثال: مطلوب بحارة لقارب صيد'} />
+        placeholder={t(isRequest ? 'job.hint_request' : 'job.hint_offer')} />
 
       {isRequest && (
         <>
-          <label style={label}>المهنة</label>
+          <label style={label}>{t('spec.profession')}</label>
           <input style={input} list="professions" value={f.profession}
-            onChange={set('profession')} placeholder="اختر أو اكتب مهنتك" />
+            onChange={set('profession')} placeholder={t('job.profession_hint')} />
           <datalist id="professions">
-            {PROFESSIONS.map((p) => <option key={p} value={p} />)}
+            {PROFESSIONS.map((p) => <option key={p} value={t(`prof.${p}`)} />)}
           </datalist>
         </>
       )}
 
-      <label style={label}>الوصف</label>
+      <label style={label}>{t('field.description')}</label>
       <textarea style={{ ...input, minHeight: 110 }} value={f.description}
         onChange={set('description')}
-        placeholder={isRequest ? 'الخبرة، الشهادات، الأعمال السابقة...' : 'المهام، الشروط، مدة العمل...'} />
+        placeholder={t(isRequest ? 'job.desc_request' : 'job.desc_offer')} />
 
-      <label style={label}>الولاية</label>
+      <label style={label}>{t('field.wilaya')}</label>
       <select style={input} value={f.wilayaId} onChange={set('wilayaId')}>
-        <option value="">اختر الولاية</option>
-        {wilayas.map((w) => <option key={w.id} value={w.id}>{w.name_ar}</option>)}
+        <option value="">{t('v.wilaya')}</option>
+        {wilayas.map((w) => <option key={w.id} value={w.id}>{wilayaName(w)}</option>)}
       </select>
 
-      <label style={label}>المكان / الميناء (اختياري)</label>
+      <label style={label}>{t('job.place')}</label>
       <input style={input} value={f.place} onChange={set('place')} />
 
-      <label style={label}>الأجر (دج) - اختياري</label>
+      <label style={label}>{t('job.salary')}</label>
       <input style={input} inputMode="numeric" value={f.salary} onChange={set('salary')} />
 
-      <label style={label}>رقم الهاتف</label>
-      <input style={input} inputMode="tel" value={f.phone} onChange={set('phone')} />
+      <label style={label}>{t('field.phone')}</label>
+      <input style={input} inputMode="tel" dir="ltr" value={f.phone} onChange={set('phone')} />
+
+      <div className="safety" style={{ marginBottom: 14 }}><b>{t('safety.title')}</b> {t(safetyKey(kind))}</div>
 
       {msg && <div style={errBox}>{msg}</div>}
 
@@ -172,7 +176,7 @@ export default function PostJob({ kind }) {
         style={{ width: '100%', padding: 14, border: 'none', borderRadius: 14,
           background: '#0b4f7c', color: '#fff', fontSize: 16, fontWeight: 'bold',
           fontFamily: 'inherit', opacity: busy || full ? 0.5 : 1 }}>
-        {busy ? 'جارٍ النشر...' : 'انشر الإعلان'}
+        {busy ? t('job.publishing') : t('sell.publish')}
       </button>
     </form>
   );

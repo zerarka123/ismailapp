@@ -1,21 +1,52 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
 import { useFavorites } from '../favorites.jsx';
-import { arabicError } from '../errors';
-import { CONDITIONS, fmtPrice, telLink, waLink } from '../lib/format';
+import { useI18n } from '../i18n/index.jsx';
+import { boatTypeName, wilayaName } from '../i18n/names.js';
+import { errorText } from '../errors';
+import { conditionLabel, fmtDate, fmtPrice, isMissingSchema, telLink, waLink } from '../lib/format';
 import { publicUrl } from '../lib/images';
+import { kindKey, safetyKey } from '../lib/safety';
 import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
+import { isSponsored } from '../components/ListingCard.jsx';
 
-const SELECT =
-  'id, seller_id, seller_name, kind, title, description, price_dzd, length_m, year_built, condition, engine_info, place_text, status, expires_at, wilayas(name_ar), boat_types(name_ar), listing_images(storage_path, sort_order)';
+const BASE =
+  'id, seller_id, seller_name, kind, title, description, price_dzd, length_m, year_built, condition, engine_info, place_text, profession, status, expires_at, wilayas(*), boat_types(*), listing_images(storage_path, sort_order)';
+const SELECT = `${BASE}, gear_type, sponsored_until`;
+
+// Admin only: put a listing in the sponsored strip of the home page (migration 003)
+function SponsorControls({ item, onChange }) {
+  const { t } = useI18n();
+  const [msg, setMsg] = useState(null);
+  async function sponsor(days) {
+    setMsg(null);
+    const { error } = await supabase.rpc('admin_set_listing_sponsored', { p_id: String(item.id), p_days: days });
+    if (error) return setMsg({ type: 'err', text: isMissingSchema(error) ? t('admin.needs_migration') : errorText(error) });
+    setMsg({ type: 'ok', text: days ? t('admin.sponsored_ok', { n: days }) : t('admin.sponsor_removed') });
+    onChange();
+  }
+  return (
+    <div className="box">
+      <b>{t('admin.sponsor_title')}</b>
+      {isSponsored(item) && <div className="muted small">{t('admin.sponsored_until', { date: fmtDate(item.sponsored_until) })}</div>}
+      <div className="mine-actions">
+        <button className="mini" onClick={() => sponsor(7)}>{t('admin.sponsor_days', { n: 7 })}</button>
+        <button className="mini" onClick={() => sponsor(30)}>{t('admin.sponsor_days', { n: 30 })}</button>
+        {isSponsored(item) && <button className="mini danger" onClick={() => sponsor(0)}>{t('admin.sponsor_remove')}</button>}
+      </div>
+      {msg && <p className={`msg ${msg.type}`} style={{ marginTop: 8 }}>{msg.text}</p>}
+    </div>
+  );
+}
 
 export default function ListingDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { t } = useI18n();
   const { ids, toggle } = useFavorites();
   const [item, setItem] = useState(undefined); // undefined = loading, null = not found
   const [contact, setContact] = useState(undefined);
@@ -23,17 +54,23 @@ export default function ListingDetail() {
   const [reason, setReason] = useState('');
   const [msg, setMsg] = useState(null);
 
+  const load = useCallback(async () => {
+    let res = await supabase.from('listings').select(SELECT).eq('id', id).maybeSingle();
+    if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(BASE).eq('id', id).maybeSingle();
+    return res.data ?? null;
+  }, [id]);
+
   useEffect(() => {
     let alive = true;
     setItem(undefined);
     setContact(undefined);
-    supabase.from('listings').select(SELECT).eq('id', id).maybeSingle().then(({ data }) => {
-      if (alive) setItem(data ?? null);
+    load().then((data) => {
+      if (alive) setItem(data);
     });
     return () => {
       alive = false;
     };
-  }, [id]);
+  }, [load]);
 
   useEffect(() => {
     if (!user || !item) return;
@@ -46,12 +83,12 @@ export default function ListingDetail() {
     };
   }, [user?.id, item?.id]);
 
-  if (item === undefined) return <p className="muted center" style={{ marginTop: 60 }}>جارٍ التحميل…</p>;
+  if (item === undefined) return <p className="muted center" style={{ marginTop: 60 }}>{t('common.loading')}</p>;
   if (item === null)
     return (
       <div className="needlogin">
-        <p>هذا الإعلان غير متاح أو انتهت مدته.</p>
-        <Link className="btn" to="/">العودة للرئيسية</Link>
+        <p>{t('listing.unavailable')}</p>
+        <Link className="btn" to="/">{t('common.back_home')}</Link>
       </div>
     );
 
@@ -60,13 +97,15 @@ export default function ListingDetail() {
   const mine = user?.id === item.seller_id;
   const faved = ids.has(item.id);
   const here = `/listing/${item.id}`;
+  const isJob = item.kind === 'job_offer' || item.kind === 'job_request';
   const specs = [
-    ['النوع', item.boat_types?.name_ar || (item.kind === 'engine' ? 'محرك' : null)],
-    ['الطول', item.length_m ? `${Number(item.length_m)} م` : null],
-    ['المحرك', item.engine_info],
-    ['سنة الصنع', item.year_built],
-    ['الحالة', CONDITIONS[item.condition]],
-    ['المكان', item.place_text],
+    ['spec.type', item.boat_types ? boatTypeName(item.boat_types) : t(kindKey(item))],
+    ['spec.profession', item.profession],
+    ['spec.length', item.length_m ? `${Number(item.length_m)} ${t('unit.m')}` : null],
+    ['spec.engine', item.engine_info],
+    ['spec.year', item.year_built],
+    ['spec.condition', conditionLabel(item.condition)],
+    ['spec.place', item.place_text],
   ].filter(([, v]) => v);
 
   async function onFav() {
@@ -76,10 +115,10 @@ export default function ListingDetail() {
 
   async function sendReport(e) {
     e.preventDefault();
-    if (reason.trim().length < 3) return setMsg({ type: 'err', text: 'اكتب سبب البلاغ (3 أحرف على الأقل).' });
+    if (reason.trim().length < 3) return setMsg({ type: 'err', text: t('report.too_short') });
     const { error } = await supabase.from('reports').insert({ reporter_id: user.id, listing_id: item.id, reason: reason.trim().slice(0, 500) });
-    if (error) return setMsg({ type: 'err', text: arabicError(error) });
-    setMsg({ type: 'ok', text: 'شكرًا، وصلنا بلاغك وسنراجعه.' });
+    if (error) return setMsg({ type: 'err', text: errorText(error) });
+    setMsg({ type: 'ok', text: t('report.thanks') });
     setReportOpen(false);
     setReason('');
   }
@@ -87,48 +126,50 @@ export default function ListingDetail() {
   return (
     <>
       <div className="detail-top">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label="رجوع"><Icon name="back" /></button>
-        <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label="المفضلة"><Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} /></button>
+        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}><Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} /></button>
         <Carousel urls={urls} />
       </div>
 
       <div className="sheet">
         <h1>{item.title}</h1>
-        <div className="big-price">{fmtPrice(item.price_dzd)}</div>
-        <span className="where"><Icon name="pin" size={14} /> {item.wilayas?.name_ar}</span>
+        <div className="big-price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd)}</div>
+        <span className="where"><Icon name="pin" size={14} /> {wilayaName(item.wilayas)}</span>
 
         {specs.length > 0 && (
           <div className="specs">
             {specs.map(([k, v]) => (
-              <div key={k} className="spec"><small>{k}</small><b>{v}</b></div>
+              <div key={k} className="spec"><small>{t(k)}</small><b>{v}</b></div>
             ))}
           </div>
         )}
 
         <div className="seller">
           <div className="avatar">{item.seller_name.slice(0, 1).toUpperCase()}</div>
-          <div><b>{item.seller_name}</b><div className="muted small">{item.wilayas?.name_ar}</div></div>
+          <div><b>{item.seller_name}</b><div className="muted small">{wilayaName(item.wilayas)}</div></div>
         </div>
 
         {item.description && <p className="desc">{item.description}</p>}
 
         <div className="safety">
-          <b>نصيحة أمان:</b> عاين القارب بنفسك قبل الدفع، ولا تحوّل أي مبلغ مقدمًا لشخص لا تعرفه، وتحقق من أوراق الملكية.
+          <b>{t('safety.title')}</b> {t(safetyKey(item.kind, item.gear_type))}
         </div>
+
+        {profile?.is_admin && <SponsorControls item={item} onChange={() => load().then(setItem)} />}
 
         {msg && <p className={`msg ${msg.type}`} style={{ marginTop: 12 }}>{msg.text}</p>}
 
         {user && !mine && !reportOpen && (
           <button className="linkbtn" style={{ marginTop: 14 }} onClick={() => setReportOpen(true)}>
-            <Icon name="flag" size={14} /> الإبلاغ عن الإعلان
+            <Icon name="flag" size={14} /> {t('report.listing')}
           </button>
         )}
         {reportOpen && (
           <form onSubmit={sendReport} className="box">
-            <textarea className="input" placeholder="ما المشكلة في هذا الإعلان؟" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
+            <textarea className="input" placeholder={t('report.listing_placeholder')} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
             <div className="row2" style={{ marginTop: 10 }}>
-              <button className="btn sm">إرسال</button>
-              <button type="button" className="btn alt sm" onClick={() => setReportOpen(false)}>إلغاء</button>
+              <button className="btn sm">{t('common.send')}</button>
+              <button type="button" className="btn alt sm" onClick={() => setReportOpen(false)}>{t('common.cancel')}</button>
             </div>
           </form>
         )}
@@ -136,22 +177,22 @@ export default function ListingDetail() {
 
       <div className="cta">
         {mine ? (
-          <Link className="btn alt" to="/my-listings">هذا إعلانك — إدارة إعلاناتي</Link>
+          <Link className="btn alt" to="/my-listings">{t('listing.yours')}</Link>
         ) : !user ? (
           <>
-            <Link className="btn" to={`/login?next=${encodeURIComponent(here)}`}><Icon name="phone" color="#fff" />تواصل مع البائع</Link>
-            <p className="note">يتطلب تسجيل الدخول للتواصل</p>
+            <Link className="btn" to={`/login?next=${encodeURIComponent(here)}`}><Icon name="phone" color="#fff" />{t('contact.seller')}</Link>
+            <p className="note">{t('contact.login_needed')}</p>
           </>
         ) : contact === undefined ? (
-          <p className="note">جارٍ تحميل وسائل التواصل…</p>
+          <p className="note">{t('contact.loading')}</p>
         ) : contact === null ? (
-          <p className="note">لا تتوفر وسيلة تواصل لهذا الإعلان.</p>
+          <p className="note">{t('contact.none_listing')}</p>
         ) : (
           <>
-            <a className="btn" href={telLink(contact.phone)}><Icon name="phone" color="#fff" />اتصال</a>
+            <a className="btn" href={telLink(contact.phone)}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
             {contact.whatsapp && (
-              <a className="btn wa" href={waLink(contact.whatsapp, `مرحبًا، بخصوص إعلانك «${item.title}» في مرسى`)} target="_blank" rel="noopener noreferrer">
-                <Icon name="chat" color="#fff" />واتساب
+              <a className="btn wa" href={waLink(contact.whatsapp, t('listing.wa_text', { title: item.title }))} target="_blank" rel="noopener noreferrer">
+                <Icon name="chat" color="#fff" />{t('contact.whatsapp')}
               </a>
             )}
           </>
