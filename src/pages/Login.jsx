@@ -5,6 +5,7 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { errorText } from '../errors';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
+import GoogleButton from '../components/GoogleButton.jsx';
 import { safeNext } from '../lib/format';
 
 // Mobile-friendly auth: sign-up and password reset use a 6-digit code sent by email
@@ -104,6 +105,9 @@ export default function Login() {
       <img src="/logo.png" alt={t('app.name')} />
       <h1>{t(`login.t_${mode}`)}</h1>
       <p className="muted">{t(`login.s_${mode}`)}</p>
+      {(mode === 'login' || mode === 'register') && (
+        <div className="auth-google"><GoogleButton next={next} onError={(text) => setMsg({ type: 'err', text })} /></div>
+      )}
       <form onSubmit={submit} noValidate>
         {mode === 'register' && (
           <div className="field"><label htmlFor="n">{t('login.full_name')}</label><input id="n" className="input" value={form.name} onChange={set('name')} maxLength={80} autoComplete="name" /></div>

@@ -241,3 +241,9 @@ input[dir='ltr'] { text-align: start; }
 .share-target.tg { background: #229ed9; }
 .share-link { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .share-link .input { height: 44px; font-size: 13px; }
+
+/* sign in with Google */
+.auth-google { margin-top: 22px; text-align: start; }
+.btn.google { background: #fff; color: #1f1f1f; border: 1.5px solid var(--line); font-weight: 700; }
+.or-sep { display: flex; align-items: center; gap: 12px; margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+.or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }

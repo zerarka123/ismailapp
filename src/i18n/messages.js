@@ -460,6 +460,8 @@ export const MESSAGES = {
   'admin.needs_migration': ['هذه الميزة تحتاج تحديث قاعدة البيانات: نفّذ scripts/migrations/003_i18n_portfolio_notifications.sql في Supabase.', 'Cette fonction nécessite la mise à jour de la base : exécutez scripts/migrations/003_i18n_portfolio_notifications.sql dans Supabase.', 'This feature needs the database update: run scripts/migrations/003_i18n_portfolio_notifications.sql in Supabase.'],
 
   // login
+  'login.google': ['المتابعة بحساب Google', 'Continuer avec Google', 'Continue with Google'],
+  'login.or': ['أو', 'ou', 'or'],
   'login.title': ['تسجيل الدخول', 'Connexion', 'Sign in'],
   'login.needed': ['سجّل الدخول لمتابعة هذه الخطوة.', 'Connectez-vous pour continuer.', 'Sign in to continue.'],
   'login.t_login': ['تسجيل الدخول', 'Connexion', 'Sign in'],
