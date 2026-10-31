@@ -7,6 +7,10 @@ if (!url || !key) {
   throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY in .env');
 }
 
+// used by the Google button to read the public auth settings
+export const SUPABASE_URL = url;
+export const SUPABASE_KEY = key;
+
 // shown under network errors to tell which backend this build talks to (the address is public)
 export const SUPABASE_HOST = (() => {
   try {
