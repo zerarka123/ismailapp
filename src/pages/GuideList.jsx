@@ -9,8 +9,9 @@ import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ListingFeed from '../components/ListingFeed.jsx';
 import JobBoardTabs from '../components/jobs/jobBoardtabs.jsx';
+import ColdRoomOffers from '../components/ColdRoomOffers.jsx';
 
-const PRO_SELECT = 'id, owner_id, business_name, description, address, badge_verified, wilayas(*), professional_images(storage_path, sort_order)';
+const PRO_SELECT = 'id, owner_id, business_name, description, address, latitude, longitude, badge_verified, wilayas(*), professional_images(storage_path, sort_order)';
 
 // One branch of a guide: the accounts registered in it, their products (shown only here, not on the home page),
 // and for the "jobs" branch the job board.
@@ -19,18 +20,20 @@ export default function GuideList() {
   const nav = useNavigate();
   const { t } = useI18n();
   const isJobs = slug === 'jobs';
+  const isCold = slug === 'cold_rooms';
+  const startTab = isJobs ? 'job_offer' : isCold ? 'products' : 'accounts';
   const [cat, setCat] = useState(undefined);
   const [wilayas, setWilayas] = useState([]);
   const [wilaya, setWilaya] = useState('');
   const [items, setItems] = useState(null);
   const [error, setError] = useState(false);
-  const [tab, setTab] = useState(isJobs ? 'job_offer' : 'accounts');
+  const [tab, setTab] = useState(startTab);
 
   useEffect(() => {
-    setTab(isJobs ? 'job_offer' : 'accounts');
+    setTab(startTab);
     supabase.from('guide_categories').select('*').eq('section', section).eq('slug', slug).maybeSingle().then(({ data }) => setCat(data ?? null));
     supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
-  }, [section, slug, isJobs]);
+  }, [section, slug, startTab]);
 
   useEffect(() => {
     if (!cat) return;
@@ -77,7 +80,7 @@ export default function GuideList() {
       ) : (
         <div className="seg" style={{ marginTop: 12 }}>
           <button type="button" className={`btn sm ${tab === 'accounts' ? '' : 'alt'}`} onClick={() => setTab('accounts')}>{t('guide.accounts')}</button>
-          <button type="button" className={`btn sm ${tab === 'products' ? '' : 'alt'}`} onClick={() => setTab('products')}>{t('tabs.products')}</button>
+          <button type="button" className={`btn sm ${tab === 'products' ? '' : 'alt'}`} onClick={() => setTab('products')}>{t(isCold ? 'cold.offers' : 'tabs.products')}</button>
         </div>
       )}
 
@@ -89,7 +92,11 @@ export default function GuideList() {
       )}
 
       {tab === 'products' && (
-        items === null ? <p className="muted center">{t('common.loading')}</p> : <ListingFeed filters={{ kind: 'gear', sellerIds }} emptyText={t('guide.no_products')} />
+        items === null ? <p className="muted center">{t('common.loading')}</p> : isCold ? (
+          <ColdRoomOffers sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} />
+        ) : (
+          <ListingFeed filters={{ kind: 'gear', sellerIds }} emptyText={t('guide.no_products')} />
+        )
       )}
 
       {tab === 'accounts' && (

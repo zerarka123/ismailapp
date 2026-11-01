@@ -26,7 +26,7 @@ export default function Sell() {
   const { t } = useI18n();
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear'].includes(params.get('kind')) ? params.get('kind') : 'boat' }));
+  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear'].includes(params.get('kind')) ? params.get('kind') : 'boat', gearType: GEAR_TYPES.includes(params.get('gear')) ? params.get('gear') : INIT.gearType }));
   const [images, setImages] = useState([]);
   const [types, setTypes] = useState([]);
   const [wilayas, setWilayas] = useState([]);

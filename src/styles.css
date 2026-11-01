@@ -247,3 +247,9 @@ input[dir='ltr'] { text-align: start; }
 .btn.google { background: #fff; color: #1f1f1f; border: 1.5px solid var(--line); font-weight: 700; }
 .or-sep { display: flex; align-items: center; gap: 12px; margin: 16px 0 0; color: var(--muted); font-size: 13px; }
 .or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+/* Cold rooms / fish market: offer cards with contact + map actions */
+a.lcard-img { text-decoration: none; }
+.offer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.offer-actions .btn.sm { flex: 1 1 auto; min-width: 96px; }
+.offer-actions .note { width: 100%; margin: 0; color: var(--muted); font-size: 13px; }
