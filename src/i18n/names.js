@@ -25,7 +25,7 @@ const CATEGORIES = {
   jobs: ['Emplois maritimes', 'Maritime jobs'],
   inox_workshops: ['Ateliers inox', 'Stainless steel workshops'],
   wood_workshops: ['Ateliers bois & charpente navale', 'Wood & boat carpentry workshops'],
-  cold_rooms: ['Chambres froides', 'Cold rooms'],
+  cold_rooms: ['Chambres froides / Poissonnerie', 'Cold rooms / Fish market'],
 };
 
 // Boat types (boat_types.slug); also matched by Arabic name for older rows
@@ -63,9 +63,12 @@ export function wilayaName(w, lang = getLang()) {
   return w[`name_${lang}`] || (lang === 'en' && WILAYA_EN[w.id]) || WILAYAS_LATIN[w.id] || w.name_ar || '';
 }
 
+// Arabic names that must win over the database value (so a rename ships with the app, without a SQL step)
+const AR_OVERRIDE = { cold_rooms: 'غرف تبريد / مسمكة' };
+
 export function categoryName(c, lang = getLang()) {
   if (!c) return '';
-  if (lang === 'ar') return c.name_ar || '';
+  if (lang === 'ar') return AR_OVERRIDE[c.slug] || c.name_ar || '';
   return c[`name_${lang}`] || pick(CATEGORIES[c.slug], lang) || c.name_ar || '';
 }
 
