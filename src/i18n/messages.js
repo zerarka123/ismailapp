@@ -217,7 +217,7 @@ export const MESSAGES = {
   'guide.marine': ['الدليل البحري', 'Annuaire maritime', 'Maritime directory'],
   'guide.fisher': ['دليل الصياد', 'Guide du pêcheur', 'Fisherman’s guide'],
   'guide.marine_intro': ['ورشات، حرفيون، ميكانيك وكهرباء السفن وموردو قطع الغيار. افتح أي فرع لتصفّح معارض أعمالهم.', 'Ateliers, artisans, mécanique et électricité navales, fournisseurs de pièces. Ouvrez une branche pour parcourir leurs portfolios.', 'Workshops, craftsmen, marine mechanics and electrics, parts suppliers. Open a branch to browse their portfolios.'],
-  'guide.fisher_intro': ['محلات معدات الصيد، غرف التبريد / مسماكة، رحلات الصيد وفرص العمل البحري.', 'Magasins de pêche, chambres froides, sorties de pêche et emplois maritimes.', 'Fishing gear shops, cold rooms, fishing trips and maritime jobs.'],
+  'guide.fisher_intro': ['محلات معدات الصيد، غرف تبريد / مسمكة، رحلات الصيد وفرص العمل البحري.', 'Magasins de pêche, chambres froides, sorties de pêche et emplois maritimes.', 'Fishing gear shops, cold rooms, fishing trips and maritime jobs.'],
   'guide.load_failed': ['تعذّر تحميل القائمة. تحقق من الاتصال وأعد المحاولة.', 'Impossible de charger la liste. Vérifiez la connexion et réessayez.', 'Could not load the list. Check your connection and try again.'],
   'guide.register': ['سجّل نشاطك', 'Inscrire mon activité', 'Register my business'],
   'guide.not_found': ['هذا القسم غير موجود.', 'Cette rubrique n’existe pas.', 'This section does not exist.'],

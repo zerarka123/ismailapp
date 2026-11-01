@@ -64,7 +64,7 @@ export function wilayaName(w, lang = getLang()) {
 }
 
 // Arabic names that must win over the database value (so a rename ships with the app, without a SQL step)
-const AR_OVERRIDE = { cold_rooms: 'غرف التبريد / مسماكة' };
+const AR_OVERRIDE = { cold_rooms: 'غرف تبريد / مسمكة' };
 
 export function categoryName(c, lang = getLang()) {
   if (!c) return '';
