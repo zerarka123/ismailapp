@@ -6,7 +6,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { MAX_IMAGES } from '../config';
-import { BRANCHES_BY_KIND as CATS, PRO_KINDS, proKindLabel } from '../lib/accountTypes';
+import { BRANCHES_BY_KIND as CATS, REGISTERABLE_KINDS, proKindLabel } from '../lib/accountTypes';
 import SupportLinks from '../components/SupportLinks.jsx';
 import { PHONE_RE, cleanPhone } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
@@ -145,7 +145,7 @@ export default function ProRegister() {
         <div className="field"><label>{t('reg.type')}</label>
           <select className="input" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value, cat: '' })}>
             <option value="">{t('common.choose')}</option>
-            {PRO_KINDS.map((k) => <option key={k} value={k}>{proKindLabel(k)}</option>)}
+            {REGISTERABLE_KINDS.map((k) => <option key={k} value={k}>{proKindLabel(k)}</option>)}
           </select>
         </div>
         <div className="field"><label>{t('reg.cat')}</label>

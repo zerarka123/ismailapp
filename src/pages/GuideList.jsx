@@ -10,6 +10,7 @@ import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ListingFeed from '../components/ListingFeed.jsx';
 import JobBoardTabs from '../components/jobs/jobBoardtabs.jsx';
 import ColdRoomOffers from '../components/ColdRoomOffers.jsx';
+import { MERGED_BRANCHES, isBranchVisible } from '../lib/branches';
 
 const PRO_SELECT = 'id, owner_id, business_name, description, address, latitude, longitude, badge_verified, wilayas(*), professional_images(storage_path, sort_order)';
 
@@ -23,6 +24,7 @@ export default function GuideList() {
   const isCold = slug === 'cold_rooms';
   const startTab = isJobs ? 'job_offer' : isCold ? 'products' : 'accounts';
   const [cat, setCat] = useState(undefined);
+  const [catIds, setCatIds] = useState([]);
   const [wilayas, setWilayas] = useState([]);
   const [wilaya, setWilaya] = useState('');
   const [items, setItems] = useState(null);
@@ -31,7 +33,16 @@ export default function GuideList() {
 
   useEffect(() => {
     setTab(startTab);
-    supabase.from('guide_categories').select('*').eq('section', section).eq('slug', slug).maybeSingle().then(({ data }) => setCat(data ?? null));
+    setCat(undefined);
+    if (!isBranchVisible(slug)) setCat(null);
+    else {
+      const slugs = MERGED_BRANCHES[slug] || [slug];
+      supabase.from('guide_categories').select('*').eq('section', section).in('slug', slugs).then(({ data }) => {
+        const main = (data || []).find((c) => c.slug === slug);
+        setCat(main ?? null);
+        setCatIds((data || []).map((c) => c.id));
+      });
+    }
     supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
   }, [section, slug, startTab]);
 
@@ -42,7 +53,7 @@ export default function GuideList() {
     let q = supabase
       .from('professional_profiles')
       .select(PRO_SELECT)
-      .eq('category_id', cat.id)
+      .in('category_id', catIds.length ? catIds : [cat.id])
       .eq('status', 'active')
       .gt('subscription_ends_at', new Date().toISOString())
       .order('badge_verified', { ascending: false })
@@ -53,7 +64,7 @@ export default function GuideList() {
       if (e) setError(true);
       else setItems(data);
     });
-  }, [cat, wilaya]);
+  }, [cat, catIds, wilaya]);
 
   const sellerIds = useMemo(() => (items || []).map((p) => p.owner_id), [items]);
 
