@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
@@ -139,7 +140,7 @@ export default function ListingDetail() {
   return (
     <>
       <div className="detail-top">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}><Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} /></button>
         <ShareButton path={here} title={item.title} />
         <Carousel urls={urls} />

@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/index.jsx';
 import Icon from '../components/Icon.jsx';
@@ -12,7 +13,7 @@ export default function Support() {
   return (
     <>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <h2>{t('support.title')}</h2>
       </div>
       <p className="muted">{t('support.intro')}</p>
