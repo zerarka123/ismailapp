@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
@@ -192,7 +193,7 @@ export default function Notifications() {
   return (
     <>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <h2>{t('notif.title')}</h2>
       </div>
       {(!available || missing) ? (

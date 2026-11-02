@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
@@ -48,7 +49,7 @@ export default function UserProfile() {
 
   return (
     <div style={{ padding: '16px 16px 120px', maxWidth: 720, margin: '0 auto' }}>
-      <button className="iconbtn" type="button" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+      <button className="iconbtn" type="button" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
 
       {profile === undefined && <Empty>{t('common.loading')}</Empty>}
       {profile === null && <Empty>{t('user.not_found')}</Empty>}

@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
@@ -267,7 +268,7 @@ export default function PortfolioManage() {
   return (
     <div style={{ padding: '16px 16px 120px', maxWidth: 720, margin: '0 auto' }}>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <h2>{t('pf.title')}</h2>
       </div>
       <p style={{ color: C.muted, fontSize: 14, margin: '0 0 16px', lineHeight: 1.8 }}>{t('pf.intro')}</p>

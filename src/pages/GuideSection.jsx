@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { SUPABASE_HOST, supabase } from '../supabase';
@@ -34,7 +35,7 @@ export default function GuideSection() {
   return (
     <>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <h2>{t(`guide.${section}`)}</h2>
       </div>
       <p className="muted">{t(`guide.${section}_intro`)}</p>

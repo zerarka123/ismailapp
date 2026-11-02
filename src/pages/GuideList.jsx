@@ -1,3 +1,4 @@
+import { goBack } from '../lib/goBack.js';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
@@ -75,7 +76,7 @@ export default function GuideList() {
   return (
     <>
       <div className="topbar">
-        <button className="iconbtn" onClick={() => nav(-1)} aria-label={t('common.back')}><Icon name="back" /></button>
+        <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <h2>{cat ? categoryName(cat) : '…'}</h2>
       </div>
       <select className="input" value={wilaya} onChange={(e) => setWilaya(e.target.value)} aria-label={t('field.wilaya')}>
