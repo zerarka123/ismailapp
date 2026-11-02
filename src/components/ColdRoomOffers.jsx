@@ -8,6 +8,7 @@ import { useListings } from '../lib/useListings';
 import { fmtPrice, mapsLink, mapsSearchLink, telLink, waLink } from '../lib/format';
 import { cssUrl, publicUrl } from '../lib/images';
 import { coverOf } from './ListingCard.jsx';
+import { isProActive, offerActive } from '../lib/pro';
 import Icon from './Icon.jsx';
 
 const DAY = 86400000;
@@ -16,10 +17,12 @@ const DAY = 86400000;
 // call / WhatsApp (signed-in visitors only, like everywhere in the app) and the location on the map.
 export default function ColdRoomOffers({ sellerIds, pros, wilayaId }) {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { pathname } = useLocation();
-  const filters = useMemo(() => ({ kind: 'gear', sellerIds, ...(wilayaId ? { wilayaId } : {}) }), [sellerIds, wilayaId]);
-  const { items, loading, error, done, more, reload } = useListings(filters);
+  const filters = useMemo(() => ({ kind: 'gear', extra: true, sellerIds, ...(wilayaId ? { wilayaId } : {}) }), [sellerIds, wilayaId]);
+  const { items: all, loading, error, done, more, reload } = useListings(filters);
+  const items = useMemo(() => all.filter(offerActive), [all]);
+  const canPost = isProActive(profile);
   const [contacts, setContacts] = useState({});
   const prosById = useMemo(() => Object.fromEntries((pros || []).map((p) => [p.owner_id, p])), [pros]);
   const idsKey = items.map((i) => i.id).join(',');
@@ -55,11 +58,12 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId }) {
             <div key={item.id} className="lcard">
               <Link to={`/listing/${item.id}`} className="lcard-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined}>
                 {fresh && <span className="tag live">{t('cold.today_tag')}</span>}
-                <span className="price">{fmtPrice(item.price_dzd)}</span>
+                <span className="price">{fmtPrice(item.price_dzd)}{item.unit ? ` / ${t(`unit.${item.unit}`)}` : ''}</span>
               </Link>
               <div className="lcard-body">
                 <h3><Link to={`/listing/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.title}</Link></h3>
                 {pro?.business_name && <p>{pro.business_name}</p>}
+                {item.quantity && <p className="muted small">{t('spec.quantity')}: {item.quantity}</p>}
                 <span className="where"><Icon name="pin" size={13} /> {wilayaName(item.wilayas)}{pro?.address ? ` · ${pro.address}` : ''}</span>
                 <div className="offer-actions">
                   {contact ? (
@@ -90,8 +94,17 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId }) {
         {!loading && !error && !done && <button className="btn alt" onClick={more}>{t('common.more')}</button>}
       </div>
 
-      <Link to="/sell?kind=gear&gear=product" className="btn sand" style={{ marginTop: 16 }}><Icon name="plus" />{t('cold.post_ad')}</Link>
-      <p className="muted center" style={{ marginTop: 8, fontSize: 13 }}>{t('cold.post_hint')}</p>
+      {canPost ? (
+        <>
+          <Link to="/sell?kind=gear&branch=fish_market&gear=product" className="btn sand" style={{ marginTop: 16 }}><Icon name="plus" />{t('cold.post_ad')}</Link>
+          <p className="muted center" style={{ marginTop: 8, fontSize: 13 }}>{t('cold.post_hint')}</p>
+        </>
+      ) : (
+        <p className="msg info" style={{ marginTop: 16 }}>
+          {user ? t('cold.need_pro') : t('cold.need_login')}{' '}
+          <Link className="linkbtn" to={user ? '/account' : `/login?next=${encodeURIComponent(pathname)}`}>{user ? t('cold.go_account') : t('cold.login_contact')}</Link>
+        </p>
+      )}
     </>
   );
 }

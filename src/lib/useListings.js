@@ -8,6 +8,8 @@ const BASE =
 // gear_type / sponsored_until come with migration 003; the BASE select keeps older databases working
 export const LISTING_SELECT = `${BASE}, gear_type, sponsored_until`;
 export const LISTING_SELECT_BASE = BASE;
+// unit / quantity / offer_days / product_type come with migration 006
+export const LISTING_SELECT_EXTRA = `${LISTING_SELECT}, unit, quantity, offer_days, product_type`;
 
 // Runs build(select) and, if the database has not been migrated yet, retries with the older column list.
 export async function selectListings(build) {
@@ -63,7 +65,14 @@ export function useListings(filters) {
         return q;
       };
 
-      const { data, error: err } = f.sponsored ? await build(LISTING_SELECT) : await selectListings(build);
+      let res;
+      if (f.extra) {
+        res = await build(LISTING_SELECT_EXTRA);
+        if (res.error && isMissingSchema(res.error)) res = await selectListings(build);
+      } else {
+        res = f.sponsored ? await build(LISTING_SELECT) : await selectListings(build);
+      }
+      const { data, error: err } = res;
       if (err) {
         // Sponsored strip on a database without migration 003: just show nothing
         if (f.sponsored && isMissingSchema(err)) {
