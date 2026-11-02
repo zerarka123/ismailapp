@@ -20,8 +20,9 @@ export const clean = (v, max) => {
 export const siteOf = (env) => String(env?.SITE_URL || SITE_DEFAULT).replace(/\/+$/, '');
 
 export function supabaseConfig(env) {
-  const base = String(env?.SUPABASE_URL || '').replace(/\/+$/, '');
-  const key = env?.SUPABASE_ANON_KEY || '';
+  // SUPABASE_URL / SUPABASE_ANON_KEY win; the project's existing build variables are used as a fallback
+  const base = String(env?.SUPABASE_URL || env?.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
+  const key = env?.SUPABASE_ANON_KEY || env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
   if (!/^https:\/\/[a-z0-9.-]+$/i.test(base) || !key) return null;
   return { base, key };
 }
@@ -31,8 +32,11 @@ export async function rest(cfg, query, ms = 3500) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), ms);
   try {
+    // New-style keys (sb_publishable_...) are not JWTs: they go in the apikey header only
+    const headers = { apikey: cfg.key, Accept: 'application/json' };
+    if (!cfg.key.startsWith('sb_')) headers.Authorization = `Bearer ${cfg.key}`;
     const res = await fetch(`${cfg.base}/rest/v1/${query}`, {
-      headers: { apikey: cfg.key, Authorization: `Bearer ${cfg.key}`, Accept: 'application/json' },
+      headers,
       signal: ctl.signal,
     });
     if (!res.ok) return null;
