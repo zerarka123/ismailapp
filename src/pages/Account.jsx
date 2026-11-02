@@ -103,6 +103,7 @@ export default function Account() {
         ) : (
           <Link to="/register-business"><Icon name="store" />{t('acc.register_business')}</Link>
         )}
+        {pro && <Link to="/edit-business"><Icon name="edit" />{t('edit.business_btn')}</Link>}
         {pro?.status === 'active' && <Link to="/portfolio"><Icon name="image" />{t('pf.title')}</Link>}
         {profile?.is_admin && <Link to="/admin"><Icon name="shield" />{t('admin.title')}</Link>}
       </div>

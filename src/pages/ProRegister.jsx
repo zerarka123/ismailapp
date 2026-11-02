@@ -63,6 +63,7 @@ export default function ProRegister() {
           </p>
           {/* Contact options for "waiting for activation" / "suspended": real mailto + support page links */}
           {st !== 'active' && <SupportLinks subject={t('support.subject_activation', { name: existing.business_name })} />}
+          <Link className="btn alt" to="/edit-business" style={{ marginTop: 12 }}><Icon name="edit" />{t('edit.business_btn')}</Link>
           {st === 'active' && (
             <div className="row2">
               <Link className="btn" to={`/pro/${existing.id}`}>{t('reg.view_page')}</Link>

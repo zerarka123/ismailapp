@@ -152,7 +152,10 @@ export default function ProDetail() {
 
       <div className="cta">
         {mine ? (
-          <Link className="btn alt" to="/portfolio"><Icon name="edit" />{t('pro.manage_mine')}</Link>
+          <>
+            <Link className="btn" to="/edit-business"><Icon name="edit" color="#fff" />{t('edit.business_btn')}</Link>
+            <Link className="btn alt" to="/portfolio"><Icon name="image" />{t('pro.manage_mine')}</Link>
+          </>
         ) : !user ? (
           <>
             <Link className="btn" to={loginHere}><Icon name="phone" color="#fff" />{t('contact.contact')}</Link>

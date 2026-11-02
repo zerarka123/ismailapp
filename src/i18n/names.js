@@ -40,6 +40,13 @@ const BOAT_TYPES = {
   inflatable: ['Bateau pneumatique', 'Inflatable boat'],
   zodiac: ['Bateau pneumatique', 'Inflatable boat'],
   jet_ski: ['Jet-ski', 'Jet ski'],
+  motorboat: ['Bateau à moteur', 'Motorboat'],
+  motor_boat: ['Bateau à moteur', 'Motorboat'],
+  powerboat: ['Bateau à moteur', 'Motorboat'],
+  cargo: ['Navire de commerce', 'Cargo ship'],
+  cargo_ship: ['Navire de commerce', 'Cargo ship'],
+  commercial: ['Navire de commerce', 'Cargo ship'],
+  merchant: ['Navire de commerce', 'Cargo ship'],
   other: ['Autre', 'Other'],
 };
 const BOAT_TYPES_BY_AR = [
@@ -52,6 +59,9 @@ const BOAT_TYPES_BY_AR = [
   ['سردين', 'sardine'],
   ['جياب', 'trawler'],
   ['صيد', 'fishing'],
+  ['محرك', 'motorboat'], // قارب بمحرك
+  ['تجار', 'cargo'], // سفينة تجارية
+  ['شحن', 'cargo'],
   ['أخرى', 'other'],
 ];
 

@@ -230,6 +230,17 @@ export const MESSAGES = {
   'cold.post_ad': ['نشر إعلان', 'Publier une annonce', 'Post an ad'],
   'cold.post_hint': ['النشر مجاني للحسابات المحترفة المسجّلة في هذا الفرع.', 'Publication gratuite pour les comptes professionnels inscrits dans cette branche.', 'Free for professional accounts registered in this branch.'],
   'cold.login_contact': ['سجّل الدخول للاتصال بالبائع', 'Connectez-vous pour contacter le vendeur', 'Sign in to contact the seller'],
+  'edit.button': ['تعديل', 'Modifier', 'Edit'],
+  'edit.listing_title': ['تعديل الإعلان', 'Modifier l’annonce', 'Edit listing'],
+  'edit.business_title': ['تعديل النشاط', 'Modifier l’activité', 'Edit business'],
+  'edit.business_btn': ['تعديل نشاطي', 'Modifier mon activité', 'Edit my business'],
+  'edit.save': ['حفظ التعديلات', 'Enregistrer les modifications', 'Save changes'],
+  'edit.saved': ['تم حفظ التعديلات.', 'Modifications enregistrées.', 'Changes saved.'],
+  'edit.delete_listing': ['حذف الإعلان', 'Supprimer l’annonce', 'Delete listing'],
+  'edit.photos_note': ['الصور تبقى كما هي. لتغييرها احذف الإعلان وانشره من جديد.', 'Les photos restent inchangées. Pour les modifier, supprimez l’annonce puis republiez-la.', 'Photos stay as they are. To change them, delete the listing and post it again.'],
+  'edit.business_note': ['نوع النشاط والفرع تغيّرهما الإدارة. للطلب راسلنا من صفحة الدعم.', 'Le type d’activité et la branche sont modifiés par l’administration. Écrivez-nous via la page d’assistance.', 'The activity type and branch are changed by the administration. Contact us from the support page.'],
+  'edit.unavailable': ['التعديل غير متاح حاليًا. حاول لاحقًا أو راسل الدعم.', 'La modification n’est pas disponible pour le moment. Réessayez plus tard ou contactez l’assistance.', 'Editing is not available right now. Try again later or contact support.'],
+  'edit.not_yours': ['لا يمكنك تعديل هذا الإعلان.', 'Vous ne pouvez pas modifier cette annonce.', 'You cannot edit this listing.'],
   'guide.open_portfolio': ['معرض الأعمال والخدمات', 'Portfolio des travaux et services', 'Work & services portfolio'],
 
   // pro page (portfolio)

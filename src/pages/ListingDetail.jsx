@@ -7,7 +7,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { conditionLabel, fmtDate, fmtPrice, isMissingSchema, telLink, waLink } from '../lib/format';
-import { publicUrl } from '../lib/images';
+import { publicUrl, removeFiles } from '../lib/images';
 import { kindKey, safetyKey } from '../lib/safety';
 import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
@@ -92,6 +92,14 @@ export default function ListingDetail() {
         <Link className="btn" to="/">{t('common.back_home')}</Link>
       </div>
     );
+
+  async function removeMine() {
+    if (!window.confirm(t('mine.confirm_delete'))) return;
+    await removeFiles('listing-images', (item.listing_images || []).map((i) => i.storage_path));
+    const { error } = await supabase.from('listings').delete().eq('id', item.id);
+    if (error) return window.alert(errorText(error));
+    nav('/my-listings', { replace: true });
+  }
 
   const images = [...item.listing_images].sort((a, b) => a.sort_order - b.sort_order);
   const urls = images.map((i) => publicUrl('listing-images', i.storage_path));
@@ -179,7 +187,11 @@ export default function ListingDetail() {
 
       <div className="cta">
         {mine ? (
-          <Link className="btn alt" to="/my-listings">{t('listing.yours')}</Link>
+          <>
+            <Link className="btn" to={`/edit-listing/${item.id}`}><Icon name="edit" color="#fff" />{t('edit.button')}</Link>
+            <button type="button" className="btn danger" onClick={removeMine}><Icon name="trash" color="#fff" />{t('common.delete')}</button>
+            <Link className="btn alt" to="/my-listings">{t('listing.yours')}</Link>
+          </>
         ) : !user ? (
           <>
             <Link className="btn" to={`/login?next=${encodeURIComponent(here)}`}><Icon name="phone" color="#fff" />{t('contact.seller')}</Link>
