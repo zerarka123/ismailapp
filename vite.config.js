@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       // notification click handling for web notifications (public/sw-notify.js)
-      workbox: { importScripts: ['sw-notify.js'], navigateFallbackDenylist: [/^\/(privacy|terms|delete-account|support)\.html$/] },
+      workbox: { importScripts: ['sw-notify.js'], navigateFallbackDenylist: [/^\/(privacy|terms|delete-account|support)\.html$/, /^\/(sitemap\.xml|robots\.txt)$/] },
       manifest: {
         name: 'Marsa',
         short_name: 'Marsa',
