@@ -270,7 +270,7 @@ export const MESSAGES = {
   'pf.confirm_delete_photo': ['حذف هذه الصورة نهائياً؟', 'Supprimer définitivement cette photo ?', 'Delete this photo permanently?'],
   'pf.video_title': ['عنوان الفيديو', 'Titre de la vidéo', 'Video title'],
   'pf.video_desc': ['وصف مختصر (اختياري)', 'Courte description (facultatif)', 'Short description (optional)'],
-  'pf.pick_video_hint': ['اختر فيديو (MP4 أو MOV، حتى 50 ميغا و3 دقائق)', 'Choisir une vidéo (MP4 ou MOV, 50 Mo et 3 min max)', 'Choose a video (MP4 or MOV, up to 50 MB and 3 minutes)'],
+  'pf.pick_video_hint': ['اختر فيديو (MP4 أو MOV، حتى 50 ميغا و40 ثانية)', 'Choisir une vidéo (MP4 ou MOV, 50 Mo et 40 s max)', 'Choose a video (MP4 or MOV, up to 50 MB and 40 seconds)'],
   'pf.title_short': ['اكتب عنواناً لا يقل عن 3 أحرف.', 'Saisissez un titre d’au moins 3 caractères.', 'Enter a title of at least 3 characters.'],
   'pf.pick_video': ['اختر فيديو أولاً.', 'Choisissez d’abord une vidéo.', 'Choose a video first.'],
   'pf.video_type': ['صيغة الفيديو المقبولة: MP4 أو MOV.', 'Formats acceptés : MP4 ou MOV.', 'Accepted formats: MP4 or MOV.'],
@@ -543,5 +543,5 @@ export const MESSAGES = {
   'err.portfolio_limit': ['وصلت إلى الحد الأقصى من فيديوهات المعرض (20 فيديو).', 'Nombre maximal de vidéos du portfolio atteint (20).', 'Portfolio video limit reached (20).'],
   'err.not_active': ['لا يمكن رفع إعلان غير منشور.', 'Impossible de remonter une annonce non publiée.', 'You cannot bump an unpublished listing.'],
   'err.not_authenticated': ['سجّل الدخول أولاً.', 'Connectez-vous d’abord.', 'Please sign in first.'],
-  'err.video_too_long': ['مدة الفيديو أطول من 3 دقائق. اختر فيديو أقصر.', 'La vidéo dépasse 3 minutes. Choisissez une vidéo plus courte.', 'The video is longer than 3 minutes. Choose a shorter one.'],
+  'err.video_too_long': ['مدة الفيديو أطول من 40 ثانية. اختر فيديو أقصر.', 'La vidéo dépasse 40 secondes. Choisissez une vidéo plus courte.', 'The video is longer than 40 seconds. Choose a shorter one.'],
 };
