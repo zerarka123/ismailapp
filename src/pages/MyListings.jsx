@@ -74,6 +74,7 @@ export default function MyListings() {
                 {live && daysLeft(it.expires_at) > 0 && <Link className="mini" to={`/listing/${it.id}`}>{t('mine.view')}</Link>}
                 {live && daysLeft(it.expires_at) > 0 && <button className="mini" onClick={() => sold(it)}>{t('mine.sold')}</button>}
                 {canRenew && <button className="mini" onClick={() => renew(it)}>{t('mine.renew')}</button>}
+                {it.status !== 'removed' && <Link className="mini" to={`/edit-listing/${it.id}`}>{t('edit.button')}</Link>}
                 <button className="mini danger" onClick={() => del(it)}>{t('common.delete')}</button>
               </div>
             </div>

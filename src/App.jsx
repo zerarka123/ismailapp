@@ -25,6 +25,8 @@ import Support from './pages/Support.jsx';
 import Notifications from './pages/Notifications.jsx';
 import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
+import EditListing from './pages/EditListing.jsx';
+import EditBusiness from './pages/EditBusiness.jsx';
 
 function Shell() {
   const { loading, recovery } = useAuth();
@@ -51,6 +53,8 @@ function Shell() {
           <Route path="/post/job-offer" element={<PostJob key="job_offer" kind="job_offer" />} />
           <Route path="/post/job-request" element={<PostJob key="job_request" kind="job_request" />} />
           <Route path="/my-listings" element={<MyListings />} />
+          <Route path="/edit-listing/:id" element={<EditListing />} />
+          <Route path="/edit-business" element={<EditBusiness />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
