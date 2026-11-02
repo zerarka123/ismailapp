@@ -18,7 +18,7 @@ const WILAYA_EN = { 16: 'Algiers' };
 const CATEGORIES = {
   shipyards: ['Chantiers navals', 'Shipyards'],
   parts_suppliers: ['Fournisseurs de pièces', 'Parts suppliers'],
-  naval_mechanics: ['Mécanique navale', 'Marine mechanics'],
+  naval_mechanics: ['Mécanique et électricité navales', 'Marine mechanics & electrics'],
   naval_electrics: ['Électricité navale', 'Marine electrics'],
   gear_shops: ['Magasins de matériel de pêche', 'Fishing gear shops'],
   fishing_trips: ['Sorties de pêche', 'Fishing trips'],
@@ -64,7 +64,7 @@ export function wilayaName(w, lang = getLang()) {
 }
 
 // Arabic names that must win over the database value (so a rename ships with the app, without a SQL step)
-const AR_OVERRIDE = { cold_rooms: 'غرف تبريد / مسمكة' };
+const AR_OVERRIDE = { cold_rooms: 'غرف تبريد / مسمكة', naval_mechanics: 'ميكانيك وكهرباء السفن' };
 
 export function categoryName(c, lang = getLang()) {
   if (!c) return '';

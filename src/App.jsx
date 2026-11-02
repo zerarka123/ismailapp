@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
 import { I18nProvider, useI18n } from './i18n/index.jsx';
 import { NotificationsProvider } from './notifications.jsx';
 import Icon from './components/Icon.jsx';
-import JobTypeSelectorModal from './components/jobs/jobTypeselectormodal.jsx';
 import Home from './pages/Home.jsx';
 import Search from './pages/Search.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
@@ -29,11 +27,10 @@ import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 
 function Shell() {
-  const { loading, recovery, user } = useAuth();
+  const { loading, recovery } = useAuth();
   const { t } = useI18n();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
 
   if (loading) return <div className="splash"><img src="/logo.png" alt={t('app.name')} /></div>;
   if (recovery) return <ResetPassword />;
@@ -78,18 +75,13 @@ function Shell() {
         <nav className="tabbar">
           <NavLink to="/" end className="tab"><Icon name="home" />{t('nav.home')}</NavLink>
           <NavLink to="/search" className="tab"><Icon name="search" />{t('nav.search')}</NavLink>
-          <button className="fab" aria-label={t('nav.post')} onClick={() => setShowModal(true)}><Icon name="plus" size={26} /></button>
+          {/* "+" goes straight to the post form. The job-type chooser (components/jobs/jobTypeselectormodal.jsx) is kept but not shown. */}
+          <button className="fab" aria-label={t('nav.post')} onClick={() => navigate('/sell')}><Icon name="plus" size={26} /></button>
           <NavLink to="/favorites" className="tab"><Icon name="star" />{t('nav.favorites')}</NavLink>
           <NavLink to="/account" className="tab"><Icon name="user" />{t('nav.account')}</NavLink>
         </nav>
       )}
 
-      <JobTypeSelectorModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        isAuthenticated={!!user}
-        onNavigate={(path) => navigate(path)}
-      />
     </div>
   );
 }
