@@ -17,6 +17,7 @@ import { isSponsored } from '../components/ListingCard.jsx';
 const BASE =
   'id, seller_id, seller_name, kind, title, description, price_dzd, length_m, year_built, condition, engine_info, place_text, profession, status, expires_at, wilayas(*), boat_types(*), listing_images(storage_path, sort_order)';
 const SELECT = `${BASE}, gear_type, sponsored_until`;
+const SELECT_EXTRA = `${SELECT}, unit, quantity, offer_days, product_type`;
 
 // Admin only: put a listing in the sponsored strip of the home page (migration 003)
 function SponsorControls({ item, onChange }) {
@@ -56,7 +57,8 @@ export default function ListingDetail() {
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
-    let res = await supabase.from('listings').select(SELECT).eq('id', id).maybeSingle();
+    let res = await supabase.from('listings').select(SELECT_EXTRA).eq('id', id).maybeSingle();
+    if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(BASE).eq('id', id).maybeSingle();
     return res.data ?? null;
   }, [id]);
@@ -110,6 +112,8 @@ export default function ListingDetail() {
   const specs = [
     ['spec.type', item.boat_types ? boatTypeName(item.boat_types) : t(kindKey(item))],
     ['spec.profession', item.profession],
+    ['spec.quantity', item.quantity],
+    ['spec.unit', item.unit ? t(`unit.${item.unit}`) : null],
     ['spec.length', item.length_m ? `${Number(item.length_m)} ${t('unit.m')}` : null],
     ['spec.engine', item.engine_info],
     ['spec.year', item.year_built],

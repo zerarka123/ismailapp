@@ -8,25 +8,25 @@ import { errorText } from '../errors';
 import { MAX_IMAGES } from '../config';
 import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
-import { hasActivePro } from '../lib/accountTypes';
+import { BRANCH_PRODUCT_TYPE, FISH_UNITS, OFFER_DAYS, POST_BRANCHES, defaultBranch, isProActive } from '../lib/pro';
 import { marsaError } from '../lib/marsaErrors';
 import { GEAR_TYPES, safetyKey } from '../lib/safety';
 import ImagePicker from '../components/ImagePicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
 const YEAR = new Date().getFullYear();
-const INIT = { kind: 'boat', gearType: 'spare_part', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
+const INIT = { kind: 'boat', gearType: 'spare_part', branch: '', unit: 'kg', quantity: '', offerDays: '1', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
 
 // equipment = fishing & navigation equipment anyone can sell on the market (migration 003)
 const KINDS = ['boat', 'engine', 'equipment'];
-const titleHint = (f) => (f.kind === 'gear' ? `sell.hint_gear_${f.gearType}` : `sell.hint_${f.kind}`);
+const titleHint = (f) => (f.kind === 'gear' ? (f.branch === 'fish_market' ? 'sell.hint_fish' : `sell.hint_gear_${f.gearType}`) : `sell.hint_${f.kind}`);
 
 export default function Sell() {
   const { user, profile } = useAuth();
   const { t } = useI18n();
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear'].includes(params.get('kind')) ? params.get('kind') : 'boat', gearType: GEAR_TYPES.includes(params.get('gear')) ? params.get('gear') : INIT.gearType }));
+  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear'].includes(params.get('kind')) ? params.get('kind') : 'boat', gearType: GEAR_TYPES.includes(params.get('gear')) ? params.get('gear') : INIT.gearType, branch: POST_BRANCHES.includes(params.get('branch')) ? params.get('branch') : '' }));
   const [images, setImages] = useState([]);
   const [types, setTypes] = useState([]);
   const [wilayas, setWilayas] = useState([]);
@@ -56,24 +56,28 @@ export default function Sell() {
     Promise.all([
       supabase.from('app_settings').select('value').eq('key', 'free_listing_limit').maybeSingle(),
       supabase.from('listings').select('id', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'published').gt('expires_at', new Date().toISOString()),
-    ]).then(([s, c]) => setQuota({ limit: s.data?.value ?? 2, used: c.count ?? 0 }));
+    ]).then(([s, c]) => setQuota({ limit: parseInt(String(s.data?.value ?? '').replace(/\D/g, ''), 10) || 5, used: c.count ?? 0 }));
   }, [user?.id]);
 
   if (!user) return <NeedLogin text={t('sell.login')} />;
 
   // Owner account + active professional accounts: no free limit, and can post products & services
   const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
-  const isPro = hasActivePro(profile) || isOwner;
+  const isPro = isProActive(profile) || isOwner;
+  const branch = f.branch || defaultBranch(profile);
+  const isFish = f.kind === 'gear' && isPro && branch === 'fish_market';
   const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
   const full = !isPro && effectiveQuota.used >= effectiveQuota.limit;
   const kind = f.kind === 'gear' && !isPro ? 'boat' : f.kind;
   const isGear = kind === 'gear';
+  const gearType = branch === 'fish_market' ? 'product' : branch === 'workshop' ? 'service' : f.gearType === 'service' ? 'product' : f.gearType;
   const hasYear = kind === 'boat' || kind === 'engine';
 
   function validate() {
     if (kind === 'boat' && !f.typeId) return t('sell.v_type');
     const tt = f.title.trim();
     if (tt.length < 5 || tt.length > 120) return t('sell.v_title');
+    if (isFish && !f.price) return t('sell.v_price_fish');
     if (f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return t('sell.v_price');
     if (kind === 'boat' && f.length) {
       const n = Number(f.length.replace(',', '.'));
@@ -114,10 +118,18 @@ export default function Sell() {
         engine_info: hasYear ? f.engine.trim().slice(0, 200) : null,
         wilaya_id: Number(f.wilayaId),
         place_text: f.place.trim().slice(0, 150) || null,
-        condition: f.condition || null,
+        condition: isFish ? null : f.condition || null,
       };
+      const extra = isGear
+        ? {
+            product_type: BRANCH_PRODUCT_TYPE[branch],
+            ...(isFish ? { unit: f.unit, quantity: f.quantity.trim().slice(0, 40) || null, offer_days: Number(f.offerDays) } : {}),
+          }
+        : {};
       const insert = (row) => supabase.from('listings').insert(row).select('id').single();
-      let { data: row, error } = await insert(isGear ? { ...fields, gear_type: f.gearType } : fields);
+      let { data: row, error } = await insert(isGear ? { ...fields, gear_type: gearType, ...extra } : fields);
+      // Database without migration 006: publish without the branch fields
+      if (error && isGear && isMissingSchema(error)) ({ data: row, error } = await insert({ ...fields, gear_type: gearType }));
       // Database without migration 003: publish the product without its sub-type
       if (error && isGear && isMissingSchema(error)) ({ data: row, error } = await insert(fields));
       if (error) throw error;
@@ -146,7 +158,7 @@ export default function Sell() {
     }
   }
 
-  const tipKey = safetyKey(kind, f.gearType);
+  const tipKey = safetyKey(kind, gearType);
 
   return (
     <>
@@ -165,13 +177,22 @@ export default function Sell() {
 
         {isGear && (
           <>
-            <div className="field"><label>{t('sell.gear_type')}</label>
+            <div className="field"><label>{t('sell.branch')}</label>
               <div className="seg seg3">
-                {GEAR_TYPES.map((g) => (
-                  <button key={g} type="button" className={`btn ${f.gearType === g ? '' : 'alt'} sm`} onClick={() => setF({ ...f, gearType: g })}>{t(`gear.${g}`)}</button>
+                {POST_BRANCHES.map((b) => (
+                  <button key={b} type="button" className={`btn ${branch === b ? '' : 'alt'} sm`} onClick={() => setF({ ...f, branch: b })}>{t(`sell.branch_${b}`)}</button>
                 ))}
               </div>
             </div>
+            {branch === 'gear_shop' && (
+              <div className="field"><label>{t('sell.gear_type')}</label>
+                <div className="seg seg3">
+                  {['product', 'spare_part'].map((g) => (
+                    <button key={g} type="button" className={`btn ${gearType === g ? '' : 'alt'} sm`} onClick={() => setF({ ...f, gearType: g })}>{t(`gear.${g}`)}</button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="msg info">{t('sell.gear_branch_note')}</p>
           </>
         )}
@@ -193,7 +214,24 @@ export default function Sell() {
             </select>
           </div>
         )}
-        <div className="field"><label>{isGear ? t('sell.gear_name') : t('sell.ad_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={t(titleHint({ ...f, kind }))} /></div>
+        <div className="field"><label>{isGear ? t('sell.gear_name') : t('sell.ad_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={t(titleHint({ ...f, kind, gearType, branch }))} /></div>
+        {isFish && (
+          <>
+            <div className="row2">
+              <div className="field"><label>{t('sell.price')}</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder={t('sell.price_hint')} /></div>
+              <div className="field"><label>{t('sell.unit')}</label>
+                <select className="input" value={f.unit} onChange={set('unit')}>{FISH_UNITS.map((u) => <option key={u} value={u}>{t(`unit.${u}`)}</option>)}</select>
+              </div>
+            </div>
+            <div className="row2">
+              <div className="field"><label>{t('spec.quantity')}</label><input className="input" value={f.quantity} onChange={set('quantity')} maxLength={40} placeholder={t('sell.quantity_hint')} /></div>
+              <div className="field"><label>{t('sell.offer_days')}</label>
+                <select className="input" value={f.offerDays} onChange={set('offerDays')}>{OFFER_DAYS.map((d) => <option key={d} value={d}>{t('sell.offer_days_n', { n: d })}</option>)}</select>
+              </div>
+            </div>
+          </>
+        )}
+        {!isFish && (
         <div className="row2">
           <div className="field"><label>{t('sell.price')}</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder={t('sell.price_hint')} /></div>
           <div className="field"><label>{t('spec.condition')}</label>
@@ -202,6 +240,7 @@ export default function Sell() {
             </select>
           </div>
         </div>
+        )}
         {hasYear && (
           <div className="row2">
             {kind === 'boat' && <div className="field"><label>{t('sell.length')}</label><input className="input" inputMode="decimal" value={f.length} onChange={set('length')} maxLength={6} /></div>}
