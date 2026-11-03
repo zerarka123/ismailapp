@@ -10,6 +10,7 @@ import { proKindLabel } from '../lib/accountTypes';
 import { selectListings } from '../lib/useListings';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import Icon from '../components/Icon.jsx';
+import AdminSocial from '../components/AdminSocial.jsx';
 
 const TONE = { pending: 'warn', active: 'ok', suspended: 'bad' };
 const one = (x) => (Array.isArray(x) ? x[0] : x);
@@ -197,10 +198,11 @@ export default function Admin() {
   return (
     <>
       <div className="topbar"><h2>{t('admin.title')}</h2></div>
-      <div className="seg seg3">
+      <div className="seg seg4">
         <button className={`btn sm ${tab === 'pros' ? '' : 'alt'}`} onClick={() => setTab('pros')}>{t('admin.tab_pros')} ({pros?.length ?? 0})</button>
         <button className={`btn sm ${tab === 'reports' ? '' : 'alt'}`} onClick={() => setTab('reports')}>{t('admin.tab_reports')} ({reports?.length ?? 0})</button>
         <button className={`btn sm ${tab === 'sponsored' ? '' : 'alt'}`} onClick={() => setTab('sponsored')}>{t('admin.tab_sponsored')} ({sponsored.length})</button>
+        <button className={`btn sm ${tab === 'social' ? '' : 'alt'}`} onClick={() => setTab('social')}>{t('admin.tab_social')}</button>
       </div>
       {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
 
@@ -268,6 +270,8 @@ export default function Admin() {
           ))}
         </>
       )}
+
+      {tab === 'social' && <AdminSocial />}
 
       {tab === 'sponsored' && (
         <>
