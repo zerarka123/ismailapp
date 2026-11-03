@@ -183,7 +183,8 @@ input[dir='ltr'] { text-align: start; }
 .tag.sponsored { background: var(--deep); color: #fff; }
 .tag.live { background: var(--ok); color: #fff; }
 .seg3 { grid-template-columns: repeat(3, 1fr); }
-.seg3 .btn.sm, .seg .btn.sm { height: auto; min-height: 40px; padding: 6px 8px; line-height: 1.2; text-align: center; }
+.seg4 { grid-template-columns: repeat(2, 1fr); }
+.seg3 .btn.sm, .seg4 .btn.sm, .seg .btn.sm { height: auto; min-height: 40px; padding: 6px 8px; line-height: 1.2; text-align: center; }
 .seg3 .btn.sm { font-size: 13px; }
 .open-portfolio { display: inline-block; margin-top: 8px; font-weight: 800; font-size: 13px; color: var(--deep); }
 
