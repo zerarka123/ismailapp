@@ -2,6 +2,7 @@ import { goBack } from '../lib/goBack.js';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
+import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
 import { cssUrl, publicUrl } from '../lib/images';
@@ -23,7 +24,9 @@ export default function GuideList() {
   const { t } = useI18n();
   const isJobs = slug === 'jobs';
   const isCold = slug === 'cold_rooms';
-  const startTab = isJobs ? 'job_offer' : isCold ? 'products' : 'accounts';
+  const isFisher = slug === 'fishermen';
+  const { user } = useAuth();
+  const startTab = isJobs ? 'job_offer' : isCold || isFisher ? 'products' : 'accounts';
   const [cat, setCat] = useState(undefined);
   const [catIds, setCatIds] = useState([]);
   const [wilayas, setWilayas] = useState([]);
@@ -92,7 +95,7 @@ export default function GuideList() {
       ) : (
         <div className="seg" style={{ marginTop: 12 }}>
           <button type="button" className={`btn sm ${tab === 'accounts' ? '' : 'alt'}`} onClick={() => setTab('accounts')}>{t('guide.accounts')}</button>
-          <button type="button" className={`btn sm ${tab === 'products' ? '' : 'alt'}`} onClick={() => setTab('products')}>{t(isCold ? 'cold.offers' : 'tabs.products')}</button>
+          <button type="button" className={`btn sm ${tab === 'products' ? '' : 'alt'}`} onClick={() => setTab('products')}>{t(isCold || isFisher ? 'cold.offers' : 'tabs.products')}</button>
         </div>
       )}
 
@@ -104,7 +107,9 @@ export default function GuideList() {
       )}
 
       {tab === 'products' && (
-        items === null ? <p className="muted center">{t('common.loading')}</p> : isCold ? (
+        items === null ? <p className="muted center">{t('common.loading')}</p> : isFisher ? (
+          <ColdRoomOffers kind="equipment" sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} postHref="/sell?kind=catch" canPostOverride={!!user && items.some((p) => p.owner_id === user.id)} />
+        ) : isCold ? (
           <ColdRoomOffers sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} />
         ) : (
           <ListingFeed filters={{ kind: 'gear', sellerIds }} emptyText={t('guide.no_products')} />

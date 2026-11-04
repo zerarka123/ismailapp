@@ -33,7 +33,7 @@ const input = {
 const card = { background: '#fff', borderRadius: 24, padding: 18, boxShadow: '0 6px 24px rgba(10,110,184,.08)' };
 
 // Reads duration and grabs a poster frame (best effort; never blocks the upload)
-function inspectVideo(file) {
+export function inspectVideo(file) {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const v = document.createElement('video');

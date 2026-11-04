@@ -20,6 +20,9 @@ export function notificationText(n) {
   if (n.type === 'new_product') {
     return { title: tr('notif.new_product', { branch: categoryName({ slug: p.branch, name_ar: p.branch_ar }) }), body: [p.business, p.title].filter(Boolean).join(' · ') };
   }
+  if (n.type === 'new_catch') {
+    return { title: tr('notif.new_catch'), body: [p.business, p.title].filter(Boolean).join(' · ') };
+  }
   if (n.type === 'new_work') {
     return { title: tr('notif.new_work', { business: p.business || '' }), body: categoryName({ slug: p.branch, name_ar: p.branch_ar }) };
   }

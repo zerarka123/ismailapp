@@ -20,6 +20,7 @@ const TEXT: Record<string, [string, string, string]> = {
   new_job_request: ['🧑‍🔧 طلب عمل جديد', '🧑‍🔧 Nouvelle demande d’emploi', '🧑‍🔧 New job request'],
   new_generic: ['إعلان جديد في مرسى', 'Nouvelle annonce sur Marsa', 'New listing on Marsa'],
   new_product: ['🛠️ جديد في فرع {branch}', '🛠️ Nouveauté dans la branche {branch}', '🛠️ New in the {branch} branch'],
+  new_catch: ['🐟 سمك طازج للبيع في ولايتك', '🐟 Poisson frais à vendre', '🐟 Fresh fish for sale'],
   new_work: ['📸 أعمال جديدة من {business}', '📸 Nouvelles réalisations de {business}', '📸 New work from {business}'],
   generic: ['إشعار جديد', 'Nouvelle notification', 'New notification'],
 };
@@ -34,6 +35,7 @@ const BRANCHES: Record<string, [string, string]> = {
   inox_workshops: ['Ateliers inox', 'Stainless steel workshops'],
   wood_workshops: ['Ateliers bois & charpente navale', 'Wood & boat carpentry workshops'],
   cold_rooms: ['Chambres froides', 'Cold rooms'],
+  fishermen: ['Pêcheur', 'Fisherman'],
 };
 
 const fill = (s: string, vars: Record<string, string>) => s.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m);
@@ -47,6 +49,7 @@ function render(type: string, p: Record<string, string>, lang: Lang) {
     return { title: TEXT[key][i], body: p.title || '' };
   }
   if (type === 'new_product') return { title: fill(TEXT.new_product[i], { branch: branchName(p, lang) }), body: [p.business, p.title].filter(Boolean).join(' · ') };
+  if (type === 'new_catch') return { title: TEXT.new_catch[i], body: [p.business, p.title].filter(Boolean).join(' · ') };
   if (type === 'new_work') return { title: fill(TEXT.new_work[i], { business: p.business || '' }), body: branchName(p, lang) };
   return { title: TEXT.generic[i], body: p.title || '' };
 }
