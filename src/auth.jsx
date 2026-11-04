@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
-import { forgetPushToken } from './lib/push';
+import { forgetPushToken, forgetWebPush } from './lib/push';
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
       refreshProfile: () => loadProfile(session?.user.id),
       signOut: async () => {
         await forgetPushToken();
+        await forgetWebPush();
         return supabase.auth.signOut();
       },
     }),

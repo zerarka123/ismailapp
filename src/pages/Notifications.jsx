@@ -9,7 +9,7 @@ import { notificationText, useNotifications } from '../notifications.jsx';
 import { PUSH_ENABLED } from '../config';
 import { errorText } from '../errors';
 import { fmtDate, isMissingSchema } from '../lib/format';
-import { isNative, registerNativePush, webNotifySupported } from '../lib/push';
+import { isNative, registerNativePush, registerWebPush, webNotifySupported } from '../lib/push';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
@@ -113,6 +113,7 @@ function Preferences({ user }) {
     }
     const p = await Notification.requestPermission();
     setPerm(p);
+    if (p === 'granted') await registerWebPush(false).catch(() => {});
     setMsg(p === 'granted' ? { type: 'ok', text: t('notif.device_on') } : { type: 'err', text: t('notif.device_denied') });
   }
 

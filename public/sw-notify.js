@@ -16,3 +16,19 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// Web Push (PWA): the server sends { title, body, path }; show it even when the app is closed.
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) { d = {}; }
+  const title = d.title || 'Marsa';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: d.body || '',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: d.path || 'marsa',
+      data: { path: d.path || '/' },
+    })
+  );
+});
