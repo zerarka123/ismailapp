@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مرسى | تطبيق الصيادين والحرفيين وقطع غيار القوارب في الجزائر</title>
+<meta name="description" content="مرسى: الصيادون والحرفيون والميكانيكيون ومحلات قطع الغيار والموردون في تطبيق واحد. سجّل نشاطك مجانًا وانشر إعلانك مجانًا.">
+<meta name="theme-color" content="#03121c">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_DZ">
+<meta property="og:title" content="مرسى، تطبيق البحر في الجزائر">
+<meta property="og:description" content="سجّل نشاطك وانشر إعلانك مجانًا، ووصل إلى الصيادين وأصحاب القوارب.">
+<meta property="og:url" content="https://marsadz.app">
+<link rel="canonical" href="https://marsadz.app/">
+<meta property="og:image" content="https://marsadz.app/marsa-poster.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03121c;--fg:#eaf6ff;--mut:#bcd7e8;--ac:#f58b0b;--gl:rgba(5,28,44,.62);--bd:rgba(255,255,255,.18);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#03121c;--fg:#eaf6ff}}
+:root[data-theme="dark"]{--bg:#03121c;--fg:#eaf6ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Cairo,Tahoma,sans-serif;line-height:1.7}
+#sea{position:fixed;inset:0;width:100%;height:100%;z-index:-2;display:block;background:linear-gradient(#2a6fb0,#0b3a5c)}
+#dh{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-end:16px;z-index:5;pointer-events:none;font-weight:700;color:#d6f3f6;text-shadow:0 2px 10px rgba(0,20,40,.7)}
+section{min-height:100vh;display:flex;align-items:center;padding:8vh 6vw}
+.hero{align-items:flex-start;padding-top:10vh}
+.in{max-width:1100px;margin:auto;width:100%}
+h1{font-size:clamp(64px,13vw,160px);margin:0;font-weight:900;line-height:1;text-shadow:0 4px 30px rgba(0,30,60,.55)}
+h2{font-size:clamp(28px,5vw,52px);margin:0 0 12px;font-weight:900;line-height:1.2}
+p{color:var(--mut);margin:0 0 16px;max-width:60ch}
+.lead{font-size:clamp(17px,2.4vw,24px);color:#fff;max-width:34ch;text-shadow:0 2px 16px rgba(0,30,60,.6)}
+.btn{display:inline-block;padding:14px 28px;border-radius:999px;font-weight:700;text-decoration:none;margin-block:6px;margin-inline:0 10px;font-size:17px;transition:transform .2s}
+.btn:hover{transform:translateY(-3px)}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.p1{background:var(--ac);color:#1b1000}
+.p2{border:1.5px solid var(--bd);color:var(--fg);background:var(--gl);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.hint{margin-top:22px;font-size:15px;color:#fff;text-shadow:0 2px 12px rgba(0,30,60,.6)}
+.card{background:var(--gl);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--bd);border-radius:28px;padding:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.mini{width:100%;height:210px;display:block;margin-bottom:8px}
+ol{margin:0 0 20px;padding:0;padding-inline-start:20px;color:var(--mut)}
+ol li{margin-bottom:8px}
+.price{font-size:clamp(26px,4vw,40px);font-weight:900;color:var(--fg);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.chips span{border:1px solid var(--bd);border-radius:999px;padding:6px 18px;background:var(--gl)}
+h1{margin-bottom:.14em}
+.btn.dl{background:#fff;color:#06202f}
+.fab{position:fixed;inset-inline-start:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:6;padding:12px 22px;margin:0;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(20px);pointer-events:none;transition:opacity .3s,transform .3s}
+.fab.on{opacity:1;transform:none;pointer-events:auto}
+dialog{border:1px solid var(--bd);border-radius:24px;background:#06202f;color:var(--fg);padding:26px;width:min(92vw,460px);font-family:inherit}
+dialog::backdrop{background:rgba(0,10,20,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+dialog h2{font-size:26px}
+dialog .x{float:inline-end;background:none;border:0;color:var(--fg);font-size:28px;line-height:1;cursor:pointer}
+.demo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:36px;align-items:center}
+.phone{width:min(300px,78vw);margin:0 auto;border:8px solid #0b2536;border-radius:38px;overflow:hidden;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.phone video{display:block;width:100%;height:auto;aspect-ratio:384/848;background:#000}
+.social{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0}
+.social a{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border:1.5px solid var(--bd);border-radius:999px;background:var(--gl);color:var(--fg);text-decoration:none;font-weight:700;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.social a:hover{border-color:#fff}
+.social a:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.social.ico a{padding:10px}
+footer a{color:var(--fg)}
+@media (max-width:720px){.demo{grid-template-columns:1fr}}
+footer{padding:40px 6vw;text-align:center;color:var(--mut);font-size:14px}
+.seg{display:flex;gap:8px;margin:12px 0}
+.seg button{flex:1;font:inherit;padding:12px;border-radius:14px;border:1.5px solid var(--bd);background:transparent;color:var(--fg);cursor:pointer}
+.seg button.on{background:var(--ac);color:#1b1000;border-color:var(--ac);font-weight:700}
+.pd{background:rgba(255,255,255,.07);border-radius:18px;padding:16px 18px;margin:12px 0}
+.pd p{margin:0 0 8px;color:var(--fg)}
+.langsw{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));inset-inline-end:12px;z-index:7;display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--gl);border:1px solid var(--bd);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.langsw button{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:999px;padding:5px 11px;background:none;color:var(--fg);cursor:pointer}
+.langsw button.on{background:var(--ac);color:#1b1000}
+.langsw button:focus-visible{outline:2px solid #fff}
+.r{opacity:0;transform:translateY(24px);transition:opacity .9s,transform .9s}
+.r.v{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.r{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="sea"></canvas>
+<div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" data-lang="ar" lang="ar">ع</button><button type="button" data-lang="fr" lang="fr">FR</button><button type="button" data-lang="en" lang="en">EN</button></div>
+
+<section class="hero"><div class="in">
+<h1 data-i18n="name">مرسى</h1>
+<p class="lead" data-i18n="lead">الصيادون والحرفيون والميكانيكيون ومحلات قطع الغيار والموردون، كلهم في تطبيق واحد.</p>
+<a class="btn p1" data-install href="https://app.marsadz.app/?install=1" data-i18n="install">📲 نزّل التطبيق</a>
+<a class="btn p2" href="https://app.marsadz.app" data-i18n="open">افتح التطبيق</a>
+<a class="btn p2" href="https://app.marsadz.app/register-business" data-i18n="activate">فعّل حساب المحترف</a>
+<div class="social ico"><a href="https://www.instagram.com/marsa_dz/" target="_blank" rel="noopener noreferrer" aria-label="صفحتنا على انستغرام"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg></a><a href="https://www.facebook.com/profile.php?id=100064427423141" target="_blank" rel="noopener noreferrer" aria-label="صفحتنا على فيسبوك"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.800v3h2.600V21z"/></svg></a></div>
+<p class="hint" data-i18n="hint">اضغط على البحر لتحريك الموج، ثم مرّر للأسفل لتغوص في الأعماق.</p>
+</div></section>
+
+<section><div class="in demo">
+<div class="r">
+<h2 data-i18n="demo_t">شاهد مرسى قبل أن تحمّله</h2>
+<p data-i18n="demo_p">في دقيقتين ترى كيف تبحث عن قارب أو محرك أو معدات، وتتصل بصاحب الإعلان أو تراسله على واتساب، وكيف تنشر إعلانك أو طلب عملك. ونشر الإعلان وحساب المحترف مجانًا.</p>
+<a class="btn p1" data-install href="https://app.marsadz.app/?install=1" data-i18n="install">📲 نزّل التطبيق</a>
+<div class="social"><a href="https://www.instagram.com/marsa_dz/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg> <span data-i18n="ig">انستغرام</span></a><a href="https://www.facebook.com/profile.php?id=100064427423141" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.800v3h2.600V21z"/></svg> <span data-i18n="fb">فيسبوك</span></a></div>
+</div>
+<div class="phone r"><video controls playsinline preload="none" poster="marsa-poster.jpg" aria-label="شرح تطبيق مرسى" data-i18n-aria="video"><source src="marsa-demo.mp4" type="video/mp4"></video></div>
+</div></section>
+
+<section><div class="in grid">
+<div class="card r"><h2 data-i18n="ios_t">على الآيفون</h2>
+<ol><li data-i18n="ios1">افتح app.marsadz.app في Safari.</li><li data-i18n="ios2">اضغط زر المشاركة.</li><li data-i18n="ios3">اختر إضافة إلى الشاشة الرئيسية.</li></ol>
+<a class="btn dl" data-install href="https://app.marsadz.app/?install=1" data-i18n="ios_btn">📲 نزّل على الآيفون</a></div>
+<div class="card r"><h2 data-i18n="and_t">على الأندرويد</h2>
+<ol><li data-i18n="and1">افتح app.marsadz.app في Chrome.</li><li data-i18n="and2">اضغط قائمة النقاط الثلاث.</li><li data-i18n="and3">اختر تثبيت التطبيق.</li></ol>
+<a class="btn dl" data-install href="https://app.marsadz.app/?install=1" data-i18n="and_btn">📲 نزّل على الأندرويد</a>
+<p data-i18n="play">نسخة Google Play قادمة قريبًا.</p></div>
+</div></section>
+
+<section><div class="in"><div class="card r" style="max-width:600px">
+<h2 data-i18n="pro_t">حساب المحترف</h2>
+<p data-i18n="pro_p">سجّل نشاطك ليراك آلاف المبحرين. الخطوات بسيطة:</p>
+<ol><li data-i18n="pro1">افتح صفحة تسجيل الأنشطة.</li><li data-i18n="pro2">أدخل بريدك الإلكتروني.</li><li data-i18n="pro3">اكتب الرمز الذي يصلك على البريد.</li><li data-i18n="pro4">أكمل بياناتك، وتفعّل الإدارة حسابك.</li></ol>
+<div class="chips"><span data-i18n="c1">صياد</span><span data-i18n="c2">حرفي</span><span data-i18n="c3">مورد</span><span data-i18n="c4">صاحب محل</span><span data-i18n="c5">ميكانيكي</span></div>
+<a class="btn p1" href="https://app.marsadz.app/register-business" data-i18n="register">سجّل نشاطك</a>
+</div></div></section>
+
+<section><div class="in grid">
+<div class="card r"><canvas class="mini" id="m1"></canvas><h2 data-i18n="shops_t">محلات قطع الغيار</h2>
+<p data-i18n="shops_p">محركات وتروس وملحقات، اعرض بضاعتك أمام كل من يبحث عنها.</p>
+<a class="btn p2" href="https://app.marsadz.app/register-business" data-i18n="shops_btn">سجّل محلك</a></div>
+<div class="card r"><canvas class="mini" id="m2"></canvas><h2 data-i18n="sup_t">الموردون</h2>
+<p data-i18n="sup_p">معدات الصيد والشحن بالجملة، اصل إلى أصحاب القوارب مباشرة.</p>
+<a class="btn p2" href="https://app.marsadz.app/register-business" data-i18n="sup_btn">سجّل كمورد</a></div>
+</div></section>
+
+<!--MARSA_DYNAMIC-->
+<section><div class="in">
+<div class="grid">
+<div class="card r"><h2 data-i18n="pro_t">حساب المحترف</h2><p class="price" data-i18n="free">مجانًا</p>
+<p data-i18n="pro_free_p">اعرض نشاطك أمام كل المبحرين، مع شارة الحساب المفعّل.</p>
+<a class="btn p1" href="https://app.marsadz.app/register-business" data-i18n="pro_btn">أنشئ حساب محترف</a></div>
+<div class="card r"><h2 data-i18n="ad_t">نشر إعلان</h2><p class="price" data-i18n="free">مجانًا</p>
+<p data-i18n="ad_p">انشر إعلانك ليظهر للباحثين في التطبيق.</p>
+<a class="btn p1" href="https://app.marsadz.app/sell" data-i18n="ad_btn">انشر إعلانك</a></div>
+</div>
+</div></section>
+
+<a class="btn p1 fab" id="fab" data-install href="https://app.marsadz.app/?install=1" data-i18n="install">📲 نزّل التطبيق</a>
+<dialog id="dlg" aria-labelledby="dt">
+<button class="x" id="dx" aria-label="إغلاق" data-i18n-aria="close">×</button>
+<h2 id="dt"></h2>
+<div id="db"></div>
+</dialog>
+<div id="dh"></div>
+<footer><span data-i18n="name">مرسى</span>، marsadz.app · <a href="https://app.marsadz.app/support" data-i18n="support">الدعم الفني</a> · <a href="https://www.instagram.com/marsa_dz/" target="_blank" rel="noopener noreferrer" data-i18n="ig">انستغرام</a> · <a href="https://www.facebook.com/profile.php?id=100064427423141" target="_blank" rel="noopener noreferrer" data-i18n="fb">فيسبوك</a></footer>
+
+
+<script>
+/* AR / FR / EN: same languages as the app; the choice is passed to app.marsadz.app with ?lang= */
+(function(){
+var D={
+name:['مرسى','Marsa','Marsa'],
+title:['مرسى | تطبيق الصيادين والحرفيين وقطع غيار القوارب في الجزائر','Marsa | L’application des pêcheurs, artisans et pièces de bateaux en Algérie','Marsa | The app for fishermen, craftsmen and boat parts in Algeria'],
+lead:['الصيادون والحرفيون والميكانيكيون ومحلات قطع الغيار والموردون، كلهم في تطبيق واحد.','Pêcheurs, artisans, mécaniciens, magasins de pièces et fournisseurs, tous dans une seule application.','Fishermen, craftsmen, mechanics, parts shops and suppliers, all in one app.'],
+install:['📲 نزّل التطبيق','📲 Installer l’application','📲 Get the app'],
+open:['افتح التطبيق','Ouvrir l’application','Open the app'],
+activate:['فعّل حساب المحترف','Activer le compte pro','Activate a pro account'],
+hint:['اضغط على البحر لتحريك الموج، ثم مرّر للأسفل لتغوص في الأعماق.','Touchez la mer pour faire des vagues, puis faites défiler pour plonger dans les profondeurs.','Tap the sea to make waves, then scroll down to dive into the deep.'],
+demo_t:['شاهد مرسى قبل أن تحمّله','Découvrez Marsa avant de l’installer','See Marsa before you install it'],
+demo_p:['في دقيقتين ترى كيف تبحث عن قارب أو محرك أو معدات، وتتصل بصاحب الإعلان أو تراسله على واتساب، وكيف تنشر إعلانك أو طلب عملك. ونشر الإعلان وحساب المحترف مجانًا.','En deux minutes, voyez comment chercher un bateau, un moteur ou du matériel, appeler l’annonceur ou lui écrire sur WhatsApp, et publier votre annonce ou votre demande d’emploi. La publication et le compte pro sont gratuits.','In two minutes, see how to find a boat, engine or equipment, call the seller or message them on WhatsApp, and post your listing or job request. Posting and the pro account are free.'],
+ig:['انستغرام','Instagram','Instagram'],fb:['فيسبوك','Facebook','Facebook'],
+video:['شرح تطبيق مرسى','Présentation de l’application Marsa','Marsa app walkthrough'],
+ios_t:['على الآيفون','Sur iPhone','On iPhone'],
+ios1:['افتح app.marsadz.app في Safari.','Ouvrez app.marsadz.app dans Safari.','Open app.marsadz.app in Safari.'],
+ios2:['اضغط زر المشاركة.','Touchez le bouton Partager.','Tap the Share button.'],
+ios3:['اختر إضافة إلى الشاشة الرئيسية.','Choisissez « Sur l’écran d’accueil ».','Choose “Add to Home Screen”.'],
+ios_btn:['📲 نزّل على الآيفون','📲 Installer sur iPhone','📲 Install on iPhone'],
+and_t:['على الأندرويد','Sur Android','On Android'],
+and1:['افتح app.marsadz.app في Chrome.','Ouvrez app.marsadz.app dans Chrome.','Open app.marsadz.app in Chrome.'],
+and2:['اضغط قائمة النقاط الثلاث.','Touchez le menu à trois points.','Tap the three-dot menu.'],
+and3:['اختر تثبيت التطبيق.','Choisissez « Installer l’application ».','Choose “Install app”.'],
+and_btn:['📲 نزّل على الأندرويد','📲 Installer sur Android','📲 Install on Android'],
+play:['نسخة Google Play قادمة قريبًا.','Version Google Play bientôt disponible.','Google Play version coming soon.'],
+pro_t:['حساب المحترف','Compte professionnel','Pro account'],
+pro_p:['سجّل نشاطك ليراك آلاف المبحرين. الخطوات بسيطة:','Inscrivez votre activité pour être vu par des milliers de navigateurs. C’est simple :','Register your business to be seen by thousands of boaters. It’s simple:'],
+pro1:['افتح صفحة تسجيل الأنشطة.','Ouvrez la page d’inscription des activités.','Open the business registration page.'],
+pro2:['أدخل بريدك الإلكتروني.','Saisissez votre e-mail.','Enter your email.'],
+pro3:['اكتب الرمز الذي يصلك على البريد.','Saisissez le code reçu par e-mail.','Type the code you receive by email.'],
+pro4:['أكمل بياناتك، وتفعّل الإدارة حسابك.','Complétez vos informations ; l’administration active votre compte.','Complete your details; the team activates your account.'],
+c1:['صياد','Pêcheur','Fisherman'],c2:['حرفي','Artisan','Craftsman'],c3:['مورد','Fournisseur','Supplier'],c4:['صاحب محل','Commerçant','Shop owner'],c5:['ميكانيكي','Mécanicien','Mechanic'],
+register:['سجّل نشاطك','Inscrire mon activité','Register my business'],
+shops_t:['محلات قطع الغيار','Magasins de pièces détachées','Spare-parts shops'],
+shops_p:['محركات وتروس وملحقات، اعرض بضاعتك أمام كل من يبحث عنها.','Moteurs, engrenages et accessoires : montrez votre stock à tous ceux qui le cherchent.','Engines, gears and accessories: show your stock to everyone looking for it.'],
+shops_btn:['سجّل محلك','Inscrire mon magasin','Register my shop'],
+sup_t:['الموردون','Fournisseurs','Suppliers'],
+sup_p:['معدات الصيد والشحن بالجملة، اصل إلى أصحاب القوارب مباشرة.','Matériel de pêche et fret en gros : touchez directement les propriétaires de bateaux.','Wholesale fishing gear and freight: reach boat owners directly.'],
+sup_btn:['سجّل كمورد','S’inscrire comme fournisseur','Register as a supplier'],
+free:['مجانًا','Gratuit','Free'],
+pro_free_p:['اعرض نشاطك أمام كل المبحرين، مع شارة الحساب المفعّل.','Présentez votre activité à tous les navigateurs, avec le badge de compte activé.','Show your business to every boater, with the activated-account badge.'],
+pro_btn:['أنشئ حساب محترف','Créer un compte pro','Create a pro account'],
+ad_t:['نشر إعلان','Publier une annonce','Post a listing'],
+ad_p:['انشر إعلانك ليظهر للباحثين في التطبيق.','Publiez votre annonce pour qu’elle soit vue par les acheteurs dans l’application.','Post your listing so buyers see it in the app.'],
+ad_btn:['انشر إعلانك','Publier mon annonce','Post my listing'],
+support:['الدعم الفني','Support technique','Technical support'],
+close:['إغلاق','Fermer','Close'],
+cats_t:['تصفّح الأنشطة','Parcourir les activités','Browse businesses'],cats_p:['آخر الأنشطة المسجّلة في كل فئة.','Dernières activités inscrites dans chaque catégorie.','Latest businesses registered in each category.'],view_all:['عرض الكل','Tout voir','View all'],cat_empty:['كن أول من يسجّل نشاطه في هذه الفئة.','Soyez le premier à inscrire votre activité ici.','Be the first to register your business here.'],sp_t:['إعلانات مميزة','Annonces à la une','Featured ads'],sp_note:['إعلانات مموّلة. افتح التطبيق للتواصل مع أصحابها.','Annonces sponsorisées. Ouvrez l’application pour contacter les annonceurs.','Sponsored ads. Open the app to contact the sellers.'],
+depth:['العمق','Profondeur','Depth'],m:['م','m','m'],
+inapp_t:['افتح الرابط في المتصفح','Ouvrez le lien dans le navigateur','Open the link in your browser'],
+inapp_h:['<p>أنت الآن داخل متصفح تطبيق آخر (فيسبوك أو انستغرام)، والتثبيت لا يعمل منه.</p><ol><li>اضغط النقاط الثلاث ⋮ أو زر المشاركة.</li><li>اختر <b>فتح في المتصفح</b> (Chrome أو Safari).</li><li>ثم اضغط «نزّل التطبيق» من جديد.</li></ol>','<p>Vous êtes dans le navigateur d’une autre application (Facebook ou Instagram), l’installation n’y fonctionne pas.</p><ol><li>Touchez les trois points ⋮ ou le bouton Partager.</li><li>Choisissez <b>Ouvrir dans le navigateur</b> (Chrome ou Safari).</li><li>Puis touchez à nouveau « Installer l’application ».</li></ol>','<p>You are inside another app’s browser (Facebook or Instagram), where installing does not work.</p><ol><li>Tap the three dots ⋮ or the Share button.</li><li>Choose <b>Open in browser</b> (Chrome or Safari).</li><li>Then tap “Get the app” again.</li></ol>'],
+iosd_t:['ثبّت مرسى على الآيفون','Installer Marsa sur iPhone','Install Marsa on iPhone'],
+iosd_h:['<ol><li>افتح الرابط في <b>Safari</b>.</li><li>اضغط زر المشاركة <b>⬆</b> أسفل الشاشة.</li><li>اختر <b>إضافة إلى الشاشة الرئيسية</b>.</li></ol>','<ol><li>Ouvrez le lien dans <b>Safari</b>.</li><li>Touchez le bouton Partager <b>⬆</b> en bas de l’écran.</li><li>Choisissez <b>Sur l’écran d’accueil</b>.</li></ol>','<ol><li>Open the link in <b>Safari</b>.</li><li>Tap the Share button <b>⬆</b> at the bottom of the screen.</li><li>Choose <b>Add to Home Screen</b>.</li></ol>'],
+iosd_btn:['افتح التطبيق في Safari','Ouvrir l’application dans Safari','Open the app in Safari']
+};
+var IDX={ar:0,fr:1,en:2},lang='ar';
+try{var q=new URLSearchParams(location.search).get('lang'),sv=localStorage.getItem('marsa.lang');lang=IDX[q]!=null?q:IDX[sv]!=null?sv:(/^fr/.test(navigator.language)?'fr':/^en/.test(navigator.language)?'en':'ar')}catch(e){}
+window.marsaT=function(k){var r=D[k];return r?r[IDX[lang]]:k};
+window.marsaApp=function(u){var x=new URL(u);x.searchParams.set('lang',lang);return x.toString()};
+function apply(){
+document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';document.title=marsaT('title');
+document.querySelectorAll('[data-i18n]').forEach(function(n){n.textContent=marsaT(n.getAttribute('data-i18n'))});
+document.querySelectorAll('[data-ml]').forEach(function(n){n.textContent=n.getAttribute('data-'+lang)||n.textContent});
+document.querySelectorAll('[data-i18n-aria]').forEach(function(n){n.setAttribute('aria-label',marsaT(n.getAttribute('data-i18n-aria')))});
+document.querySelectorAll('a[href^="https://app.marsadz.app"]').forEach(function(a){a.href=marsaApp(a.href)});
+document.querySelectorAll('.langsw button').forEach(function(b){var on=b.getAttribute('data-lang')===lang;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});}
+document.querySelectorAll('.langsw button').forEach(function(b){b.setAttribute('role','radio');b.addEventListener('click',function(){lang=b.getAttribute('data-lang');try{localStorage.setItem('marsa.lang',lang)}catch(e){}apply()})});
+apply();
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var mx=0,my=0,kick=0,t=0,p=0,minis=[],T=window.THREE,ok=false,R,S,C,u;
+addEventListener('pointermove',function(e){mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.2});
+document.querySelectorAll('.r').forEach(function(n){io.observe(n)});
+/* ocean */
+var COM=`uniform float uS,uT;uniform vec3 uSun;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float nz(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*nz(p);p*=2.03;a*=.5;}return s;}
+vec3 zen(){float m1=smoothstep(0.,.6,uS),m2=smoothstep(.6,1.,uS);return mix(mix(vec3(.16,.40,.78),vec3(.20,.30,.55),m1),vec3(.03,.05,.15),m2);}
+vec3 hor(){float m1=smoothstep(0.,.6,uS),m2=smoothstep(.6,1.,uS);return mix(mix(vec3(.74,.87,.97),vec3(1.,.66,.36),m1),vec3(.62,.25,.22),m2);}
+vec3 sunc(){return mix(vec3(1.,.95,.85),vec3(1.,.55,.25),uS);}
+vec3 sky(vec3 d){float y=max(d.y,0.);vec3 c=mix(hor(),zen(),pow(y,.45));
+float sd=max(dot(d,uSun),0.);c+=sunc()*(pow(sd,1200.)*6.+pow(sd,24.)*.35+pow(sd,4.)*.15);
+vec2 uv=d.xz/(y+.12)*1.4+vec2(uT*.01,0.);float cl=fbm(uv);
+vec3 cc=mix(vec3(1.),hor()*1.1,uS*.8)*(1.-.55*uS);
+return mix(c,cc,smoothstep(.52,.85,cl)*smoothstep(0.,.18,y)*.75);}
+vec3 uw(vec3 d){float dp=max(-cameraPosition.y,0.),k=exp(-dp*.07);
+vec3 base=mix(vec3(.005,.04,.09),vec3(.10,.55,.62),k);
+vec3 c=mix(base*.35,base*1.25,pow(clamp(d.y*.5+.5,0.,1.),1.5));
+float ry=smoothstep(.45,.85,nz(vec2(d.x/(abs(d.y)+.3)*2.5+uT*.05,d.z/(abs(d.y)+.3)*1.2)));
+return c+vec3(.35,.75,.7)*ry*pow(max(d.y,0.),.7)*k*.55;}`;
+var VS=`uniform float uT,uA;uniform vec4 uR[4];
+varying vec3 vW;varying vec3 vN;varying float vH;
+void w(vec2 p,vec2 d,float L,float A,float Q,inout vec3 q,inout vec3 n,inout float h){
+d=normalize(d);A*=uA;float k=6.2832/L,c=sqrt(9.8/k),f=k*(dot(d,p)-c*uT),s=sin(f),co=cos(f);
+q.x+=Q*A*d.x*co;q.z+=Q*A*d.y*co;q.y+=A*s;
+n.x-=d.x*k*A*co;n.z-=d.y*k*A*co;n.y-=Q*k*A*s;h+=s*A;}
+void main(){vec2 b=position.xz;vec3 q=position,n=vec3(0.,1.,0.);float h=0.;
+w(b,vec2(1.,.4),48.,.9,.55,q,n,h);w(b,vec2(.6,1.),31.,.55,.5,q,n,h);w(b,vec2(-.4,1.),19.,.32,.5,q,n,h);
+w(b,vec2(.9,-.6),11.,.18,.45,q,n,h);w(b,vec2(-.8,-.3),6.5,.09,.4,q,n,h);w(b,vec2(.2,-1.),3.8,.05,.35,q,n,h);
+for(int i=0;i<4;i++){vec2 dv=b-uR[i].xy;float d=length(dv),a=uT-uR[i].z;
+if(a>0.&&a<9.){float e=exp(-d*.12-a*.55),ph=d*1.6-a*6.;q.y+=uR[i].w*e*sin(ph);n.xz-=dv/(d+.001)*uR[i].w*e*(1.6*cos(ph)-.12*sin(ph));}}
+vW=q;vN=n;vH=h/(2.09*uA);gl_Position=projectionMatrix*viewMatrix*vec4(q,1.);}`;
+var FS=COM+`varying vec3 vW;varying vec3 vN;varying float vH;
+void main(){vec3 V=normalize(cameraPosition-vW),N=normalize(vN);
+if(cameraPosition.y<0.){N=-N;float cs=abs(dot(N,V));vec3 dd=-V;
+vec3 under=uw(reflect(dd,N)),win=sky(normalize(vec3(dd.x*1.33,dd.y,dd.z*1.33)));
+vec3 c=mix(under,win*.9,smoothstep(.62,.74,cs));
+c=mix(c,uw(vec3(0.,.3,0.)),1.-exp(-length(cameraPosition-vW)*.02));
+gl_FragColor=vec4(c,1.);return;}
+vec2 uv=vW.xz*.22+vec2(uT*.04,uT*.025);
+vec2 g=vec2(nz(uv*4.+uT*.15)-nz(uv*4.+9.1),nz(uv*4.-uT*.12+3.3)-nz(uv*4.+17.));
+vec2 g2=vec2(nz(uv*11.-uT*.2)-.5,nz(uv*11.+uT*.18+5.)-.5);
+N=normalize(N+vec3(g.x,0.,g.y)*.35+vec3(g2.x,0.,g2.y)*.18);
+float fr=.02+.98*pow(1.-max(dot(N,V),0.),5.);
+vec3 Rf=reflect(-V,N);Rf.y=abs(Rf.y);
+vec3 deep=mix(vec3(.01,.10,.17),vec3(0.,.03,.07),uS),shal=mix(vec3(.02,.36,.40),vec3(.02,.12,.18),uS);
+vec3 body=mix(deep,shal,clamp(vH*.7+.45,0.,1.)*.75);
+vec3 col=mix(body,sky(Rf),fr);
+vec3 Hh=normalize(V+uSun);col+=sunc()*pow(max(dot(N,Hh),0.),600.)*2.5*smoothstep(0.,.08,uSun.y);
+float fo=smoothstep(.55,.95,vH+(nz(vW.xz*.8+uT*.2)-.5)*.5)*(.5+.5*nz(vW.xz*2.5-uT*.3));
+col=mix(col,vec3(.92,.96,1.)*(1.-.5*uS),fo*.6);
+float fg=1.-exp(-length(cameraPosition-vW)*.0024);
+col=mix(col,sky(normalize(vec3(-V.x,.03,-V.z))),fg);
+gl_FragColor=vec4(pow(col,vec3(.95)),1.);}`;
+var SV=`varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*viewMatrix*vec4(position+cameraPosition,1.);}`;
+var SF=COM+`varying vec3 vD;void main(){vec3 d=normalize(vD);gl_FragColor=vec4(cameraPosition.y<0.?uw(d):sky(d),1.);}`;
+try{if(T){
+var cv=document.getElementById('sea');
+R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,innerWidth<700?1:1.5));
+S=new T.Scene();C=new T.PerspectiveCamera(60,1,.1,4000);
+u={uT:{value:0},uA:{value:1},uS:{value:0},uSun:{value:new T.Vector3(.3,.4,-.8)},uR:{value:[0,1,2,3].map(function(){return new T.Vector4(0,0,-1000,0)})}};
+var sk=new T.Mesh(new T.SphereGeometry(100,32,16),new T.ShaderMaterial({uniforms:u,vertexShader:SV,fragmentShader:SF,side:T.BackSide,depthWrite:false,depthTest:false}));
+sk.renderOrder=-1;sk.frustumCulled=false;S.add(sk);
+var G=new T.PlaneGeometry(2,2,220,220);G.rotateX(-Math.PI/2);var P=G.attributes.position.array,i,x,z;
+for(i=0;i<P.length;i+=3){x=P[i];z=P[i+2];P[i]=Math.sign(x)*Math.pow(Math.abs(x),3)*1500;P[i+2]=Math.sign(z)*Math.pow(Math.abs(z),3)*1500}
+var sea=new T.Mesh(G,new T.ShaderMaterial({uniforms:u,vertexShader:VS,fragmentShader:FS,side:T.DoubleSide}));sea.frustumCulled=false;S.add(sea);
+S.fog=new T.FogExp2(0x072633,.03);var ug=new T.Group(),j,fish=[],hl=new T.HemisphereLight(0x9fe3ea,0x0a2a33,1),dl=new T.DirectionalLight(0xbff4ff,.8);dl.position.set(2,10,3);S.add(hl,dl,ug);
+var fl=new T.PlaneGeometry(700,700,70,70);fl.rotateX(-Math.PI/2);var fp=fl.attributes.position.array;
+for(j=0;j<fp.length;j+=3)fp[j+1]=Math.sin(fp[j]*.05)*2.2+Math.cos(fp[j+2]*.07)*2.6+Math.sin((fp[j]+fp[j+2])*.2)*.6;
+fl.computeVertexNormals();var fm=new T.Mesh(fl,new T.MeshLambertMaterial({color:0x3d7a78}));fm.position.y=-48;ug.add(fm);
+var rk=new T.MeshLambertMaterial({color:0x335654}),ro;for(j=0;j<16;j++){ro=new T.Mesh(new T.IcosahedronGeometry(1+Math.random()*3,0),rk);ro.position.set(Math.random()*90-45,-47,-15-Math.random()*110);ro.scale.y=.7;ug.add(ro)}
+var fg=new T.ConeGeometry(.35,1.6,6),fmat=new T.MeshLambertMaterial({color:0xa9d8de}),fo;fg.rotateZ(-Math.PI/2);
+for(j=0;j<48;j++){fo=new T.Mesh(fg,fmat);ug.add(fo);fish.push({m:fo,cx:0,cy:j<24?-16:-32,cz:-32,r:5+Math.random()*11,ph:Math.random()*6.28,sp:.2+Math.random()*.2,yo:Math.random()*9-4.5})}
+var pg=new T.BufferGeometry(),pa0=new Float32Array(1500);for(j=0;j<1500;j+=3){pa0[j]=Math.random()*60-30;pa0[j+1]=Math.random()*50-25;pa0[j+2]=Math.random()*60-30}
+pg.setAttribute('position',new T.BufferAttribute(pa0,3));var pts=new T.Points(pg,new T.PointsMaterial({size:.12,color:0xcfeff0,transparent:true,opacity:.55,fog:false}));pts.frustumCulled=false;S.add(pts);var dh=document.getElementById('dh');
+function size(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+var rc=new T.Raycaster(),pl=new T.Plane(new T.Vector3(0,1,0),0),vv=new T.Vector3(),ri=0;
+addEventListener('pointerdown',function(e){if(e.target.closest('a,button'))return;kick=1;
+rc.setFromCamera({x:e.clientX/innerWidth*2-1,y:-(e.clientY/innerHeight*2-1)},C);
+if(rc.ray.intersectPlane(pl,vv)&&vv.distanceTo(C.position)<400){u.uR.value[ri%4].set(vv.x,vv.z,t,.7);ri++}});
+ok=true}}catch(err){ok=false}
+/* 3D parts */
+if(window.THREE){var T=THREE,M=new T.MeshStandardMaterial({color:0xcfdbe3,metalness:.5,roughness:.3}),O=new T.MeshStandardMaterial({color:0xf58b0b,metalness:.4,roughness:.4});
+function gear(n,r1,r2,th){var s=new T.Shape(),i,a,r;for(i=0;i<n*4;i++){a=i/(n*4)*Math.PI*2;r=(i%4<2)?r2:r1;i?s.lineTo(Math.cos(a)*r,Math.sin(a)*r):s.moveTo(Math.cos(a)*r,Math.sin(a)*r)}
+var h=new T.Path();h.absarc(0,0,r1*.4,0,Math.PI*2,true);s.holes.push(h);var g=new T.ExtrudeGeometry(s,{depth:th,bevelEnabled:false});g.translate(0,0,-th/2);return g}
+function prop(){var g=new T.Group(),hub=new T.Mesh(new T.CylinderGeometry(.35,.35,.9,16),M),i,pv,b;hub.rotation.x=Math.PI/2;g.add(hub);
+for(i=0;i<3;i++){pv=new T.Group();pv.rotation.z=i*Math.PI*2/3;b=new T.Mesh(new T.SphereGeometry(1,16,8),M);b.scale.set(.38,1.3,.1);b.position.y=1.3;b.rotation.y=.6;pv.add(b);g.add(pv)}return g}
+function mini(el,make){var r=new T.WebGLRenderer({canvas:el,alpha:true,antialias:true}),s=new T.Scene(),c=new T.PerspectiveCamera(40,1,.1,50),d=new T.DirectionalLight(0xffffff,1),o=make(),vis=false;
+r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(el.clientWidth,el.clientHeight,false);c.aspect=el.clientWidth/el.clientHeight;c.updateProjectionMatrix();c.position.z=9;
+s.add(new T.HemisphereLight(0xffffff,0x224455,1.3));d.position.set(3,4,5);s.add(d);s.add(o);
+new IntersectionObserver(function(e){vis=e[0].isIntersecting}).observe(el);
+minis.push(function(){if(!vis)return;o.rotation.y+=.012+kick*.05;o.rotation.x=my*.5;r.render(s,c)})}
+mini(document.getElementById('m1'),function(){var g=new T.Group(),a=new T.Mesh(gear(12,1.5,1.95,.6),O),b=prop();b.scale.setScalar(.55);b.position.set(1.5,-1.3,.8);g.add(a,b);return g});
+mini(document.getElementById('m2'),function(){var g=new T.Group(),w=new T.MeshStandardMaterial({color:0xb9792b,roughness:.7}),b=new T.Mesh(new T.BoxGeometry(2.6,2.1,2.6),w),i,s;g.add(b);
+for(i=-1;i<2;i+=2){s=new T.Mesh(new T.BoxGeometry(2.7,.22,2.7),O);s.position.y=i*.6;g.add(s)}return g})}
+/* loop */
+function tick(){requestAnimationFrame(tick);t+=.016;kick*=.94;
+var m=document.documentElement.scrollHeight-innerHeight,sp=m>0?scrollY/m:0;p+=(sp-p)*.06;
+if(ok){var d0=Math.min(p/.38,1),dv=Math.max(0,(p-.38)/.62),y=p<.38?4-3*d0:1-dv*38,ly=p<.38?9-6*d0:y+3-3*dv,e=(24-12*d0)*Math.PI/180,ce=Math.cos(e),dp=Math.max(-y,0),k=Math.exp(-dp*.07),wu=y<.5;
+u.uT.value=t;u.uS.value=d0*.4;u.uA.value=1-.55*Math.min(1,Math.max(0,(p-.22)/.18));u.uSun.value.set(ce*.36,Math.sin(e),-ce*.93);
+C.position.set(mx*2.5,y+Math.sin(t*.7)*.2*(p<.38?1:.3),0);C.lookAt(mx*14,ly-my*2,-60);
+ug.visible=pts.visible=wu;dh.textContent=dp>1?(window.marsaT?window.marsaT('depth'):'العمق')+' '+Math.round(dp)+' '+(window.marsaT?window.marsaT('m'):'م'):'';
+if(wu){S.fog.color.setRGB((.005+.095*k)*.55,(.04+.51*k)*.55,(.09+.53*k)*.55);S.fog.density=.022+dp*.0008;hl.intensity=.3+.9*k;
+fish.forEach(function(f){var a=f.ph+t*f.sp;f.m.position.set(f.cx+Math.cos(a)*f.r*1.6,f.cy+f.yo+Math.sin(a*2)*1.2,f.cz+Math.sin(a)*f.r);f.m.rotation.y=Math.atan2(-Math.cos(a),-1.6*Math.sin(a))});
+pts.position.set(C.position.x,C.position.y,C.position.z-20);var pa=pg.attributes.position,q;for(q=0;q<pa.count;q++){pa.array[q*3+1]+=.012;if(pa.array[q*3+1]>25)pa.array[q*3+1]=-25}pa.needsUpdate=true}
+R.render(S,C)}
+minis.forEach(function(f){f()})}
+tick();
+})();
+</script>
+<script>
+(function(){
+var APP='https://app.marsadz.app/',ua=navigator.userAgent,
+ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+inapp=/FBAN|FBAV|Instagram|Messenger|TikTok|Line\//i.test(ua),
+dlg=document.getElementById('dlg'),dt=document.getElementById('dt'),db=document.getElementById('db');
+function show(t,h){dt.textContent=t;db.innerHTML=h;if(dlg.showModal)dlg.showModal();else location.href=APP}
+document.getElementById('dx').onclick=function(){dlg.close()};
+dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+document.querySelectorAll('[data-install]').forEach(function(b){b.addEventListener('click',function(e){
+if(inapp){e.preventDefault();show(marsaT('inapp_t'),marsaT('inapp_h')+'<a class="btn p1" href="'+marsaApp(APP)+'">'+marsaT('open')+'</a>');return}
+if(ios){e.preventDefault();show(marsaT('iosd_t'),marsaT('iosd_h')+'<a class="btn p1" href="'+marsaApp(APP)+'">'+marsaT('iosd_btn')+'</a>')}
+})});
+var fab=document.getElementById('fab');
+function sc(){fab.classList.toggle('on',scrollY>innerHeight*.6)}
+addEventListener('scroll',sc,{passive:true});sc();
+})();
+</script>
+</body>
+</html>
