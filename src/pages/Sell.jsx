@@ -8,10 +8,12 @@ import { errorText } from '../errors';
 import { MAX_IMAGES } from '../config';
 import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
+import { inspectVideo } from '../components/PortfolioManage.jsx';
 import { BRANCH_PRODUCT_TYPE, FISH_UNITS, OFFER_DAYS, POST_BRANCHES, defaultBranch, isProActive } from '../lib/pro';
 import { marsaError } from '../lib/marsaErrors';
 import { GEAR_TYPES, safetyKey } from '../lib/safety';
 import ImagePicker from '../components/ImagePicker.jsx';
+import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
 const YEAR = new Date().getFullYear();
@@ -26,11 +28,13 @@ export default function Sell() {
   const { t } = useI18n();
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear'].includes(params.get('kind')) ? params.get('kind') : 'boat', gearType: GEAR_TYPES.includes(params.get('gear')) ? params.get('gear') : INIT.gearType, branch: POST_BRANCHES.includes(params.get('branch')) ? params.get('branch') : '' }));
+  const [f, setF] = useState(() => ({ ...INIT, kind: [...KINDS, 'gear', 'catch'].includes(params.get('kind')) ? params.get('kind') : 'boat', gearType: GEAR_TYPES.includes(params.get('gear')) ? params.get('gear') : INIT.gearType, branch: POST_BRANCHES.includes(params.get('branch')) ? params.get('branch') : '' }));
   const [images, setImages] = useState([]);
   const [types, setTypes] = useState([]);
   const [wilayas, setWilayas] = useState([]);
   const [quota, setQuota] = useState(null);
+  const [isFisher, setIsFisher] = useState(false);
+  const [video, setVideo] = useState(null);
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState('');
   const [msg, setMsg] = useState(null);
@@ -59,19 +63,35 @@ export default function Sell() {
     ]).then(([s, c]) => setQuota({ limit: parseInt(String(s.data?.value ?? '').replace(/\D/g, ''), 10) || 5, used: c.count ?? 0 }));
   }, [user?.id]);
 
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('professional_profiles').select('id, status, subscription_ends_at').eq('owner_id', user.id).eq('pro_type', 'fisherman').eq('status', 'active').then(({ data }) => {
+      setIsFisher((data || []).some((p) => !p.subscription_ends_at || new Date(p.subscription_ends_at) > new Date()));
+    });
+  }, [user?.id]);
+
   if (!user) return <NeedLogin text={t('sell.login')} />;
 
   // Owner account + active professional accounts: no free limit, and can post products & services
   const isOwner = user?.email?.toLowerCase() === 'alizerrarka@gmail.com';
   const isPro = isProActive(profile) || isOwner;
   const branch = f.branch || defaultBranch(profile);
-  const isFish = f.kind === 'gear' && isPro && branch === 'fish_market';
+  const isCatch = f.kind === 'catch' && isFisher;
+  const isFish = isCatch || (f.kind === 'gear' && isPro && branch === 'fish_market');
   const effectiveQuota = isOwner ? { limit: 9999, used: 0 } : (quota || { limit: 0, used: 0 });
-  const full = !isPro && effectiveQuota.used >= effectiveQuota.limit;
-  const kind = f.kind === 'gear' && !isPro ? 'boat' : f.kind;
+  const full = !isPro && !isCatch && effectiveQuota.used >= effectiveQuota.limit;
+  const kind = isCatch ? 'equipment' : f.kind === 'catch' || (f.kind === 'gear' && !isPro) ? 'boat' : f.kind;
   const isGear = kind === 'gear';
   const gearType = branch === 'fish_market' ? 'product' : branch === 'workshop' ? 'service' : f.gearType === 'service' ? 'product' : f.gearType;
   const hasYear = kind === 'boat' || kind === 'engine';
+
+  function pickVideo(file) {
+    if (!file) return;
+    if (!['video/mp4', 'video/quicktime'].includes(file.type)) return setMsg({ type: 'err', text: t('pf.video_type') });
+    if (file.size > 50 * 1024 * 1024) return setMsg({ type: 'err', text: t('pf.video_too_big') });
+    setMsg(null);
+    setVideo(file);
+  }
 
   function validate() {
     if (kind === 'boat' && !f.typeId) return t('sell.v_type');
@@ -101,8 +121,20 @@ export default function Sell() {
     if (problem) return setMsg({ type: 'err', text: problem });
     setBusy(true);
     const uploaded = [];
+    const uploadedVideos = [];
     let listingId = null;
     try {
+      let videoPath = null;
+      if (isCatch && video) {
+        setStep(t('sell.step_video'));
+        const { duration } = await inspectVideo(video);
+        if (duration && duration > 40) throw new Error('err.video_too_long');
+        const ext = video.type === 'video/quicktime' ? 'mov' : 'mp4';
+        videoPath = `${user.id}/ad-${crypto.randomUUID()}.${ext}`;
+        const up = await supabase.storage.from('portfolio-videos').upload(videoPath, video, { contentType: video.type, upsert: false });
+        if (up.error) throw up.error;
+        uploadedVideos.push(videoPath);
+      }
       setStep(t('sell.step_post'));
       const sellerName = profile?.full_name?.trim().length >= 2 ? profile.full_name.trim().slice(0, 80) : t('sell.default_seller');
       const fields = {
@@ -126,8 +158,11 @@ export default function Sell() {
             ...(isFish ? { unit: f.unit, quantity: f.quantity.trim().slice(0, 40) || null, offer_days: Number(f.offerDays) } : {}),
           }
         : {};
+      const catchExtra = isCatch
+        ? { product_type: 'fish', unit: f.unit, quantity: f.quantity.trim().slice(0, 40) || null, offer_days: Number(f.offerDays), ...(videoPath ? { video_path: videoPath } : {}) }
+        : {};
       const insert = (row) => supabase.from('listings').insert(row).select('id').single();
-      let { data: row, error } = await insert(isGear ? { ...fields, gear_type: gearType, ...extra } : fields);
+      let { data: row, error } = await insert(isGear ? { ...fields, gear_type: gearType, ...extra } : { ...fields, ...catchExtra });
       // Database without migration 006: publish without the branch fields
       if (error && isGear && isMissingSchema(error)) ({ data: row, error } = await insert({ ...fields, gear_type: gearType }));
       // Database without migration 003: publish the product without its sub-type
@@ -145,9 +180,12 @@ export default function Sell() {
     } catch (err) {
       // undo everything so no half-published listing remains
       if (uploaded.length) await removeFiles('listing-images', uploaded);
+      if (uploadedVideos.length) await supabase.storage.from('portfolio-videos').remove(uploadedVideos);
       if (listingId) await supabase.from('listings').delete().eq('id', listingId);
       const raw = err?.message || '';
-      const known = raw.includes('gear_pro_only')
+      const known = raw.includes('fisherman_only')
+        ? t('sell.fisher_only')
+        : raw.includes('gear_pro_only')
         ? t('sell.gear_pro_only')
         : kind === 'equipment' && (err?.code === '23514' || err?.code === '22P02')
           ? t('admin.needs_migration')
@@ -168,13 +206,17 @@ export default function Sell() {
       <form onSubmit={submit} noValidate>
         <div className="seg seg3">
           {KINDS.map((k) => (
-            <button key={k} type="button" className={`btn ${kind === k ? '' : 'alt'} sm`} onClick={() => setF({ ...f, kind: k })}>{t(`sell.kind_${k}`)}</button>
+            <button key={k} type="button" className={`btn ${kind === k && !isCatch ? '' : 'alt'} sm`} onClick={() => setF({ ...f, kind: k })}>{t(`sell.kind_${k}`)}</button>
           ))}
         </div>
+        {isFisher && (
+          <button type="button" className={`btn ${isCatch ? '' : 'alt'} sm`} style={{ width: '100%', marginBottom: 14 }} onClick={() => setF({ ...f, kind: 'catch' })}>{t('sell.kind_catch')}</button>
+        )}
         {isPro && (
           <button type="button" className={`btn ${isGear ? '' : 'alt'} sm`} style={{ width: '100%', marginBottom: 14 }} onClick={() => setF({ ...f, kind: 'gear' })}>{t('sell.kind_gear')}</button>
         )}
 
+        {isCatch && <p className="msg info">{t('sell.catch_note')}</p>}
         {isGear && (
           <>
             <div className="field"><label>{t('sell.branch')}</label>
@@ -205,6 +247,16 @@ export default function Sell() {
         <div className="section-title">{t('sell.photos')}</div>
         <ImagePicker images={images} setImages={setImages} max={MAX_IMAGES} />
 
+        {isCatch && (
+          <div className="field"><label>{t('sell.video')}</label>
+            <label className="btn alt sm" style={{ width: '100%', cursor: 'pointer' }}>
+              <Icon name="video" />{video ? `${video.name} (${(video.size / 1048576).toFixed(1)} ${t('unit.mb')})` : t('sell.video_pick')}
+              <input type="file" accept="video/mp4,video/quicktime" style={{ display: 'none' }} onChange={(e) => pickVideo(e.target.files?.[0] ?? null)} />
+            </label>
+            {video && <button type="button" className="linkbtn" onClick={() => setVideo(null)}>{t('sell.video_remove')}</button>}
+          </div>
+        )}
+
         <div className="section-title">{t('sell.details')}</div>
         {kind === 'boat' && (
           <div className="field"><label>{t('sell.boat_type')}</label>
@@ -214,7 +266,7 @@ export default function Sell() {
             </select>
           </div>
         )}
-        <div className="field"><label>{isGear ? t('sell.gear_name') : t('sell.ad_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={t(titleHint({ ...f, kind, gearType, branch }))} /></div>
+        <div className="field"><label>{isGear ? t('sell.gear_name') : t('sell.ad_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} placeholder={t(isCatch ? 'sell.hint_fish' : titleHint({ ...f, kind, gearType, branch }))} /></div>
         {isFish && (
           <>
             <div className="row2">

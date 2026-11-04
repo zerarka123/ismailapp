@@ -15,14 +15,14 @@ const DAY = 86400000;
 
 // "Cold rooms / fish market" branch: today's offers of the accounts registered in it, each with photo, price,
 // call / WhatsApp (signed-in visitors only, like everywhere in the app) and the location on the map.
-export default function ColdRoomOffers({ sellerIds, pros, wilayaId }) {
+export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear', postHref = '/sell?kind=gear&branch=fish_market&gear=product', canPostOverride }) {
   const { t } = useI18n();
   const { user, profile } = useAuth();
   const { pathname } = useLocation();
-  const filters = useMemo(() => ({ kind: 'gear', extra: true, sellerIds, ...(wilayaId ? { wilayaId } : {}) }), [sellerIds, wilayaId]);
+  const filters = useMemo(() => ({ kind, extra: true, sellerIds, ...(wilayaId ? { wilayaId } : {}) }), [sellerIds, wilayaId, kind]);
   const { items: all, loading, error, done, more, reload } = useListings(filters);
   const items = useMemo(() => all.filter(offerActive), [all]);
-  const canPost = isProActive(profile);
+  const canPost = canPostOverride ?? isProActive(profile);
   const [contacts, setContacts] = useState({});
   const prosById = useMemo(() => Object.fromEntries((pros || []).map((p) => [p.owner_id, p])), [pros]);
   const idsKey = items.map((i) => i.id).join(',');
@@ -96,7 +96,7 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId }) {
 
       {canPost ? (
         <>
-          <Link to="/sell?kind=gear&branch=fish_market&gear=product" className="btn sand" style={{ marginTop: 16 }}><Icon name="plus" />{t('cold.post_ad')}</Link>
+          <Link to={postHref} className="btn sand" style={{ marginTop: 16 }}><Icon name="plus" />{t('cold.post_ad')}</Link>
           <p className="muted center" style={{ marginTop: 8, fontSize: 13 }}>{t('cold.post_hint')}</p>
         </>
       ) : (

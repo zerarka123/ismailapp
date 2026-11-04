@@ -59,6 +59,8 @@ export function useListings(filters) {
         if (f.minPrice) q = q.gte('price_dzd', f.minPrice);
         if (f.maxPrice) q = q.lte('price_dzd', f.maxPrice);
         if (f.ids) q = q.in('id', f.ids);
+        // fish ads live in the Fisherman branch, not in the general market feed
+        if (!f.sellerId && !f.sellerIds && !f.ids && !f.showFish && (f.kind === 'equipment' || (f.kinds || []).includes('equipment'))) q = q.or('product_type.is.null,product_type.neq.fish');
         if (f.sellerId) q = q.eq('seller_id', f.sellerId);
         if (f.sellerIds) q = q.in('seller_id', f.sellerIds);
         if (f.sponsored) q = q.gt('sponsored_until', new Date().toISOString());

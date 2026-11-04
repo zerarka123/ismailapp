@@ -13,7 +13,7 @@ export const isProType = (tp) => PRO_TYPES.includes(tp);
 export const PRO_KINDS = ['fisherman', 'craftsman', 'supplier', 'shop_owner', 'mechanic'];
 export const proKindLabel = (k) => (PRO_KINDS.includes(k) ? t(`ptype.${k}`) : k || '');
 const ALL_BRANCHES_BY_KIND = {
-  fisherman: ['fishing_trips', 'jobs'],
+  fisherman: ['fishermen', 'fishing_trips', 'jobs'],
   craftsman: ['shipyards', 'inox_workshops', 'wood_workshops'],
   supplier: ['parts_suppliers', 'cold_rooms'],
   shop_owner: ['gear_shops', 'parts_suppliers', 'cold_rooms'],

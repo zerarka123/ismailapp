@@ -26,6 +26,7 @@ const CATEGORIES = {
   inox_workshops: ['Ateliers inox', 'Stainless steel workshops'],
   wood_workshops: ['Ateliers bois & charpente navale', 'Wood & boat carpentry workshops'],
   cold_rooms: ['Chambres froides / Poissonnerie', 'Cold rooms / Fish market'],
+  fishermen: ['Pêcheur', 'Fisherman'],
 };
 
 // Boat types (boat_types.slug); also matched by Arabic name for older rows

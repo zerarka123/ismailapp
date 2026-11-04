@@ -10,7 +10,7 @@ import { isBranchVisible } from '../lib/branches';
 const SECTIONS = ['marine', 'fisher'];
 export const BRANCH_ICONS = {
   shipyards: 'anchor', parts_suppliers: 'store', naval_mechanics: 'boat', naval_electrics: 'compass', gear_shops: 'store',
-  fishing_trips: 'fish', jobs: 'user', inox_workshops: 'shield', wood_workshops: 'anchor', cold_rooms: 'store',
+  fishing_trips: 'fish', jobs: 'user', inox_workshops: 'shield', wood_workshops: 'anchor', cold_rooms: 'store', fishermen: 'fish',
 };
 
 // A guide = list of branches. Each branch shows the accounts (workshops, craftsmen, cold rooms…) registered in it.

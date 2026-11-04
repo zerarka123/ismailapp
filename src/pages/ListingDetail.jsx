@@ -19,6 +19,8 @@ const BASE =
   'id, seller_id, seller_name, kind, title, description, price_dzd, length_m, year_built, condition, engine_info, place_text, profession, status, expires_at, wilayas(*), boat_types(*), listing_images(storage_path, sort_order)';
 const SELECT = `${BASE}, gear_type, sponsored_until`;
 const SELECT_EXTRA = `${SELECT}, unit, quantity, offer_days, product_type`;
+// video_path comes with migration 008
+const SELECT_VIDEO = `${SELECT_EXTRA}, video_path`;
 
 // Admin only: put a listing in the sponsored strip of the home page (migration 003)
 function SponsorControls({ item, onChange }) {
@@ -58,7 +60,8 @@ export default function ListingDetail() {
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
-    let res = await supabase.from('listings').select(SELECT_EXTRA).eq('id', id).maybeSingle();
+    let res = await supabase.from('listings').select(SELECT_VIDEO).eq('id', id).maybeSingle();
+    if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT_EXTRA).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(BASE).eq('id', id).maybeSingle();
     return res.data ?? null;
@@ -99,6 +102,7 @@ export default function ListingDetail() {
   async function removeMine() {
     if (!window.confirm(t('mine.confirm_delete'))) return;
     await removeFiles('listing-images', (item.listing_images || []).map((i) => i.storage_path));
+    if (item.video_path) await supabase.storage.from('portfolio-videos').remove([item.video_path]);
     const { error } = await supabase.from('listings').delete().eq('id', item.id);
     if (error) return window.alert(errorText(error));
     nav('/my-listings', { replace: true });
@@ -150,6 +154,10 @@ export default function ListingDetail() {
         <h1>{item.title}</h1>
         <div className="big-price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd)}</div>
         <span className="where"><Icon name="pin" size={14} /> {wilayaName(item.wilayas)}</span>
+
+        {item.video_path && (
+          <video controls playsInline preload="metadata" src={publicUrl('portfolio-videos', item.video_path)} aria-label={t('listing.video')} style={{ width: '100%', borderRadius: 16, background: '#000', maxHeight: 420, margin: '12px 0' }} />
+        )}
 
         {specs.length > 0 && (
           <div className="specs">
