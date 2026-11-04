@@ -4,9 +4,11 @@
 // Wiring (once): Dashboard → Database → Webhooks → "Create a new hook"
 //   table: public.notifications · events: INSERT · type: Supabase Edge Function → send-push
 //   HTTP header: x-webhook-secret = <same value as the WEBHOOK_SECRET secret>
-// Secrets: supabase secrets set FCM_SERVICE_ACCOUNT="$(cat service-account.json)" WEBHOOK_SECRET=<random>
+// Secrets: WEBHOOK_SECRET (required), VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (+ optional VAPID_SUBJECT) for the PWA,
+//          FCM_SERVICE_ACCOUNT only if you also ship the Android app with Firebase.
 // Deploy:  supabase functions deploy send-push --no-verify-jwt
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import webpush from 'npm:web-push@3.6.7';
 
 type Lang = 'ar' | 'fr' | 'en';
 const IDX: Record<Lang, number> = { ar: 0, fr: 1, en: 2 };
@@ -98,36 +100,57 @@ Deno.serve(async (req) => {
   if (payload?.type !== 'INSERT' || !row?.user_id) return new Response('ignored');
 
   const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
-  const [{ data: tokens }, { data: profile }] = await Promise.all([
+  const [{ data: tokens }, { data: subs }, { data: profile }] = await Promise.all([
     db.from('push_tokens').select('token').eq('user_id', row.user_id),
+    db.from('web_push_subscriptions').select('endpoint, p256dh, auth').eq('user_id', row.user_id),
     db.from('profiles').select('preferred_lang').eq('id', row.user_id).maybeSingle(),
   ]);
-  if (!tokens?.length) return new Response('no device');
+  if (!tokens?.length && !subs?.length) return new Response('no device');
 
   const lang: Lang = (['ar', 'fr', 'en'].includes(profile?.preferred_lang) ? profile!.preferred_lang : 'ar') as Lang;
   const { title, body } = render(row.type, row.params || {}, lang);
-  const sa = JSON.parse(Deno.env.get('FCM_SERVICE_ACCOUNT')!);
-  const token = await accessToken(sa);
-
   let sent = 0;
-  for (const { token: device } of tokens) {
-    const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        message: {
-          token: device,
-          notification: { title, body },
-          data: { path: String(row.path || '/'), id: String(row.id) },
-          android: { priority: 'high', notification: { channel_id: 'marsa_default', tag: String(row.path || 'marsa') } },
-        },
-      }),
-    });
-    if (res.ok) sent++;
-    else if (res.status === 404 || res.status === 400) {
-      // UNREGISTERED / INVALID_ARGUMENT: the app was uninstalled or the token rotated
-      const err = await res.text();
-      if (/UNREGISTERED|registration-token-not-registered|INVALID_ARGUMENT/.test(err)) await db.from('push_tokens').delete().eq('token', device);
+
+  // 1) Installed PWA / browsers: standard Web Push (VAPID)
+  const vapidPublic = Deno.env.get('VAPID_PUBLIC_KEY');
+  const vapidPrivate = Deno.env.get('VAPID_PRIVATE_KEY');
+  if (subs?.length && vapidPublic && vapidPrivate) {
+    webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT') || 'mailto:support@marsadz.app', vapidPublic, vapidPrivate);
+    const message = JSON.stringify({ title, body, path: String(row.path || '/') });
+    for (const s of subs) {
+      try {
+        await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, message, { TTL: 86400, urgency: 'high' });
+        sent++;
+      } catch (e) {
+        const code = (e as { statusCode?: number }).statusCode;
+        if (code === 404 || code === 410) await db.from('web_push_subscriptions').delete().eq('endpoint', s.endpoint);
+        else console.warn('web push failed', code);
+      }
+    }
+  }
+
+  // 2) Android app (Firebase Cloud Messaging), only when configured
+  if (tokens?.length && Deno.env.get('FCM_SERVICE_ACCOUNT')) {
+    const sa = JSON.parse(Deno.env.get('FCM_SERVICE_ACCOUNT')!);
+    const token = await accessToken(sa);
+    for (const { token: device } of tokens) {
+      const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          message: {
+            token: device,
+            notification: { title, body },
+            data: { path: String(row.path || '/'), id: String(row.id) },
+            android: { priority: 'high', notification: { channel_id: 'marsa_default', tag: String(row.path || 'marsa') } },
+          },
+        }),
+      });
+      if (res.ok) sent++;
+      else if (res.status === 404 || res.status === 400) {
+        const err = await res.text();
+        if (/UNREGISTERED|registration-token-not-registered|INVALID_ARGUMENT/.test(err)) await db.from('push_tokens').delete().eq('token', device);
+      }
     }
   }
   return new Response(JSON.stringify({ sent }), { headers: { 'content-type': 'application/json' } });

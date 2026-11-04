@@ -48,3 +48,43 @@ export async function showWebNotification(title, body, path) {
   await reg.showNotification(title, { body, icon: '/icon-192.png', badge: '/icon-192.png', tag: path || 'marsa', data: { path } });
   return true;
 }
+
+// Web Push for the installed PWA: works with the app closed. Needs VITE_VAPID_PUBLIC_KEY (Cloudflare variable).
+const VAPID = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+export const webPushSupported = () => webNotifySupported() && 'PushManager' in window && !!VAPID;
+
+const b64ToBytes = (b64) => {
+  const pad = '='.repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+};
+const bytesToB64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+// Subscribes this browser (only when the permission is already granted, or when ask = true) and stores it
+export async function registerWebPush(ask = false) {
+  if (!webPushSupported()) return false;
+  if (Notification.permission === 'default' && ask) await Notification.requestPermission();
+  if (Notification.permission !== 'granted') return false;
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID) });
+  const { error } = await supabase.rpc('register_web_push', {
+    p_endpoint: sub.endpoint,
+    p_p256dh: bytesToB64(sub.getKey('p256dh')),
+    p_auth: bytesToB64(sub.getKey('auth')),
+  });
+  return !error;
+}
+
+export async function forgetWebPush() {
+  if (!webPushSupported()) return;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = await reg?.pushManager.getSubscription();
+    if (!sub) return;
+    await supabase.rpc('unregister_web_push', { p_endpoint: sub.endpoint }).then(() => {}, () => {});
+    await sub.unsubscribe();
+  } catch (e) {
+    /* ignore */
+  }
+}

@@ -5,7 +5,7 @@ import { useAuth } from './auth.jsx';
 import { t as tr, useI18n } from './i18n/index.jsx';
 import { categoryName } from './i18n/names.js';
 import { isMissingSchema } from './lib/format';
-import { isNative, registerNativePush, showWebNotification } from './lib/push';
+import { isNative, registerNativePush, registerWebPush, showWebNotification } from './lib/push';
 
 const Ctx = createContext({ unread: 0, available: true, refresh: () => {}, markAllRead: async () => {} });
 export const useNotifications = () => useContext(Ctx);
@@ -85,6 +85,7 @@ export function NotificationsProvider({ children }) {
   useEffect(() => {
     if (!user) return;
     registerNativePush((path) => nav(path)).catch((e) => console.warn('push registration failed', e));
+    registerWebPush().catch((e) => console.warn('web push registration failed', e));
   }, [user?.id]);
 
   // Remember the chosen language on the profile so push messages are sent in it
