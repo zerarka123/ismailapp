@@ -14,3 +14,13 @@ export const MARKET_KINDS = ['boat', 'engine', 'equipment'];
 export const JOB_KINDS = ['job_offer', 'job_request'];
 // Native push needs Firebase (android/app/google-services.json). Turn on with VITE_PUSH_ENABLED=1 once it is in place.
 export const PUSH_ENABLED = import.meta.env?.VITE_PUSH_ENABLED === '1';
+
+// ---- Fish market ----
+// Bulletin / weather page opened by the weather button on the home screen. Put the real address here later.
+export const WEATHER_URL = 'https://www.meteo.dz/';
+// Today's live data for the weather button (null = show only the icon). Later: { temp: 24, wind: 18 } from your own source.
+export const WEATHER_LIVE = null;
+// Max number of "I need" requests one user can publish per day (the database enforces the same number in migration 011)
+export const FISH_REQUESTS_PER_DAY = 5;
+export const FISH_ARRIVAL_HOURS = 24;
+export const FISH_REQUEST_HOURS = 48;
