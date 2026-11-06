@@ -23,6 +23,9 @@ const TEXT: Record<string, [string, string, string]> = {
   new_generic: ['إعلان جديد في مرسى', 'Nouvelle annonce sur Marsa', 'New listing on Marsa'],
   new_product: ['🛠️ جديد في فرع {branch}', '🛠️ Nouveauté dans la branche {branch}', '🛠️ New in the {branch} branch'],
   new_catch: ['🐟 سمك طازج للبيع في ولايتك', '🐟 Poisson frais à vendre', '🐟 Fresh fish for sale'],
+  fish_follow: ['🐟 وصل جديد ممن تتابع', '🐟 Nouvel arrivage de vos suivis', '🐟 New arrival from who you follow'],
+  fish_request: ['🛒 زبون يبحث عن سمك في ولايتك', '🛒 Un client cherche du poisson dans votre wilaya', '🛒 A customer needs fish in your wilaya'],
+  fish_offer: ['✅ بائع أجاب على طلبك: متوفر', '✅ Un vendeur a répondu : disponible', '✅ A seller replied: available'],
   new_work: ['📸 أعمال جديدة من {business}', '📸 Nouvelles réalisations de {business}', '📸 New work from {business}'],
   generic: ['إشعار جديد', 'Nouvelle notification', 'New notification'],
 };
@@ -52,6 +55,9 @@ function render(type: string, p: Record<string, string>, lang: Lang) {
   }
   if (type === 'new_product') return { title: fill(TEXT.new_product[i], { branch: branchName(p, lang) }), body: [p.business, p.title].filter(Boolean).join(' · ') };
   if (type === 'new_catch') return { title: TEXT.new_catch[i], body: [p.business, p.title].filter(Boolean).join(' · ') };
+  if (type === 'fish_follow') return { title: TEXT.fish_follow[i], body: [p.business, p.title].filter(Boolean).join(' · ') };
+  if (type === 'fish_request') return { title: TEXT.fish_request[i], body: [p.item, p.commune].filter(Boolean).join(' · ') };
+  if (type === 'fish_offer') return { title: TEXT.fish_offer[i], body: [p.business, p.item].filter(Boolean).join(' · ') };
   if (type === 'new_work') return { title: fill(TEXT.new_work[i], { business: p.business || '' }), body: branchName(p, lang) };
   return { title: TEXT.generic[i], body: p.title || '' };
 }

@@ -5,7 +5,7 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName } from '../i18n/names.js';
 import { useNotifications } from '../notifications.jsx';
-import { MARKET_KINDS } from '../config';
+import { MARKET_KINDS, WEATHER_LIVE, WEATHER_URL } from '../config';
 import { useListings } from '../lib/useListings';
 import Icon from '../components/Icon.jsx';
 import ListingCard from '../components/ListingCard.jsx';
@@ -48,6 +48,10 @@ export default function Home() {
         <div className="brand"><img src="/logo.png" alt="" />{t('app.name')}</div>
         <div className="head-actions">
           <LanguageSwitcher />
+          <a className="iconbtn weather" href={WEATHER_URL} target="_blank" rel="noopener noreferrer" aria-label={t('fish.weather')}>
+            <Icon name="cloud" />
+            {WEATHER_LIVE && <span className="wx">{WEATHER_LIVE.temp}° · {WEATHER_LIVE.wind}</span>}
+          </a>
           <Link className="iconbtn" to={user ? '/notifications' : '/login?next=%2Fnotifications'} aria-label={t('notif.title')}>
             <Icon name="bell" />
             {unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
@@ -61,8 +65,9 @@ export default function Home() {
       <Link to="/search" className="searchbox"><Icon name="search" color="#51708A" />{t('home.search_hint')}</Link>
 
       <div className="shortcuts">
-        <Link to="/guide/marine" className="shortcut"><Icon name="compass" />{t('guide.marine')}</Link>
-        <Link to="/guide/fisher" className="shortcut sand"><Icon name="fish" />{t('guide.fisher')}</Link>
+        <Link to="/guide/marine" className="shortcut"><Icon name="compass" size={28} /><span>{t('guide.marine')}</span></Link>
+        <Link to="/guide/fisher" className="shortcut"><Icon name="anchor" size={28} /><span>{t('guide.fisher')}</span></Link>
+        <Link to="/fish" className="shortcut"><Icon name="fish" size={28} /><span>{t('fish.title')}</span></Link>
       </div>
 
       <SponsoredStrip />

@@ -23,6 +23,15 @@ export function notificationText(n) {
   if (n.type === 'new_catch') {
     return { title: tr('notif.new_catch'), body: [p.business, p.title].filter(Boolean).join(' · ') };
   }
+  if (n.type === 'fish_follow') {
+    return { title: tr('notif.fish_follow'), body: [p.business, p.title].filter(Boolean).join(' · ') };
+  }
+  if (n.type === 'fish_request') {
+    return { title: tr('notif.fish_request'), body: [p.item, p.commune].filter(Boolean).join(' · ') };
+  }
+  if (n.type === 'fish_offer') {
+    return { title: tr('notif.fish_offer'), body: [p.business, p.item].filter(Boolean).join(' · ') };
+  }
   if (n.type === 'new_work') {
     return { title: tr('notif.new_work', { business: p.business || '' }), body: categoryName({ slug: p.branch, name_ar: p.branch_ar }) };
   }

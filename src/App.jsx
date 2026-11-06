@@ -4,6 +4,11 @@ import { FavoritesProvider } from './favorites.jsx';
 import { I18nProvider, useI18n } from './i18n/index.jsx';
 import { NotificationsProvider } from './notifications.jsx';
 import Icon from './components/Icon.jsx';
+import FishMarket, { FishToday } from './pages/FishMarket.jsx';
+import FishPost from './pages/FishPost.jsx';
+import FishRequests from './pages/FishRequests.jsx';
+import FishRequestNew from './pages/FishRequestNew.jsx';
+import FishRequestDetail from './pages/FishRequestDetail.jsx';
 import Home from './pages/Home.jsx';
 import Search from './pages/Search.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
@@ -46,6 +51,12 @@ function Shell() {
       <main className={isLogin ? '' : 'page'}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/fish" element={<FishMarket />} />
+          <Route path="/fish/today" element={<FishToday />} />
+          <Route path="/fish/post" element={<FishPost />} />
+          <Route path="/fish/requests" element={<FishRequests />} />
+          <Route path="/fish/requests/new" element={<FishRequestNew />} />
+          <Route path="/fish/requests/:id" element={<FishRequestDetail />} />
           <Route path="/search" element={<Search />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/sell" element={<Sell />} />

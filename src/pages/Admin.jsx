@@ -9,6 +9,7 @@ import { PHONE_RE, cleanPhone, fmtDate, isMissingSchema } from '../lib/format';
 import { proKindLabel } from '../lib/accountTypes';
 import { selectListings } from '../lib/useListings';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
+import FishReports from '../components/FishReports.jsx';
 import Icon from '../components/Icon.jsx';
 import AdminSocial from '../components/AdminSocial.jsx';
 
@@ -257,6 +258,7 @@ export default function Admin() {
 
       {tab === 'reports' && (
         <>
+          <FishReports />
           {reports?.length === 0 && <p className="empty">{t('admin.no_reports')}</p>}
           {reports?.map((r) => (
             <div key={r.id} className="box">
