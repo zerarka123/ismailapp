@@ -58,3 +58,15 @@ Node 22+، JDK 21، Android Studio Otter (2025.2.1) أو أحدث مع Android S
   رقم واتساب الدعم اختياري: `VITE_SUPPORT_WHATSAPP`.
 - الإعلانات المموّلة: من صفحة الإعلان (حساب مدير) ← «تمويل 7/30 يومًا»، وتظهر أعلى الرئيسية.
 - النصوص كلها في `src/i18n/messages.js` (عربي، فرنسي، إنجليزي في سطر واحد لكل مفتاح).
+
+## إعلانات الإدارة (الإصدار 1.2)
+رسالة من لوحة الإدارة (عنوان + نص + صورة أو فيديو) تصل كإشعار لكل المستخدمين أو لفئة حسب نوع الحساب، وتظهر داخل التطبيق في نافذة مرة واحدة لكل مستخدم، وفي قسم «الجديد» (`/news`).
+تستعمل نفس جداول الأجهزة (`push_tokens`, `web_push_subscriptions`) ونفس أسرار Firebase/VAPID الخاصة بـ `send-push`، ولا تغيّر شيئًا في الإشعارات الحالية.
+
+1. Supabase ← SQL Editor: نفّذ `scripts/migrations/012_announcements.sql` (يضيف جدولين وbucket «announcements» ودوالًا وسياسات فقط).
+2. `supabase functions deploy send-announcement --no-verify-jwt` (لا أسرار جديدة: تستعمل نفس أسرار send-push).
+3. `npm run build` وارفع الواجهة، ثم `npm run android:release` لنسخة Android.
+
+- الفئات: الجميع، الأعضاء (حساب بدون نشاط مهني)، الصيادون، الحرفيون، الموردون، أصحاب المحلات، الميكانيكيون (حسب `professional_profiles.pro_type`).
+- الفيديو حتى 20 ميغابايت (`MAX_ANNOUNCEMENT_VIDEO_BYTES` في `src/config.js` وحد الـ bucket في الملف 012)، أو رابط يوتيوب/Vimeo. الصور تُضغط قبل الرفع.
+- النافذة المنبثقة تعرض إعلانات آخر 7 أيام غير المقروءة فقط (`POPUP_DAYS` في `src/lib/announcements.js`).

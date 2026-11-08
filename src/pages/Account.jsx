@@ -98,6 +98,7 @@ export default function Account() {
         <Link to="/my-listings"><Icon name="list" />{t('acc.my_listings')}</Link>
         <Link to="/favorites"><Icon name="star" />{t('nav.favorites')}</Link>
         <Link to="/notifications"><Icon name="bell" />{t('notif.title')}</Link>
+        <Link to="/news"><Icon name="megaphone" />{t('ann.news_title')}</Link>
         {pro ? (
           <Link to={pro.status === 'active' ? `/pro/${pro.id}` : '/register-business'}><Icon name="store" />{t('acc.business', { name: pro.business_name })} <span className={`pill ${pro.status === 'active' ? 'ok' : 'warn'}`}>{t(`pstatus.${pro.status}`)}</span></Link>
         ) : (
