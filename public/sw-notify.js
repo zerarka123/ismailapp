@@ -17,7 +17,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Web Push (PWA): the server sends { title, body, path }; show it even when the app is closed.
+// Web Push (PWA): the server sends { title, body, path, image? }; show it even when the app is closed.
 self.addEventListener('push', (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch (e) { d = {}; }
@@ -29,6 +29,8 @@ self.addEventListener('push', (event) => {
       badge: '/icon-192.png',
       tag: d.path || 'marsa',
       data: { path: d.path || '/' },
+      // admin announcements may carry a picture (shown by Chrome / Android browsers, ignored elsewhere)
+      ...(typeof d.image === 'string' && d.image.startsWith('https://') ? { image: d.image } : {}),
     })
   );
 });

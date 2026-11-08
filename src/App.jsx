@@ -32,6 +32,8 @@ import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import EditListing from './pages/EditListing.jsx';
 import EditBusiness from './pages/EditBusiness.jsx';
+import News from './pages/News.jsx';
+import AnnouncementGate from './components/AnnouncementGate.jsx';
 
 function Shell() {
   const { loading, recovery } = useAuth();
@@ -48,6 +50,7 @@ function Shell() {
   return (
     <div className="app">
       <InstallPrompt />
+      <AnnouncementGate />
       <main className={isLogin ? '' : 'page'}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -80,6 +83,7 @@ function Shell() {
           <Route path="/delete-account" element={<Legal kind="delete" />} />
           <Route path="/support" element={<Support />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/news" element={<News />} />
           <Route path="/u/:id" element={<UserProfile />} />
           <Route path="/portfolio" element={<PortfolioManage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

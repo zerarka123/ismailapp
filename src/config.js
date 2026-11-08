@@ -8,6 +8,8 @@ export const APP_URL = 'https://app.marsadz.app';
 export const SUPPORT_PAGE = `${SITE_URL}/support`;
 export const MAX_IMAGES = 10;
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// Admin announcements: biggest video file that can be uploaded (the storage bucket enforces the same limit)
+export const MAX_ANNOUNCEMENT_VIDEO_BYTES = 20 * 1024 * 1024;
 export const PAGE_SIZE = 12;
 // Listing kinds shown in the open market (home + search). "gear" = pro products, shown in their branch only.
 export const MARKET_KINDS = ['boat', 'engine', 'equipment'];

@@ -11,6 +11,36 @@ import Icon from '../components/Icon.jsx';
 import ListingCard from '../components/ListingCard.jsx';
 import ListingFeed from '../components/ListingFeed.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
+import { listAnnouncements, readIds } from '../lib/announcements';
+
+// Latest admin announcement (last 30 days) as a small banner that opens "What's new"
+function NewsStrip() {
+  const { user } = useAuth();
+  const { t } = useI18n();
+  const [a, setA] = useState(null);
+  const [unseen, setUnseen] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    listAnnouncements(1).then(async ({ data }) => {
+      const last = data?.[0];
+      if (!alive || !last || Date.now() - new Date(last.created_at).getTime() > 30 * 86400000) return;
+      setA(last);
+      if (user) setUnseen(!(await readIds(user.id, [last.id])).has(last.id));
+    }, () => {});
+    return () => {
+      alive = false;
+    };
+  }, [user?.id]);
+  if (!a) return null;
+  return (
+    <Link to={`/news?a=${a.id}`} className="news-strip">
+      <Icon name="megaphone" />
+      <span dir="auto">{a.title}</span>
+      {unseen && <span className="pill warn">{t('ann.new')}</span>}
+      <b>{t('ann.news_title')}</b>
+    </Link>
+  );
+}
 
 // Paid placements on top of the market (listings.sponsored_until set by an admin)
 function SponsoredStrip() {
@@ -63,6 +93,8 @@ export default function Home() {
       </header>
 
       <Link to="/search" className="searchbox"><Icon name="search" color="#51708A" />{t('home.search_hint')}</Link>
+
+      <NewsStrip />
 
       <div className="shortcuts">
         <Link to="/guide/marine" className="shortcut"><Icon name="compass" size={28} /><span>{t('guide.marine')}</span></Link>
