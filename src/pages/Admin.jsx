@@ -13,6 +13,7 @@ import FishReports from '../components/FishReports.jsx';
 import Icon from '../components/Icon.jsx';
 import AdminSocial from '../components/AdminSocial.jsx';
 import AdminAnnouncements from '../components/AdminAnnouncements.jsx';
+import AdminListings from '../components/AdminListings.jsx';
 
 const TONE = { pending: 'warn', active: 'ok', suspended: 'bad' };
 const one = (x) => (Array.isArray(x) ? x[0] : x);
@@ -205,6 +206,7 @@ export default function Admin() {
         <button className={`btn sm ${tab === 'reports' ? '' : 'alt'}`} onClick={() => setTab('reports')}>{t('admin.tab_reports')} ({reports?.length ?? 0})</button>
         <button className={`btn sm ${tab === 'sponsored' ? '' : 'alt'}`} onClick={() => setTab('sponsored')}>{t('admin.tab_sponsored')} ({sponsored.length})</button>
         <button className={`btn sm ${tab === 'social' ? '' : 'alt'}`} onClick={() => setTab('social')}>{t('admin.tab_social')}</button>
+        <button className={`btn sm seg-wide ${tab === 'listings' ? '' : 'alt'}`} onClick={() => setTab('listings')}>🗂 {t('adl.tab')}</button>
         <button className={`btn sm seg-wide ${tab === 'announce' ? '' : 'alt'}`} onClick={() => setTab('announce')}>📣 {t('ann.admin_tab')}</button>
       </div>
       {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
@@ -276,6 +278,8 @@ export default function Admin() {
       )}
 
       {tab === 'social' && <AdminSocial />}
+
+      {tab === 'listings' && <AdminListings />}
 
       {tab === 'announce' && <AdminAnnouncements />}
 
