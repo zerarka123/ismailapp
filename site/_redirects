@@ -1,0 +1,8 @@
+# Addresses that belong to the app: send visitors there instead of showing the landing page again.
+/register-business https://app.marsadz.app/register-business 302
+/sell https://app.marsadz.app/sell 302
+/login https://app.marsadz.app/login 302
+/support https://app.marsadz.app/support 302
+/privacy https://app.marsadz.app/privacy 302
+/terms https://app.marsadz.app/terms 302
+/index.html / 301

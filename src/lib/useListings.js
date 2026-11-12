@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SUPABASE_HOST, supabase } from '../supabase';
 import { PAGE_SIZE } from '../config';
-import { isMissingSchema, likeEscape } from './format';
+import { isMissingSchema } from './format';
+import { expandQuery, fuzzyMatch, orFilter } from './smartSearch';
+
+// Columns the text search looks into, and how many recent ads the typo-tolerant fallback scans
+const SEARCH_COLUMNS = ['title', 'description', 'engine_info'];
+const FUZZY_SCAN = 200;
 
 const BASE =
   'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, profession, published_at, bumped_at, expires_at, status, seller_id, seller_name, wilayas(*), boat_types!left(*), listing_images(storage_path, sort_order)';
@@ -41,16 +46,19 @@ export function useListings(filters) {
         return;
       }
       const from = page.current * PAGE_SIZE;
-      const build = (select) => {
+      // text = true: smart text filter in the database; text = false: the latest ads, matched in the browser (typos)
+      const build = (select, text = true) => {
         let q = supabase
           .from('listings')
           .select(select)
           .eq('status', 'published')
           .gt('expires_at', new Date().toISOString())
           .order('bumped_at', { ascending: false })
-          .range(from, from + PAGE_SIZE - 1);
+          .range(text ? from : 0, text ? from + PAGE_SIZE - 1 : FUZZY_SCAN - 1);
 
-        if (f.q) q = q.ilike('title', `%${likeEscape(f.q)}%`);
+        // One "or" per typed word: the word in any spelling (Arabic / French / English), in any searched column.
+        // Several "or" filters are combined with AND, so every word must be found.
+        if (f.q && text) for (const vs of expandQuery(f.q)) q = q.or(orFilter(vs, SEARCH_COLUMNS));
         if (f.kind) q = q.eq('kind', f.kind);
         if (f.kinds) q = q.in('kind', f.kinds);
         if (f.excludeKind) q = q.neq('kind', f.excludeKind);
@@ -74,7 +82,16 @@ export function useListings(filters) {
       } else {
         res = f.sponsored ? await build(LISTING_SELECT) : await selectListings(build);
       }
-      const { data, error: err } = res;
+      let { data, error: err } = res;
+      // Nothing found with the exact spellings: look for close ones (a typo, or a name the dictionary does not know)
+      let fuzzy = false;
+      if (!err && f.q && reset && data.length === 0) {
+        const wide = await selectListings((select) => build(select, false));
+        if (!wide.error) {
+          data = wide.data.filter((it) => fuzzyMatch(f.q, it.title, it.engine_info));
+          fuzzy = true;
+        }
+      }
       if (err) {
         // Sponsored strip on a database without migration 003: just show nothing
         if (f.sponsored && isMissingSchema(err)) {
@@ -89,7 +106,7 @@ export function useListings(filters) {
         return;
       }
       setItems((prev) => (reset ? data : [...prev, ...data]));
-      setDone(data.length < PAGE_SIZE);
+      setDone(fuzzy || data.length < PAGE_SIZE);
       page.current += 1;
       setLoading(false);
     },

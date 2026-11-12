@@ -1,7 +1,7 @@
-import { APP, SITE, clean, cached, esc, ld, listingImage, priceText, proCard, rest, supabaseConfig } from './_lib/site.js';
+import { APP, SITE, categoryNames, clean, cached, esc, ld, listingImage, ml, priceHtml, proCard, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
 
-// "/" — the static landing page plus two server-rendered sections: guide categories with their latest
-// activities, and sponsored ads. Any failure returns the plain landing page untouched.
+// "/" — the static landing page plus two server-rendered sections: sponsored ads first, then the guide
+// categories with their latest activities. Any failure returns the plain landing page untouched.
 export async function onRequestGet(context) {
   const { env, next } = context;
   const cfg = supabaseConfig(env);
@@ -19,29 +19,33 @@ export async function onRequestGet(context) {
       const byCat = {};
       for (const p of Array.isArray(pros) ? pros : []) (byCat[p.category_slug] ||= []).push(p);
 
-      const catHtml = cats
-        .map((c) => {
-          const list = (byCat[c.slug] || []).slice(0, 3);
-          const ml = (c) => `data-ml data-ar="${esc(c.name_ar)}" data-fr="${esc(c.name_fr || c.name_ar)}" data-en="${esc(c.name_en || c.name_ar)}"`;
-          return `<div class="card r v"><h3 ${ml(c)}>${esc(c.name_ar)}</h3>
-${list.length ? `<div class="grid-mini">${list.map((p) => proCard(cfg, p)).join('')}</div>` : `<p data-i18n="cat_empty">كن أول من يسجّل نشاطه في هذه الفئة.</p>`}
-<a class="btn p2" href="/c/${esc(c.slug)}" data-i18n="view_all">عرض الكل</a></div>`;
-        })
+      // Only categories that have activities get a card (no tall empty boxes); the others are listed as small links.
+      const full = cats.filter((c) => (byCat[c.slug] || []).length);
+      const bare = cats.filter((c) => !(byCat[c.slug] || []).length);
+      const catName = (c, tag) => ml(categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en), tag);
+      const catHtml = full
+        .map((c) => `<div class="card r v">${catName(c, 'h3')}
+<div class="grid-mini">${byCat[c.slug].slice(0, 3).map((p) => proCard(cfg, p)).join('')}</div>
+<a class="btn p2" href="/c/${esc(c.slug)}" data-i18n="view_all">عرض الكل</a></div>`)
         .join('');
+      const bareHtml = bare.length
+        ? `<p class="hint" data-i18n="cat_empty">كن أول من يسجّل نشاطه في هذه الفئة.</p><div class="chips">${bare.map((c) => `<a href="/c/${esc(c.slug)}">${catName(c)}</a>`).join('')}</div>`
+        : '';
 
       const adHtml = Array.isArray(ads) && ads.length
         ? `<section><div class="in"><h2 data-i18n="sp_t">إعلانات مميزة</h2><div class="grid-mini">${ads
             .map((a) => {
               const img = listingImage(cfg, a.cover_path);
-              return `<a class="card" rel="sponsored" href="${APP}/listing/${esc(a.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(a.title, 60))}</h3><p>${esc([priceText(a.price_dzd), a.wilaya_ar].filter(Boolean).join(' · '))}</p></div></a>`;
+              return `<a class="card" rel="sponsored" href="${APP}/listing/${esc(a.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(a.title, 60))}</h3><p>${[priceHtml(a.price_dzd), a.wilaya_ar ? ml(wilayaNames(a.wilaya_ar)) : ''].filter(Boolean).join(' · ')}</p></div></a>`;
             })
             .join('')}</div><p class="hint" data-i18n="sp_note">إعلانات مموّلة. افتح التطبيق للتواصل مع أصحابها.</p></div></section>`
         : '';
 
       const section = `<style>.grid-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:14px 0}
 .grid-mini .card{padding:0;border-radius:18px;overflow:hidden;display:block;color:var(--fg);text-decoration:none;background:rgba(5,28,44,.7);border:1px solid var(--bd)}
-.grid-mini .im{height:120px;background:#0b2536 center/cover no-repeat}.grid-mini .tx{padding:10px 14px}.grid-mini h3{font-size:16px;margin:0 0 2px}.grid-mini p{margin:0;font-size:13px}</style>
-<section><div class="in"><h2 data-i18n="cats_t">تصفّح الأنشطة</h2><p data-i18n="cats_p">آخر الأنشطة المسجّلة في كل فئة.</p><div class="grid">${catHtml}</div></div></section>${adHtml}`;
+.grid-mini .im{height:120px;background:#0b2536 center/cover no-repeat}.grid-mini .tx{padding:10px 14px}.grid-mini h3{font-size:16px;margin:0 0 2px}.grid-mini p{margin:0;font-size:13px}
+.grid.cats{align-items:start}.chips a{border:1px solid var(--bd);border-radius:999px;padding:6px 18px;background:var(--gl);color:var(--fg);text-decoration:none}</style>
+${adHtml}<section><div class="in"><h2 data-i18n="cats_t">تصفّح الأنشطة</h2><p data-i18n="cats_p">آخر الأنشطة المسجّلة في كل فئة.</p><div class="grid cats">${catHtml}</div>${bareHtml}</div></section>`;
 
       const jsonld = ld({
         '@context': 'https://schema.org',

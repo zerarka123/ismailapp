@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:scripts": "node scripts/test-scripts.mjs",
+    "test:search": "node scripts/test-search.mjs",
     "android:setup": "node scripts/android-setup.mjs",
     "keystore": "node scripts/make-keystore.mjs",
     "android:release": "node scripts/build-release.mjs"
