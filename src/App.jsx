@@ -1,39 +1,91 @@
+import { Component, Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
 import { I18nProvider, useI18n } from './i18n/index.jsx';
 import { NotificationsProvider } from './notifications.jsx';
 import Icon from './components/Icon.jsx';
-import FishMarket, { FishToday } from './pages/FishMarket.jsx';
-import FishPost from './pages/FishPost.jsx';
-import FishRequests from './pages/FishRequests.jsx';
-import FishRequestNew from './pages/FishRequestNew.jsx';
-import FishRequestDetail from './pages/FishRequestDetail.jsx';
 import Home from './pages/Home.jsx';
-import Search from './pages/Search.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
-import Sell from './pages/Sell.jsx';
-import MyListings from './pages/MyListings.jsx';
-import Favorites from './pages/Favorites.jsx';
-import Account from './pages/Account.jsx';
-import Login from './pages/Login.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import GuideSection from './pages/GuideSection.jsx';
-import GuideList from './pages/GuideList.jsx';
-import ProDetail from './pages/ProDetail.jsx';
-import ProRegister from './pages/ProRegister.jsx';
-import Admin from './pages/Admin.jsx';
-import Legal from './pages/Legal.jsx';
-import PostJob from './pages/PostJob.jsx';
-import UserProfile from './pages/UserProfile.jsx';
-import Support from './pages/Support.jsx';
-import Notifications from './pages/Notifications.jsx';
-import PortfolioManage from './components/PortfolioManage.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
-import EditListing from './pages/EditListing.jsx';
-import EditBusiness from './pages/EditBusiness.jsx';
-import News from './pages/News.jsx';
 import AnnouncementGate from './components/AnnouncementGate.jsx';
+
+// Home and the listing page are in the first download; every other screen is fetched the first time it is opened
+// (smaller first load on slow networks). The service worker still precaches all of them for offline use.
+const RELOAD_KEY = 'marsa.chunk-reload';
+function page(load, pick = 'default') {
+  return lazy(() =>
+    load().then(
+      (m) => {
+        try {
+          sessionStorage.removeItem(RELOAD_KEY);
+        } catch {
+          /* storage blocked */
+        }
+        return { default: m[pick] };
+      },
+      (err) => {
+        // A new version was published while this tab was open and the old file is gone: reload once to get it.
+        try {
+          if (!sessionStorage.getItem(RELOAD_KEY)) {
+            sessionStorage.setItem(RELOAD_KEY, '1');
+            window.location.reload();
+            return new Promise(() => {});
+          }
+        } catch {
+          /* storage blocked */
+        }
+        throw err;
+      }
+    )
+  );
+}
+const FishMarket = page(() => import('./pages/FishMarket.jsx'));
+const FishToday = page(() => import('./pages/FishMarket.jsx'), 'FishToday');
+const FishPost = page(() => import('./pages/FishPost.jsx'));
+const FishRequests = page(() => import('./pages/FishRequests.jsx'));
+const FishRequestNew = page(() => import('./pages/FishRequestNew.jsx'));
+const FishRequestDetail = page(() => import('./pages/FishRequestDetail.jsx'));
+const Search = page(() => import('./pages/Search.jsx'));
+const Sell = page(() => import('./pages/Sell.jsx'));
+const MyListings = page(() => import('./pages/MyListings.jsx'));
+const Favorites = page(() => import('./pages/Favorites.jsx'));
+const Account = page(() => import('./pages/Account.jsx'));
+const Login = page(() => import('./pages/Login.jsx'));
+const ResetPassword = page(() => import('./pages/ResetPassword.jsx'));
+const GuideSection = page(() => import('./pages/GuideSection.jsx'));
+const GuideList = page(() => import('./pages/GuideList.jsx'));
+const ProDetail = page(() => import('./pages/ProDetail.jsx'));
+const ProRegister = page(() => import('./pages/ProRegister.jsx'));
+const Admin = page(() => import('./pages/Admin.jsx'));
+const Legal = page(() => import('./pages/Legal.jsx'));
+const PostJob = page(() => import('./pages/PostJob.jsx'));
+const UserProfile = page(() => import('./pages/UserProfile.jsx'));
+const Support = page(() => import('./pages/Support.jsx'));
+const Notifications = page(() => import('./pages/Notifications.jsx'));
+const PortfolioManage = page(() => import('./components/PortfolioManage.jsx'));
+const EditListing = page(() => import('./pages/EditListing.jsx'));
+const EditBusiness = page(() => import('./pages/EditBusiness.jsx'));
+const News = page(() => import('./pages/News.jsx'));
+
+// A screen that could not be downloaded (no connection): say so instead of a blank page
+class PageBoundary extends Component {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidUpdate(prev) {
+    if (prev.pathname !== this.props.pathname && this.state.failed) this.setState({ failed: false });
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <p className="msg err" style={{ marginTop: 60 }}>
+        {this.props.text} <button className="linkbtn" onClick={() => window.location.reload()}>{this.props.retry}</button>
+      </p>
+    );
+  }
+}
 
 function Shell() {
   const { loading, recovery } = useAuth();
@@ -42,7 +94,8 @@ function Shell() {
   const navigate = useNavigate();
 
   if (loading) return <div className="splash"><img src="/logo.png" alt={t('app.name')} /></div>;
-  if (recovery) return <ResetPassword />;
+  const waiting = <p className="muted center" style={{ marginTop: 60 }}>{t('common.loading')}</p>;
+  if (recovery) return <Suspense fallback={waiting}><ResetPassword /></Suspense>;
 
   const isLogin = pathname === '/login';
   const hideTabs = isLogin || pathname.startsWith('/listing/') || pathname.startsWith('/pro/');
@@ -52,6 +105,8 @@ function Shell() {
       <InstallPrompt />
       <AnnouncementGate />
       <main className={isLogin ? '' : 'page'}>
+        <PageBoundary pathname={pathname} text={t('common.load_failed')} retry={t('common.retry')}>
+        <Suspense fallback={waiting}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/fish" element={<FishMarket />} />
@@ -88,6 +143,8 @@ function Shell() {
           <Route path="/portfolio" element={<PortfolioManage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
+        </PageBoundary>
       </main>
 
       {!hideTabs && (

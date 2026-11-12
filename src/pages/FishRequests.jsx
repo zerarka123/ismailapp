@@ -8,6 +8,7 @@ import { timeAgo } from '../lib/fish';
 import { goBack } from '../lib/goBack.js';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas } from '../lib/refData';
 
 export function RequestRow({ r, wilayas }) {
   const { t } = useI18n();
@@ -36,7 +37,7 @@ export default function FishRequests() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (!user) return;

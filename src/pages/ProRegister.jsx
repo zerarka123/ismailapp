@@ -14,6 +14,7 @@ import { getPosition } from '../lib/geo';
 import ImagePicker from '../components/ImagePicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import Icon from '../components/Icon.jsx';
+import { getWilayas } from '../lib/refData';
 
 
 export default function ProRegister() {
@@ -38,7 +39,7 @@ export default function ProRegister() {
       const c = (data || []).find((x) => x.slug === slug);
       if (t && c) setF((p) => ({ ...p, type: t, cat: String(c.id) }));
     });
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (profile) setF((p) => ({ ...p, phone: p.phone || profile.phone || '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));

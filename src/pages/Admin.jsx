@@ -14,6 +14,7 @@ import Icon from '../components/Icon.jsx';
 import AdminSocial from '../components/AdminSocial.jsx';
 import AdminAnnouncements from '../components/AdminAnnouncements.jsx';
 import AdminListings from '../components/AdminListings.jsx';
+import { getWilayas, getGuideCategories } from '../lib/refData';
 
 const TONE = { pending: 'warn', active: 'ok', suspended: 'bad' };
 const one = (x) => (Array.isArray(x) ? x[0] : x);
@@ -153,8 +154,8 @@ export default function Admin() {
   useEffect(() => {
     if (!isAdmin) return;
     load();
-    supabase.from('guide_categories').select('*').order('sort_order').then(({ data }) => setCats(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getGuideCategories().then(setCats);
+    getWilayas().then(setWilayas);
   }, [isAdmin, load]);
 
   const shown = useMemo(() => {

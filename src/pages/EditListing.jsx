@@ -10,6 +10,7 @@ import { removeFiles } from '../lib/images';
 import { GEAR_TYPES } from '../lib/safety';
 import NeedLogin from '../components/NeedLogin.jsx';
 import Icon from '../components/Icon.jsx';
+import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const YEAR = new Date().getFullYear();
 const SEL = 'id, seller_id, kind, boat_type_id, title, description, price_dzd, length_m, year_built, engine_info, wilaya_id, place_text, condition';
@@ -29,8 +30,8 @@ export default function EditListing() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('boat_types').select('*').order('sort_order').then(({ data }) => setTypes(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getBoatTypes().then(setTypes);
+    getWilayas().then(setWilayas);
   }, []);
 
   useEffect(() => {

@@ -7,10 +7,21 @@ export default function ListingFeed({ filters, emptyText }) {
   const { items, loading, error, done, more, reload } = useListings(filters);
   return (
     <div className="feed">
-      {items.map((it) => (
-        <ListingCard key={it.id} item={it} />
+      {items.map((it, i) => (
+        <ListingCard key={it.id} item={it} eager={i < 2} />
       ))}
-      {loading && <p className="muted center">{t('common.loading')}</p>}
+      {/* first load: grey placeholders shaped like the cards; "show more": the usual text */}
+      {loading && items.length === 0 && (
+        <div className="feed-skel" role="status" aria-label={t('common.loading')}>
+          {[0, 1, 2].map((n) => (
+            <div key={n} className="lcard skel">
+              <div className="lcard-img" />
+              <div className="lcard-body"><i /><i /><i /></div>
+            </div>
+          ))}
+        </div>
+      )}
+      {loading && items.length > 0 && <p className="muted center">{t('common.loading')}</p>}
       {error && (
         <p className="msg err">
           {t('common.load_failed')} <button className="linkbtn" onClick={reload}>{t('common.retry')}</button>

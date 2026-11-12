@@ -4,7 +4,7 @@ import { useFavorites } from '../favorites.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { conditionLabel, fmtPrice, isNew } from '../lib/format';
-import { cssUrl, publicUrl } from '../lib/images';
+import { publicUrl } from '../lib/images';
 import { kindKey } from '../lib/safety';
 
 export function coverOf(images) {
@@ -13,7 +13,8 @@ export function coverOf(images) {
 
 export const isSponsored = (item) => !!item.sponsored_until && new Date(item.sponsored_until) > new Date();
 
-export default function ListingCard({ item, compact = false }) {
+// eager: the first cards of a list (visible at once); the others download their photo only when scrolled near
+export default function ListingCard({ item, compact = false, eager = false }) {
   const { t } = useI18n();
   const nav = useNavigate();
   const { pathname } = useLocation();
@@ -37,7 +38,8 @@ export default function ListingCard({ item, compact = false }) {
 
   return (
     <Link to={`/listing/${item.id}`} className={`lcard${compact ? ' compact' : ''}`}>
-      <div className="lcard-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined}>
+      <div className="lcard-img">
+        {cover && <img className="lcard-photo" src={publicUrl('listing-images', cover.storage_path)} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" draggable={false} />}
         {isSponsored(item) ? <span className="tag sponsored">{t('home.sponsored_tag')}</span> : isNew(item.published_at) && <span className="tag">{t('card.new')}</span>}
         <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}>
           <Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} />

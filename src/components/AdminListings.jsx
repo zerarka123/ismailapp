@@ -8,6 +8,7 @@ import { daysLeft, fmtDate, fmtPrice, isMissingSchema } from '../lib/format';
 import { cssUrl, publicUrl, removeFiles } from '../lib/images';
 import { kindKey } from '../lib/safety';
 import { isSponsored } from './ListingCard.jsx';
+import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const PAGE = 30;
 const KIND_FILTERS = ['boat', 'engine', 'equipment', 'fish', 'gear'];
@@ -33,8 +34,8 @@ export default function AdminListings() {
   const seq = useRef(0);
 
   useEffect(() => {
-    supabase.from('boat_types').select('*').order('sort_order').then(({ data }) => setTypes(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getBoatTypes().then(setTypes);
+    getWilayas().then(setWilayas);
   }, []);
 
   const typeById = useMemo(() => new Map(types.map((x) => [String(x.id), x])), [types]);

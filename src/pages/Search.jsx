@@ -4,6 +4,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { MARKET_KINDS } from '../config';
 import ListingFeed from '../components/ListingFeed.jsx';
+import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const EMPTY = { q: '', type: '', wilayaId: '', minPrice: '', maxPrice: '' };
 const num = (v) => (/^\d{1,12}$/.test(v) ? Number(v) : undefined);
@@ -18,8 +19,8 @@ export default function Search() {
   const set = (k) => (e) => setDraft({ ...draft, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('boat_types').select('*').order('sort_order').then(({ data }) => setTypes(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getBoatTypes().then(setTypes);
+    getWilayas().then(setWilayas);
   }, []);
 
   function apply(e) {

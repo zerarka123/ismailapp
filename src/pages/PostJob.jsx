@@ -8,6 +8,7 @@ import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone } from '../lib/format';
 import { safetyKey } from '../lib/safety';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas } from '../lib/refData';
 
 // Suggestions only (prof.<key> in messages.js); the user can type any profession
 const PROFESSIONS = ['marine_mechanic', 'fisherman', 'sailor', 'skipper', 'shipwright', 'marine_electrician', 'welder', 'diver', 'craftsman', 'deckhand'];
@@ -40,8 +41,7 @@ export default function PostJob({ kind }) {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id')
-      .then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
 
   useEffect(() => {

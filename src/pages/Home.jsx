@@ -12,6 +12,7 @@ import ListingCard from '../components/ListingCard.jsx';
 import ListingFeed from '../components/ListingFeed.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 import { listAnnouncements, readIds } from '../lib/announcements';
+import { getBoatTypes } from '../lib/refData';
 
 // Latest admin announcement (last 30 days) as a small banner that opens "What's new"
 function NewsStrip() {
@@ -66,7 +67,7 @@ export default function Home() {
   const [chip, setChip] = useState('all'); // 'all' | 'engine' | 'equipment' | boat type id
 
   useEffect(() => {
-    supabase.from('boat_types').select('*').order('sort_order').then(({ data }) => setTypes(data || []));
+    getBoatTypes().then(setTypes);
   }, []);
 
   const filters =

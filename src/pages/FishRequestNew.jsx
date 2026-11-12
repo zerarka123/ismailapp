@@ -10,6 +10,7 @@ import { REQUEST_CATEGORIES, URGENCY } from '../lib/fish';
 import { goBack } from '../lib/goBack.js';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas } from '../lib/refData';
 
 export default function FishRequestNew() {
   const { user, profile } = useAuth();
@@ -22,7 +23,7 @@ export default function FishRequestNew() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (profile) setF((p) => ({ ...p, phone: p.phone || profile.phone || '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));

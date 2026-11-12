@@ -13,6 +13,7 @@ import ListingFeed from '../components/ListingFeed.jsx';
 import JobBoardTabs from '../components/jobs/jobBoardtabs.jsx';
 import ColdRoomOffers from '../components/ColdRoomOffers.jsx';
 import { MERGED_BRANCHES, isBranchVisible } from '../lib/branches';
+import { getWilayas } from '../lib/refData';
 
 const PRO_SELECT = 'id, owner_id, business_name, description, address, latitude, longitude, badge_verified, wilayas(*), professional_images(storage_path, sort_order)';
 
@@ -47,7 +48,7 @@ export default function GuideList() {
         setCatIds((data || []).map((c) => c.id));
       });
     }
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, [section, slug, startTab]);
 
   useEffect(() => {
