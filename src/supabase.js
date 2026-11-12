@@ -20,6 +20,24 @@ export const SUPABASE_HOST = (() => {
   }
 })();
 
+// Database requests give up after 30 s instead of spinning forever on a dead connection (the screens then show
+// their normal "no connection / try again" message). Uploads, sign-in and realtime are left untouched.
+const REST_TIMEOUT_MS = 30000;
+function fetchWithTimeout(input, init = {}) {
+  const target = typeof input === 'string' ? input : String(input?.url ?? input);
+  if (init.signal || !target.includes('/rest/v1/') || typeof AbortController === 'undefined') return fetch(input, init);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => {
+    try {
+      ctl.abort(new DOMException('network timeout', 'TimeoutError'));
+    } catch {
+      ctl.abort();
+    }
+  }, REST_TIMEOUT_MS);
+  return fetch(input, { ...init, signal: ctl.signal }).finally(() => clearTimeout(timer));
+}
+
 export const supabase = createClient(url, key, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' },
+  global: { fetch: fetchWithTimeout },
 });

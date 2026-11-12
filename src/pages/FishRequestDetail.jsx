@@ -10,6 +10,7 @@ import { timeAgo } from '../lib/fish';
 import { goBack } from '../lib/goBack.js';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas } from '../lib/refData';
 
 function ContactButtons({ phone, whatsapp, text }) {
   const { t } = useI18n();
@@ -141,7 +142,7 @@ export default function FishRequestDetail() {
   }, [id, user?.id]);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || [])); }, []);
+  useEffect(() => { getWilayas().then(setWilayas); }, []);
 
   if (!user) return <NeedLogin text={t('fish.login_contact')} />;
   const w = req && wilayas.find((x) => x.id === req.wilaya_id);

@@ -10,6 +10,7 @@ import { removeFiles } from '../lib/images';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
+import { getWilayas } from '../lib/refData';
 
 export default function Account() {
   const { user, profile, refreshProfile, signOut } = useAuth();
@@ -26,7 +27,7 @@ export default function Account() {
   const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (!profile) return;

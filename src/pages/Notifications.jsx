@@ -12,6 +12,7 @@ import { fmtDate, isMissingSchema } from '../lib/format';
 import { isNative, registerNativePush, registerWebPush, webNotifySupported } from '../lib/push';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas, getGuideCategories } from '../lib/refData';
 
 const KINDS = ['boat', 'engine', 'equipment', 'job_offer', 'job_request'];
 const DEFAULT_PREFS = { enabled: true, kinds: ['boat', 'engine', 'equipment'], category_ids: [], wilaya_id: null };
@@ -79,8 +80,8 @@ function Preferences({ user }) {
   useEffect(() => {
     isNative().then(setNative);
     supabase.from('notification_prefs').select('enabled, kinds, category_ids, wilaya_id').eq('user_id', user.id).maybeSingle().then(({ data }) => setPrefs(data || DEFAULT_PREFS));
-    supabase.from('guide_categories').select('*').order('sort_order').then(({ data }) => setCats(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getGuideCategories().then(setCats);
+    getWilayas().then(setWilayas);
   }, [user.id]);
 
   if (!prefs) return <p className="muted center">{t('common.loading')}</p>;

@@ -15,6 +15,7 @@ import { GEAR_TYPES, safetyKey } from '../lib/safety';
 import ImagePicker from '../components/ImagePicker.jsx';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
+import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const YEAR = new Date().getFullYear();
 const INIT = { kind: 'boat', gearType: 'spare_part', branch: '', unit: 'kg', quantity: '', offerDays: '1', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
@@ -41,8 +42,8 @@ export default function Sell() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('boat_types').select('*').order('sort_order').then(({ data }) => setTypes(data || []));
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getBoatTypes().then(setTypes);
+    getWilayas().then(setWilayas);
   }, []);
 
   useEffect(() => {

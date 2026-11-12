@@ -9,6 +9,7 @@ import { fmtPrice } from '../lib/format';
 import { FISH_SPECIES, speciesName, timeAgo } from '../lib/fish';
 import { cssUrl, publicUrl } from '../lib/images';
 import Icon from './Icon.jsx';
+import { getWilayas } from '../lib/refData';
 
 const SELECT = 'id, title, price_dzd, unit, quantity, seller_id, seller_name, wilaya_id, place_text, published_at, fish_species, fish_expires_at, video_path, listing_images(storage_path, sort_order), wilayas(*)';
 
@@ -54,7 +55,7 @@ export default function FishList({ postButton = false }) {
   const wilayaTouched = useRef(false);
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (!wilayaTouched.current && profile?.wilaya_id) setWilaya(String(profile.wilaya_id));

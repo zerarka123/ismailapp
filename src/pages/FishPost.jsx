@@ -13,6 +13,7 @@ import ImagePicker from '../components/ImagePicker.jsx';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import { goBack } from '../lib/goBack.js';
+import { getWilayas } from '../lib/refData';
 
 // Quick form for an active fisherman / fishmonger: one screen, publishes at once (no approval).
 export default function FishPost() {
@@ -29,7 +30,7 @@ export default function FishPost() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
   useEffect(() => {
     if (profile) setF((p) => ({ ...p, phone: p.phone || profile.phone || '', wilayaId: p.wilayaId || (profile.wilaya_id ? String(profile.wilaya_id) : '') }));

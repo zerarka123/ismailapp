@@ -9,6 +9,7 @@ import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { getPosition } from '../lib/geo';
 import NeedLogin from '../components/NeedLogin.jsx';
 import Icon from '../components/Icon.jsx';
+import { getWilayas } from '../lib/refData';
 
 // The owner edits his own business account (type and branch are changed by the administration only).
 export default function EditBusiness() {
@@ -24,7 +25,7 @@ export default function EditBusiness() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    supabase.from('wilayas').select('*').order('id').then(({ data }) => setWilayas(data || []));
+    getWilayas().then(setWilayas);
   }, []);
 
   useEffect(() => {
