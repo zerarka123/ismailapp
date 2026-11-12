@@ -231,7 +231,10 @@ export const MESSAGES = {
   'prof.deckhand': ['مساعد على متن السفينة', 'Matelot', 'Deckhand'],
 
   // search
-  'search.placeholder': ['ابحث بالعنوان…', 'Rechercher par titre…', 'Search by title…'],
+  'notfound.title': ['الصفحة غير موجودة', 'Page introuvable', 'Page not found'],
+  'notfound.text': ['الرابط غير صحيح أو أن الصفحة حُذفت.', 'Le lien est incorrect ou la page a été supprimée.', 'The link is wrong or the page was removed.'],
+  'notfound.home': ['العودة إلى الرئيسية', 'Retour à l’accueil', 'Back to home'],
+  'search.placeholder': ['ابحث: ياماها، محرك، قارب…', 'Rechercher : yamaha, moteur, bateau…', 'Search: yamaha, engine, boat…'],
   'search.type': ['النوع', 'Type', 'Type'],
   'search.all_types': ['كل الأنواع', 'Tous les types', 'All types'],
   'search.min_price': ['أقل سعر (دج)', 'Prix min (DA)', 'Min price (DZD)'],

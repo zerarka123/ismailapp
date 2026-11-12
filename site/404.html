@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الصفحة غير موجودة | مرسى</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#03121c">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(#0b3a5c,#03121c 70%);color:#eaf6ff;font-family:Cairo,Tahoma,sans-serif;line-height:1.7;padding:24px;box-sizing:border-box}
+.n{font-size:clamp(80px,22vw,180px);font-weight:900;line-height:1;margin:0;opacity:.9}
+h1{font-size:clamp(24px,5vw,38px);margin:8px 0}
+p{color:#bcd7e8;margin:0 0 22px}
+.btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:700;text-decoration:none;margin:6px;background:#f58b0b;color:#1b1000}
+.btn.alt{background:transparent;color:#eaf6ff;border:1.5px solid rgba(255,255,255,.25)}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+<p class="n" aria-hidden="true">404</p>
+<h1 data-ml data-fr="Page introuvable" data-en="Page not found" data-ar="الصفحة غير موجودة">الصفحة غير موجودة</h1>
+<p data-ml data-fr="Le lien est incorrect ou la page a été supprimée." data-en="The link is wrong or the page was removed." data-ar="الرابط غير صحيح أو أن الصفحة حُذفت.">الرابط غير صحيح أو أن الصفحة حُذفت.</p>
+<a class="btn" href="/" data-ml data-fr="Retour à l’accueil" data-en="Back to home" data-ar="العودة إلى الرئيسية">العودة إلى الرئيسية</a>
+<a class="btn alt" href="https://app.marsadz.app" data-ml data-fr="Ouvrir l’application" data-en="Open the app" data-ar="افتح التطبيق">افتح التطبيق</a>
+</main>
+<script>
+(function(){var I={ar:1,fr:1,en:1},l='ar';try{var s=localStorage.getItem('marsa.lang');l=I[s]?s:/^fr/.test(navigator.language)?'fr':/^en/.test(navigator.language)?'en':'ar'}catch(e){}
+var h=document.documentElement;h.lang=l;h.dir=l==='ar'?'rtl':'ltr';
+document.querySelectorAll('[data-ml]').forEach(function(n){n.textContent=n.getAttribute('data-'+l)});
+document.title=document.querySelector('h1').textContent+' | '+(l==='ar'?'مرسى':'Marsa');
+document.querySelectorAll('a[href^="https://app.marsadz.app"]').forEach(function(a){a.href+='?lang='+l});})();
+</script>
+</body>
+</html>

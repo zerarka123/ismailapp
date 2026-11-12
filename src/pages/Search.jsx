@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../supabase';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { MARKET_KINDS } from '../config';
@@ -23,19 +22,32 @@ export default function Search() {
     getWilayas().then(setWilayas);
   }, []);
 
+  function toFilters(d) {
+    const byKind = d.type === 'engine' || d.type === 'equipment';
+    return {
+      q: d.q.trim() || undefined,
+      kinds: d.type ? undefined : MARKET_KINDS,
+      kind: byKind ? d.type : d.type ? 'boat' : undefined,
+      typeId: d.type && !byKind ? Number(d.type) : undefined,
+      wilayaId: d.wilayaId ? Number(d.wilayaId) : undefined,
+      minPrice: num(d.minPrice),
+      maxPrice: num(d.maxPrice),
+    };
+  }
   function apply(e) {
     e.preventDefault();
-    const byKind = draft.type === 'engine' || draft.type === 'equipment';
-    setApplied({
-      q: draft.q.trim() || undefined,
-      kinds: draft.type ? undefined : MARKET_KINDS,
-      kind: byKind ? draft.type : draft.type ? 'boat' : undefined,
-      typeId: draft.type && !byKind ? Number(draft.type) : undefined,
-      wilayaId: draft.wilayaId ? Number(draft.wilayaId) : undefined,
-      minPrice: num(draft.minPrice),
-      maxPrice: num(draft.maxPrice),
-    });
+    setApplied(toFilters(draft));
   }
+  // Results follow the typing (after a short pause), so a few letters are enough: no need to press "Search"
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return undefined;
+    }
+    const timer = setTimeout(() => setApplied(toFilters(draft)), 400);
+    return () => clearTimeout(timer);
+  }, [draft]);
   function reset() {
     setDraft(EMPTY);
     setApplied({ kinds: MARKET_KINDS });
@@ -45,7 +57,7 @@ export default function Search() {
     <>
       <div className="topbar"><h2>{t('nav.search')}</h2></div>
       <form onSubmit={apply}>
-        <div className="field"><input className="input" placeholder={t('search.placeholder')} value={draft.q} onChange={set('q')} maxLength={80} /></div>
+        <div className="field"><input className="input" type="search" enterKeyHint="search" placeholder={t('search.placeholder')} value={draft.q} onChange={set('q')} maxLength={80} /></div>
         <div className="row2">
           <select className="input" value={draft.type} onChange={set('type')} aria-label={t('search.type')}>
             <option value="">{t('search.all_types')}</option>

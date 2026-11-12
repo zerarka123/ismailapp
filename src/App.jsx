@@ -67,6 +67,7 @@ const PortfolioManage = page(() => import('./components/PortfolioManage.jsx'));
 const EditListing = page(() => import('./pages/EditListing.jsx'));
 const EditBusiness = page(() => import('./pages/EditBusiness.jsx'));
 const News = page(() => import('./pages/News.jsx'));
+const NotFound = page(() => import('./pages/NotFound.jsx'));
 
 // A screen that could not be downloaded (no connection): say so instead of a blank page
 class PageBoundary extends Component {
@@ -141,7 +142,8 @@ function Shell() {
           <Route path="/news" element={<News />} />
           <Route path="/u/:id" element={<UserProfile />} />
           <Route path="/portfolio" element={<PortfolioManage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/index.html" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
         </PageBoundary>
