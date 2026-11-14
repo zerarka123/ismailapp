@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { useI18n } from '../i18n/index.jsx';
 import { fmtDate } from '../lib/format';
 import { isVideoFileUrl, videoEmbed } from '../lib/announcements';
+import { viaCdn } from '../lib/images';
 import Icon from './Icon.jsx';
 
 // Image / video of an announcement
 export function AnnouncementMedia({ a, autoPlay = false }) {
   const { t } = useI18n();
   if (!a?.media_url || a.media_type === 'none') return null;
-  if (a.media_type === 'image') return <img className="ann-media" src={a.media_url} alt="" loading="lazy" />;
+  if (a.media_type === 'image') return <img className="ann-media" src={viaCdn(a.media_url)} alt="" loading="lazy" />;
   const embed = videoEmbed(a.media_url);
   if (embed) {
     return (
@@ -18,7 +19,7 @@ export function AnnouncementMedia({ a, autoPlay = false }) {
     );
   }
   if (isVideoFileUrl(a.media_url)) {
-    return <video className="ann-media" src={a.media_url} controls playsInline preload="metadata" autoPlay={autoPlay} muted={autoPlay} />;
+    return <video className="ann-media" src={viaCdn(a.media_url)} controls playsInline preload="metadata" autoPlay={autoPlay} muted={autoPlay} />;
   }
   return (
     <a className="btn alt ann-videolink" href={a.media_url} target="_blank" rel="noopener noreferrer">

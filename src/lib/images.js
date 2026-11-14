@@ -1,9 +1,16 @@
-import { supabase } from '../supabase';
-import { MAX_IMAGE_BYTES } from '../config';
+import { supabase, SUPABASE_URL } from '../supabase';
+import { MAX_IMAGE_BYTES, MEDIA_BASE } from '../config';
 
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
 export const cssUrl = (u) => `url("${String(u).replace(/"/g, '%22')}")`;
-export const publicUrl = (bucket, path) => supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+// Rewrites a public Supabase Storage URL to the cached Cloudflare address (when VITE_MEDIA_BASE is set)
+const STORAGE_MARK = '/storage/v1/object/public/';
+export function viaCdn(url) {
+  if (!MEDIA_BASE || typeof url !== 'string') return url;
+  const i = url.indexOf(STORAGE_MARK);
+  return i >= 0 && url.startsWith(SUPABASE_URL) ? `${MEDIA_BASE}/${url.slice(i + STORAGE_MARK.length)}` : url;
+}
+export const publicUrl = (bucket, path) => viaCdn(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
 
 // Validate, downscale (max 1600px) and re-encode as JPEG: smaller files, no metadata (GPS) leaks.
 export async function prepareImage(file) {

@@ -6,6 +6,9 @@ export const SITE_URL = 'https://marsadz.app';
 // Public address of the app, used for share links (inside the Android app the page origin is not a real URL)
 export const APP_URL = 'https://app.marsadz.app';
 export const SUPPORT_PAGE = `${SITE_URL}/support`;
+// Public files (photos, videos) are served through Cloudflare's cache (functions/m) instead of straight from Supabase,
+// which removes almost all "Cached Egress". Empty = off (files come from Supabase). Example: https://app.marsadz.app/m
+export const MEDIA_BASE = (import.meta.env?.VITE_MEDIA_BASE || '').replace(/\/+$/, '');
 export const MAX_IMAGES = 10;
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 // Admin announcements: biggest video file that can be uploaded (the storage bucket enforces the same limit)

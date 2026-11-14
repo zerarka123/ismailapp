@@ -4,7 +4,7 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { fmtDate, isMissingSchema } from '../lib/format';
 import { goBack } from '../lib/goBack.js';
-import { cssUrl } from '../lib/images';
+import { cssUrl, viaCdn } from '../lib/images';
 import { getAnnouncement, listAnnouncements, markAnnouncementRead, readIds } from '../lib/announcements';
 import AnnouncementModal from '../components/AnnouncementView.jsx';
 import Icon from '../components/Icon.jsx';
@@ -73,7 +73,7 @@ export default function News() {
           return (
             <button key={a.id} className="ann-item" onClick={() => show(a)}>
               {a.media_type === 'image' ? (
-                <span className="ann-thumb" style={{ backgroundImage: cssUrl(a.media_url) }} />
+                <span className="ann-thumb" style={{ backgroundImage: cssUrl(viaCdn(a.media_url)) }} />
               ) : (
                 <span className="ann-thumb ann-thumb-icon"><Icon name={a.media_type === 'video' ? 'video' : 'megaphone'} size={26} /></span>
               )}
