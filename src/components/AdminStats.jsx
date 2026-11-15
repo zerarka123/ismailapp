@@ -115,6 +115,47 @@ function screenLabel(t, s) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Who can be reached by a notification (migration 015). Loaded once; hidden notice if the migration is missing.
+function NotificationCard() {
+  const { t } = useI18n();
+  const [n, setN] = useState(undefined); // undefined = loading, null = unavailable
+  const [missing, setMissing] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.rpc('admin_notification_stats').then(({ data, error }) => {
+      if (!alive) return;
+      if (error) {
+        setMissing(isMissingSchema(error));
+        setN(null);
+      } else setN(data);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  if (n === undefined) return null;
+  return (
+    <>
+      <div className="section-title">{t('st.notif_title')}</div>
+      {n === null ? (
+        <p className="msg info">{missing ? t('st.notif_needs_migration') : t('common.load_failed')}</p>
+      ) : (
+        <>
+          <div className="specs">
+            <Tile label={t('st.notif_any')} value={fmtN(n.any)} sub={t('st.notif_of_accounts', { pct: pctText(n.any, n.accounts) })} />
+            <Tile label={t('st.notif_active')} value={pctText(n.active_with_push, n.active_30d)} sub={t('st.notif_active_hint', { n: n.active_with_push, total: n.active_30d })} />
+            <Tile label={t('st.pf_android')} value={fmtN(n.android)} sub={t('st.notif_devices_hint')} />
+            <Tile label={t('st.pf_web')} value={fmtN(n.web)} sub={t('st.notif_devices_hint')} />
+            <Tile label={t('st.notif_new')} value={fmtN(n.new_30d)} sub={t('st.notif_new_hint')} />
+            <Tile label={t('st.notif_off')} value={fmtN(n.turned_off)} sub={t('st.notif_off_hint')} />
+          </div>
+          {!n.android && <p className="muted small">{t('st.notif_android_zero')}</p>}
+        </>
+      )}
+    </>
+  );
+}
+
 function Overview({ data }) {
   const { t } = useI18n();
   const a = data.active;
@@ -189,6 +230,8 @@ function Overview({ data }) {
         )}
         <p className="muted small">{t('st.retention_legend')}</p>
       </div>
+
+      <NotificationCard />
 
       <div className="section-title">{t('st.health_title')}</div>
       <div className="specs">
