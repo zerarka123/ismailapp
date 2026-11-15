@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy } from 'react';
+import { Component, Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
@@ -9,6 +9,7 @@ import Home from './pages/Home.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import AnnouncementGate from './components/AnnouncementGate.jsx';
+import { trackOpen } from './lib/analytics';
 
 // Home and the listing page are in the first download; every other screen is fetched the first time it is opened
 // (smaller first load on slow networks). The service worker still precaches all of them for offline use.
@@ -88,11 +89,26 @@ class PageBoundary extends Component {
   }
 }
 
+// Usage statistics (admin panel): one visit when the app opens or comes back to the foreground,
+// once the session is known so the visit is linked to the signed-in account.
+function useUsageTracking(ready, userId) {
+  useEffect(() => {
+    if (!ready) return undefined;
+    trackOpen(userId);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') trackOpen(userId);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [ready, userId]);
+}
+
 function Shell() {
-  const { loading, recovery } = useAuth();
+  const { loading, recovery, user } = useAuth();
   const { t } = useI18n();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  useUsageTracking(!loading, user?.id);
 
   if (loading) return <div className="splash"><img src="/logo.png" alt={t('app.name')} /></div>;
   const waiting = <p className="muted center" style={{ marginTop: 60 }}>{t('common.loading')}</p>;

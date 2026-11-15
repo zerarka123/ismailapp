@@ -10,12 +10,13 @@ import { cssUrl, publicUrl } from '../lib/images';
 import { coverOf } from './ListingCard.jsx';
 import { isProActive, offerActive } from '../lib/pro';
 import Icon from './Icon.jsx';
+import { trackContact } from '../lib/analytics';
 
 const DAY = 86400000;
 
 // "Cold rooms / fish market" branch: today's offers of the accounts registered in it, each with photo, price,
 // call / WhatsApp (signed-in visitors only, like everywhere in the app) and the location on the map.
-export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear', postHref = '/sell?kind=gear&branch=fish_market&gear=product', canPostOverride }) {
+export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear', postHref = '/sell?kind=gear&branch=fish_market&gear=product', canPostOverride, branch }) {
   const { t } = useI18n();
   const { user, profile } = useAuth();
   const { pathname } = useLocation();
@@ -26,6 +27,7 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear
   const [contacts, setContacts] = useState({});
   const prosById = useMemo(() => Object.fromEntries((pros || []).map((p) => [p.owner_id, p])), [pros]);
   const idsKey = items.map((i) => i.id).join(',');
+  const screen = kind === 'equipment' ? 'fisher_offers' : 'cold_offers';
 
   useEffect(() => {
     if (!user || !items.length) return;
@@ -68,9 +70,11 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear
                 <div className="offer-actions">
                   {contact ? (
                     <>
-                      <a className="btn sm" href={telLink(contact.phone)}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+                      {contact.phone && (
+                        <a className="btn sm" href={telLink(contact.phone)} onClick={() => trackContact('call', 'listing', item.id, screen, branch)}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+                      )}
                       {contact.whatsapp && (
-                        <a className="btn sm wa" href={waLink(contact.whatsapp, t('listing.wa_text', { title: item.title }))} target="_blank" rel="noopener noreferrer">
+                        <a className="btn sm wa" href={waLink(contact.whatsapp, t('listing.wa_text', { title: item.title }))} target="_blank" rel="noopener noreferrer" onClick={() => trackContact('whatsapp', 'listing', item.id, screen, branch)}>
                           <Icon name="chat" color="#fff" />{t('contact.whatsapp')}
                         </a>
                       )}
