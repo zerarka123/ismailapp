@@ -109,9 +109,9 @@ export default function GuideList() {
 
       {tab === 'products' && (
         items === null ? <p className="muted center">{t('common.loading')}</p> : isFisher ? (
-          <ColdRoomOffers kind="equipment" sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} postHref="/sell?kind=catch" canPostOverride={!!user && items.some((p) => p.owner_id === user.id)} />
+          <ColdRoomOffers kind="equipment" branch={cat?.slug} sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} postHref="/sell?kind=catch" canPostOverride={!!user && items.some((p) => p.owner_id === user.id)} />
         ) : isCold ? (
-          <ColdRoomOffers sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} />
+          <ColdRoomOffers branch={cat?.slug} sellerIds={sellerIds} pros={items} wilayaId={wilaya ? Number(wilaya) : undefined} />
         ) : (
           <ListingFeed filters={{ kind: 'gear', sellerIds }} emptyText={t('guide.no_products')} />
         )

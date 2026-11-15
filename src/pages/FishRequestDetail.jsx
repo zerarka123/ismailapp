@@ -11,13 +11,16 @@ import { goBack } from '../lib/goBack.js';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import { getWilayas } from '../lib/refData';
+import { trackContact, trackView } from '../lib/analytics';
 
-function ContactButtons({ phone, whatsapp, text }) {
+// target: { type: 'fish_offer' | 'fish_request', id } — for the usage statistics
+function ContactButtons({ phone, whatsapp, text, target }) {
   const { t } = useI18n();
+  const track = (channel) => () => target && trackContact(channel, target.type, target.id, 'fish_request');
   return (
     <div className="seg">
-      <a className="btn sm" href={telLink(phone)}><Icon name="phone" size={16} />{t('fish.call')}</a>
-      <a className="btn sm wa" href={waLink(whatsapp || phone, text)} target="_blank" rel="noreferrer"><Icon name="chat" size={16} />{t('fish.whatsapp')}</a>
+      <a className="btn sm" href={telLink(phone)} onClick={track('call')}><Icon name="phone" size={16} />{t('fish.call')}</a>
+      <a className="btn sm wa" href={waLink(whatsapp || phone, text)} target="_blank" rel="noreferrer" onClick={track('whatsapp')}><Icon name="chat" size={16} />{t('fish.whatsapp')}</a>
     </div>
   );
 }
@@ -119,6 +122,7 @@ export default function FishRequestDetail() {
     if (err) return setError(true);
     setReq(r);
     if (!r) return;
+    if (r.user_id !== user.id) trackView('fish_request', r.id);
     if (r.user_id === user.id) {
       const { data } = await supabase.from('fish_offers').select('id, seller_id, available, price_dzd, quantity, phone, whatsapp, created_at').eq('request_id', id).order('created_at', { ascending: false });
       const rows = data || [];
@@ -182,7 +186,7 @@ export default function FishRequestDetail() {
                 <div className="card-box" key={o.id}>
                   <b>{o.business || t('sell.default_seller')}</b>
                   <span>{o.price_dzd != null ? `${fmtPrice(o.price_dzd)} ${t('fish.per_kg')}` : t('fish.no_price')}{o.quantity ? ` · ${o.quantity}` : ''}</span>
-                  {o.phone && <ContactButtons phone={o.phone} whatsapp={o.whatsapp} text={`${req.item}`} />}
+                  {o.phone && <ContactButtons phone={o.phone} whatsapp={o.whatsapp} text={`${req.item}`} target={{ type: 'fish_offer', id: o.id }} />}
                   <ReportBox type="offer" id={o.id} />
                 </div>
               ))}
@@ -198,7 +202,7 @@ export default function FishRequestDetail() {
               {mine.available && contact && (
                 <>
                   <span className="muted">{t('fish.requester')}</span>
-                  <ContactButtons phone={contact.phone} whatsapp={contact.whatsapp} text={req.item} />
+                  <ContactButtons phone={contact.phone} whatsapp={contact.whatsapp} text={req.item} target={{ type: 'fish_request', id: req.id }} />
                 </>
               )}
             </div>

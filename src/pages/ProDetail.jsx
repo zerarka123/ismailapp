@@ -14,6 +14,7 @@ import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ProfileTabs from '../components/ProfileTabs.jsx';
 import ShareButton from '../components/ShareButton.jsx';
+import { trackContact, trackView } from '../lib/analytics';
 
 const SELECT =
   'id, owner_id, pro_type, badge_verified, business_name, description, address, latitude, longitude, status, subscription_ends_at, wilayas(*), guide_categories(*), professional_images(storage_path, sort_order)';
@@ -36,7 +37,9 @@ export default function ProDetail() {
     setItem(undefined);
     setContact(undefined);
     supabase.from('professional_profiles').select(SELECT).eq('id', id).maybeSingle().then(({ data }) => {
-      if (alive) setItem(data ?? null);
+      if (!alive) return;
+      setItem(data ?? null);
+      if (data) trackView('pro', data.id, data.guide_categories?.slug);
     });
     return () => {
       alive = false;
@@ -72,6 +75,10 @@ export default function ProDetail() {
   const mapHref =
     item.latitude != null ? mapsLink(item.latitude, item.longitude) : mapsSearchLink([item.address, item.wilayas?.name_ar, 'Algérie'].filter(Boolean).join(', '));
   const waText = t('pro.wa_text', { name: item.business_name });
+  // statistics: which account was contacted, from which button
+  const branch = item.guide_categories?.slug;
+  const onCall = (screen) => () => trackContact('call', 'pro', item.id, screen, branch);
+  const onWa = (screen) => () => trackContact('whatsapp', 'pro', item.id, screen, branch);
 
   async function sendReport(e) {
     e.preventDefault();
@@ -87,7 +94,7 @@ export default function ProDetail() {
   const callBtn = !user ? (
     <Link className="qa" to={loginHere}><Icon name="phone" />{t('contact.call')}</Link>
   ) : contact?.phone ? (
-    <a className="qa" href={telLink(contact.phone)}><Icon name="phone" />{t('contact.call')}</a>
+    <a className="qa" href={telLink(contact.phone)} onClick={onCall('pro_quick')}><Icon name="phone" />{t('contact.call')}</a>
   ) : (
     <span className="qa off"><Icon name="phone" />{t('contact.call')}</span>
   );
@@ -95,7 +102,7 @@ export default function ProDetail() {
   const waBtn = !user ? (
     <Link className="qa wa" to={loginHere}><Icon name="chat" />{t('contact.whatsapp')}</Link>
   ) : waNumber ? (
-    <a className="qa wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer"><Icon name="chat" />{t('contact.whatsapp')}</a>
+    <a className="qa wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer" onClick={onWa('pro_quick')}><Icon name="chat" />{t('contact.whatsapp')}</a>
   ) : (
     <span className="qa wa off"><Icon name="chat" />{t('contact.whatsapp')}</span>
   );
@@ -168,9 +175,11 @@ export default function ProDetail() {
           <p className="note">{t('contact.none')}</p>
         ) : (
           <>
-            <a className="btn" href={telLink(contact.phone)}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+            {contact.phone && (
+              <a className="btn" href={telLink(contact.phone)} onClick={onCall('pro_page')}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+            )}
             {waNumber && (
-              <a className="btn wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer"><Icon name="chat" color="#fff" />{t('contact.whatsapp')}</a>
+              <a className="btn wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer" onClick={onWa('pro_page')}><Icon name="chat" color="#fff" />{t('contact.whatsapp')}</a>
             )}
           </>
         )}

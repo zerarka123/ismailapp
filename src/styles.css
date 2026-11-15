@@ -336,3 +336,28 @@ img.ann-media { background: #dcecf8; }
 .lcard.skel { animation: skel-pulse 1.2s ease-in-out infinite alternate; }
 @keyframes skel-pulse { from { opacity: 1; } to { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .lcard.skel { animation: none; } }
+
+/* admin statistics */
+.st-num { font-size: 22px !important; }
+.st-chart { padding-bottom: 8px; }
+.st-chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.st-axis { display: flex; justify-content: space-between; margin-top: 2px; }
+.st-hbars { display: grid; gap: 8px; margin-top: 8px; }
+.st-hbar-label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.st-hbar-track { height: 8px; background: #eef5fb; border-radius: 999px; margin-top: 3px; overflow: hidden; }
+.st-hbar-fill { height: 100%; background: var(--primary); border-radius: 999px; min-width: 2px; }
+.st-table-wrap { overflow-x: auto; }
+.st-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.st-table th { color: var(--muted); font-weight: 700; text-align: start; padding: 8px 5px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.st-table td { padding: 8px 5px; border-bottom: 1px solid #eef5fb; white-space: nowrap; }
+.st-table td:first-child { white-space: normal; min-width: 96px; line-height: 1.35; }
+.st-table th:first-child { white-space: normal; }
+.st-table tr:last-child td { border-bottom: 0; }
+.st-click { cursor: pointer; }
+.st-click:hover td { background: #f5fafe; }
+.st-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; }
+.st-chips .chip { padding: 6px 14px; }
+.st-rank { width: 26px; height: 26px; border-radius: 50%; background: #e3f1fb; color: var(--deep); display: grid; place-items: center; font-weight: 800; font-size: 13px; flex: none; }
+.st-item-nums { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
+.st-silent { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef5fb; }
+.st-silent:last-child { border-bottom: 0; }

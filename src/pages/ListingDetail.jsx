@@ -14,6 +14,7 @@ import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
 import ShareButton from '../components/ShareButton.jsx';
 import { isSponsored } from '../components/ListingCard.jsx';
+import { trackContact, trackView } from '../lib/analytics';
 
 const BASE =
   'id, seller_id, seller_name, kind, title, description, price_dzd, length_m, year_built, condition, engine_info, place_text, profession, status, expires_at, wilayas(*), boat_types(*), listing_images(storage_path, sort_order)';
@@ -72,7 +73,9 @@ export default function ListingDetail() {
     setItem(undefined);
     setContact(undefined);
     load().then((data) => {
-      if (alive) setItem(data);
+      if (!alive) return;
+      setItem(data);
+      if (data) trackView('listing', data.id);
     });
     return () => {
       alive = false;
@@ -216,9 +219,11 @@ export default function ListingDetail() {
           <p className="note">{t('contact.none_listing')}</p>
         ) : (
           <>
-            <a className="btn" href={telLink(contact.phone)}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+            {contact.phone && (
+              <a className="btn" href={telLink(contact.phone)} onClick={() => trackContact('call', 'listing', item.id, 'listing')}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
+            )}
             {contact.whatsapp && (
-              <a className="btn wa" href={waLink(contact.whatsapp, t('listing.wa_text', { title: item.title }))} target="_blank" rel="noopener noreferrer">
+              <a className="btn wa" href={waLink(contact.whatsapp, t('listing.wa_text', { title: item.title }))} target="_blank" rel="noopener noreferrer" onClick={() => trackContact('whatsapp', 'listing', item.id, 'listing')}>
                 <Icon name="chat" color="#fff" />{t('contact.whatsapp')}
               </a>
             )}
