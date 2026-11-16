@@ -12,6 +12,8 @@
 <meta property="og:description" content="سجّل نشاطك وانشر إعلانك مجانًا، ووصل إلى الصيادين وأصحاب القوارب.">
 <meta property="og:url" content="https://marsadz.app">
 <link rel="canonical" href="https://marsadz.app/">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:image" content="https://marsadz.app/marsa-poster.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -36,6 +38,7 @@ svg{flex:none}
 /* header */
 .top{position:sticky;top:0;z-index:20;background:rgba(3,18,28,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #12303f;padding-top:env(safe-area-inset-top,0px)}
 .top .in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:68px}
+.logo img{border-radius:10px;display:block}
 .logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:26px;font-weight:900}
 .top nav{display:flex;gap:26px}
 .top nav a{color:var(--on);text-decoration:none;font-weight:600}
@@ -151,7 +154,7 @@ dialog .x{float:inline-end;background:none;border:0;color:#eaf6ff;font-size:28px
 <body>
 
 <header class="top"><div class="in">
-<a class="logo" href="/"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f58b0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13a7 7 0 0 0 14 0M8 11h8"/></svg><span data-i18n="name">مرسى</span></a>
+<a class="logo" href="/"><img src="/logo.png" width="40" height="40" alt=""><span data-i18n="name">مرسى</span></a>
 <nav aria-label="Menu"><a href="#cats" data-i18n="nav_cats">الخدمات</a><a href="#how" data-i18n="nav_how">كيفاش يخدم</a><a href="#pros" data-i18n="nav_pros">للمهنيين</a><a href="#contact" data-i18n="nav_contact">اتصل بنا</a></nav>
 <div class="tr">
 <div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" data-lang="ar" lang="ar">ع</button><button type="button" data-lang="fr" lang="fr">FR</button><button type="button" data-lang="en" lang="en">EN</button></div>

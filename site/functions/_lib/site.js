@@ -127,7 +127,7 @@ const CSS = `:root{--bg:#03121c;--fg:#eaf6ff;--mut:#bcd7e8;--ac:#f58b0b;--gl:rgb
 *{box-sizing:border-box}html{background:#03121c}body{margin:0;min-height:100vh;background:#03121c linear-gradient(#0b3a5c,#03121c 60%);background-attachment:fixed;color:var(--fg);font-family:Cairo,Tahoma,sans-serif;line-height:1.7}
 a{color:#9fd8ff}.wrap{max-width:1000px;margin:auto;padding:20px 5vw 60px}
 header{display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;max-width:1000px;margin:auto}
-header a.logo{font-weight:900;font-size:26px;color:#fff;text-decoration:none}
+header a.logo{font-weight:900;font-size:26px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}header a.logo img{border-radius:9px;display:block}
 h1{font-size:clamp(26px,5vw,42px);margin:10px 0;font-weight:900;line-height:1.25}h2{font-size:22px;margin:28px 0 10px}
 p{color:var(--mut);margin:0 0 14px}.crumbs{font-size:14px;color:var(--mut)}.crumbs a{color:var(--mut)}
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:700;text-decoration:none;background:var(--ac);color:#1b1000;margin:6px 0}
@@ -157,13 +157,13 @@ export function page({ title, titles, description, path, image, body, jsonld = '
   return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(t)}</title><meta name="description" content="${esc(d)}">${noindex ? '<meta name="robots" content="noindex">' : ''}
 <meta name="ml-title" data-ar="${esc(tt[0])}" data-fr="${esc(tt[1])}" data-en="${esc(tt[2])}">
-<link rel="canonical" href="${esc(url)}"><meta name="theme-color" content="#03121c">
+<link rel="canonical" href="${esc(url)}"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#03121c">
 <meta property="og:type" content="website"><meta property="og:locale" content="ar_DZ"><meta property="og:site_name" content="مرسى">
 <meta property="og:title" content="${esc(t)}"><meta property="og:description" content="${esc(d)}"><meta property="og:url" content="${esc(url)}"><meta property="og:image" content="${esc(img)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(t)}"><meta name="twitter:description" content="${esc(d)}"><meta name="twitter:image" content="${esc(img)}">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>${CSS}</style>${jsonld}</head><body>
-<header><a class="logo" href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a><div class="hr"><div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" role="radio" data-lang="ar" lang="ar">ع</button><button type="button" role="radio" data-lang="fr" lang="fr">FR</button><button type="button" role="radio" data-lang="en" lang="en">EN</button></div><a class="btn alt" href="${APP}">${tr('open_app')}</a></div></header>
+<header><a class="logo" href="/"><img src="/logo.png" width="36" height="36" alt="">${ml(['مرسى', 'Marsa', 'Marsa'])}</a><div class="hr"><div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" role="radio" data-lang="ar" lang="ar">ع</button><button type="button" role="radio" data-lang="fr" lang="fr">FR</button><button type="button" role="radio" data-lang="en" lang="en">EN</button></div><a class="btn alt" href="${APP}">${tr('open_app')}</a></div></header>
 <main class="wrap">${body}</main>
 <footer><a href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a> · marsadz.app · <a href="${APP}/support">${tr('support')}</a> · <a href="https://wa.me/213776437374" target="_blank" rel="noopener noreferrer">${tr('wa')}</a> · <a href="tel:+213776437374" dir="ltr">0776 43 73 74</a> · <a href="mailto:marsadz@gmail.com" dir="ltr">marsadz@gmail.com</a> · <a href="${APP}/privacy.html">${tr('privacy')}</a> · <a href="${APP}/terms.html">${tr('terms')}</a></footer>${LANG_SCRIPT}</body></html>`;
 }
