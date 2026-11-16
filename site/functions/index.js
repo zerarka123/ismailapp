@@ -96,7 +96,7 @@ export async function onRequestGet(context) {
         '@context': 'https://schema.org',
         '@graph': [
           {
-            '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/marsa-poster.jpg`,
+            '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/icon-192.png`,
             email: 'marsadz@gmail.com', telephone: '+213776437374',
             contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', telephone: '+213776437374', email: 'marsadz@gmail.com', areaServed: 'DZ', availableLanguage: ['ar', 'fr', 'en'] },
             sameAs: ['https://www.instagram.com/marsa_dz/', 'https://www.facebook.com/profile.php?id=100064427423141'],
