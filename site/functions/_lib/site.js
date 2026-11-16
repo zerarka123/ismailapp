@@ -94,6 +94,9 @@ export const placeHtml = (wilayaAr, address, max = 70) =>
 export const T = {
   open_app: ['افتح التطبيق', 'Ouvrir l’application', 'Open the app'],
   support: ['الدعم الفني', 'Support technique', 'Technical support'],
+  wa: ['واتساب', 'WhatsApp', 'WhatsApp'],
+  privacy: ['سياسة الخصوصية', 'Confidentialité', 'Privacy policy'],
+  terms: ['شروط الاستخدام', 'Conditions d’utilisation', 'Terms of use'],
   home: ['الرئيسية', 'Accueil', 'Home'],
   back_home: ['العودة إلى الرئيسية', 'Retour à l’accueil', 'Back to home'],
   count: ['نشاط مسجّل', 'activité(s) inscrite(s)', 'registered business(es)'],
@@ -160,7 +163,7 @@ export function page({ title, titles, description, path, image, body, jsonld = '
 <style>${CSS}</style>${jsonld}</head><body>
 <header><a class="logo" href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a><div class="hr"><div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" role="radio" data-lang="ar" lang="ar">ع</button><button type="button" role="radio" data-lang="fr" lang="fr">FR</button><button type="button" role="radio" data-lang="en" lang="en">EN</button></div><a class="btn alt" href="${APP}">${tr('open_app')}</a></div></header>
 <main class="wrap">${body}</main>
-<footer><a href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a> · marsadz.app · <a href="${APP}/support">${tr('support')}</a></footer>${LANG_SCRIPT}</body></html>`;
+<footer><a href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a> · marsadz.app · <a href="${APP}/support">${tr('support')}</a> · <a href="https://wa.me/213776437374" target="_blank" rel="noopener noreferrer">${tr('wa')}</a> · <a href="tel:+213776437374" dir="ltr">0776 43 73 74</a> · <a href="mailto:marsadz@gmail.com" dir="ltr">marsadz@gmail.com</a> · <a href="${APP}/privacy.html">${tr('privacy')}</a> · <a href="${APP}/terms.html">${tr('terms')}</a></footer>${LANG_SCRIPT}</body></html>`;
 }
 
 // 404 page shared by /a/* and /c/* (same wording as site/404.html)

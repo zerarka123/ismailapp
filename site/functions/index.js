@@ -50,7 +50,12 @@ ${adHtml}<section><div class="in"><h2 data-i18n="cats_t">تصفّح الأنشط
       const jsonld = ld({
         '@context': 'https://schema.org',
         '@graph': [
-          { '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/marsa-poster.jpg` },
+          {
+            '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/marsa-poster.jpg`,
+            email: 'marsadz@gmail.com', telephone: '+213776437374',
+            contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', telephone: '+213776437374', email: 'marsadz@gmail.com', areaServed: 'DZ', availableLanguage: ['ar', 'fr', 'en'] },
+            sameAs: ['https://www.instagram.com/marsa_dz/', 'https://www.facebook.com/profile.php?id=100064427423141'],
+          },
           { '@type': 'WebSite', name: 'مرسى', url: SITE, inLanguage: 'ar' },
         ],
       });
