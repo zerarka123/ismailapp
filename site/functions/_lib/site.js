@@ -38,10 +38,12 @@ export async function rest(cfg, query, ms = 3500) {
   }
 }
 
-export const proImage = (cfg, path) =>
-  path ? `${cfg.base}/storage/v1/object/public/pro-images/${String(path).split('/').map(encodeURIComponent).join('/')}` : '';
-export const listingImage = (cfg, path) =>
-  path ? `${cfg.base}/storage/v1/object/public/listing-images/${String(path).split('/').map(encodeURIComponent).join('/')}` : '';
+// Photos are served by the app's cached media route (R2), NOT straight from Supabase: this page shows dozens of
+// photos per visit and every visit used to count as Supabase "Cached Egress".
+const MEDIA = `${APP}/m`;
+const mediaPath = (path) => String(path).split('/').map(encodeURIComponent).join('/');
+export const proImage = (cfg, path) => (path ? `${MEDIA}/pro-images/${mediaPath(path)}` : '');
+export const listingImage = (cfg, path) => (path ? `${MEDIA}/listing-images/${mediaPath(path)}` : '');
 
 export const priceText = (p) => {
   const n = Number(p);
