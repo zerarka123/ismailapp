@@ -51,7 +51,8 @@ export async function rest(cfg, query, ms = 3500) {
 // Absolute https URL of a public listing image
 export function imageUrl(cfg, path) {
   const safe = String(path || '').split('/').map(encodeURIComponent).join('/');
-  return `${cfg.base}/storage/v1/object/public/listing-images/${safe}`;
+  // through the cached media route (R2) so link-preview bots and crawlers do not count as Supabase egress
+  return `${SITE_DEFAULT}/m/listing-images/${safe}`;
 }
 
 export function priceText(p) {
