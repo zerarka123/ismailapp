@@ -1,7 +1,14 @@
-import { APP, SITE, categoryNames, clean, cached, esc, ld, listingImage, ml, priceHtml, proCard, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
+import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, proImage, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
 
-// "/" — the static landing page plus two server-rendered sections: sponsored ads first, then the guide
-// categories with their latest activities. Any failure returns the plain landing page untouched.
+// "/" — the static landing page with live sections filled in from the public views:
+// hero numbers, wilayas of the search box, sponsored ads, the six services with their counts, and the latest businesses.
+// Each part falls back on its own (the static block stays), and any failure returns the plain landing page untouched.
+
+const num = (n) => Number(n).toLocaleString('fr-FR').replace(/[  ]/g, ' ');
+const between = (html, tag, repl) => html.replace(new RegExp(`<!--${tag}-->[\\s\\S]*?<!--/${tag}-->`), repl);
+// ml() with a class on the element
+const mlc = (arr, tag, cls) => ml(arr, tag).replace(`<${tag} `, `<${tag} class="${cls}" `);
+
 export async function onRequestGet(context) {
   const { env, next } = context;
   const cfg = supabaseConfig(env);
@@ -10,52 +17,94 @@ export async function onRequestGet(context) {
 
   return cached(context, '/__home', async () => {
     try {
-      const [cats, pros, ads] = await Promise.all([
+      const [cats, all, latest, ads, stats] = await Promise.all([
         rest(cfg, 'site_categories?select=slug,name_ar,name_fr,name_en,sort_order,active_count&order=section.asc,sort_order.asc&limit=40'),
-        rest(cfg, 'site_pros?select=id,business_name,address,wilaya_ar,category_slug,cover_path,created_at&order=created_at.desc&limit=80'),
-        rest(cfg, 'site_sponsored?select=id,title,price_dzd,wilaya_ar,cover_path&order=published_at.desc&limit=6'),
+        rest(cfg, 'site_pros?select=category_slug,wilaya_ar&limit=5000', 5000),
+        rest(cfg, 'site_pros?select=id,business_name,wilaya_ar,category_slug,cover_path,created_at&order=created_at.desc&limit=8'),
+        rest(cfg, 'site_sponsored?select=id,title,price_dzd,wilaya_ar,cover_path&order=published_at.desc&limit=8'),
+        rest(cfg, 'rpc/site_stats'), // migration 016: users / live listings (counts only). Missing → those two numbers are hidden.
       ]);
       if (!Array.isArray(cats)) return base.clone();
-      const byCat = {};
-      for (const p of Array.isArray(pros) ? pros : []) (byCat[p.category_slug] ||= []).push(p);
+      let html = await base.clone().text();
 
-      // Only categories that have activities get a card (no tall empty boxes); the others are listed as small links.
-      const full = cats.filter((c) => (byCat[c.slug] || []).length);
-      const bare = cats.filter((c) => !(byCat[c.slug] || []).length);
-      const catName = (c, tag) => ml(categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en), tag);
-      const catHtml = full
-        .map((c) => `<div class="card r v">${catName(c, 'h3')}
-<div class="grid-mini">${byCat[c.slug].slice(0, 3).map((p) => proCard(cfg, p)).join('')}</div>
-<a class="btn p2" href="/c/${esc(c.slug)}" data-i18n="view_all">عرض الكل</a></div>`)
+      // ---- hero numbers: all real, counted from the database at most 5 minutes ago ----
+      const pros = Array.isArray(all) ? all : [];
+      const wil = new Map();
+      for (const p of pros) if (p.wilaya_ar) wil.set(p.wilaya_ar, (wil.get(p.wilaya_ar) || 0) + 1);
+      const st = stats && typeof stats === 'object' && !Array.isArray(stats) ? stats : {};
+      const items = [
+        [st.users, ['مستخدم', 'utilisateurs', 'users']],
+        [pros.length, ['نشاط مسجّل', 'activités inscrites', 'registered businesses']],
+        [pros.filter((p) => p.category_slug === 'fishermen').length, ['صياد', 'pêcheurs', 'fishermen']],
+        [st.listings, ['إعلان منشور', 'annonces en ligne', 'live listings']],
+        [wil.size, ['ولاية', 'wilayas', 'wilayas']],
+      ].filter(([n]) => Number.isFinite(Number(n)) && Number(n) > 0);
+      if (items.length) html = html.replace('<!--MARSA_STATS-->', `<div class="stats">${items.map(([n, l]) => `<div><b>${num(n)}</b>${ml(l)}</div>`).join('')}</div>`);
+
+      // ---- wilayas of the search box: only those that have businesses, the busiest first ----
+      const wOpts = [...wil.entries()].sort((a, b) => b[1] - a[1]).map(([w]) => {
+        const [ar, fr, en] = wilayaNames(w);
+        return `<option value="${esc(w)}" data-ml data-ar="${esc(ar)}" data-fr="${esc(fr)}" data-en="${esc(en)}">${esc(ar)}</option>`;
+      });
+      html = html.replace('<!--MARSA_WILAYAS-->', wOpts.join(''));
+
+      // ---- the services, with their live counts ----
+      const unit = ['نشاط', 'activité(s)', 'business(es)'];
+      const first = ['كن أول من يسجّل', 'Soyez le premier', 'Be the first'];
+      const catHtml = cats
+        .filter((c) => CAT_ICONS[c.slug])
+        .map((c) => {
+          const n = Number(c.active_count) || 0;
+          return `<a class="cat" href="/c/${esc(c.slug)}"><span class="ic">${CAT_ICONS[c.slug]}</span><span>${ml(categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en), 'strong')}<small>${n ? `${num(n)} ${ml(unit)}` : ml(first)}</small></span></a>`;
+        })
         .join('');
-      const bareHtml = bare.length
-        ? `<p class="hint" data-i18n="cat_empty">كن أول من يسجّل نشاطه في هذه الفئة.</p><div class="chips">${bare.map((c) => `<a href="/c/${esc(c.slug)}">${catName(c)}</a>`).join('')}</div>`
-        : '';
+      if (catHtml) html = between(html, 'MARSA_CATS', `<div class="grid cats">${catHtml}</div>`);
 
-      const adHtml = Array.isArray(ads) && ads.length
-        ? `<section><div class="in"><h2 data-i18n="sp_t">إعلانات مميزة</h2><div class="grid-mini">${ads
-            .map((a) => {
-              const img = listingImage(cfg, a.cover_path);
-              return `<a class="card" rel="sponsored" href="${APP}/listing/${esc(a.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(a.title, 60))}</h3><p>${[priceHtml(a.price_dzd), a.wilaya_ar ? ml(wilayaNames(a.wilaya_ar)) : ''].filter(Boolean).join(' · ')}</p></div></a>`;
-            })
-            .join('')}</div><p class="hint" data-i18n="sp_note">إعلانات مموّلة. افتح التطبيق للتواصل مع أصحابها.</p></div></section>`
-        : '';
+      // ---- sponsored ads ----
+      if (Array.isArray(ads) && ads.length) {
+        const adCards = ads
+          .map((a) => {
+            const img = listingImage(cfg, a.cover_path);
+            const meta = a.wilaya_ar ? `<p>${ml(wilayaNames(a.wilaya_ar))}</p>` : '';
+            const price = Number(a.price_dzd) > 0 ? `<span class="pr">${priceHtml(a.price_dzd)}</span>` : '';
+            return `<a class="pc" rel="sponsored" href="${APP}/listing/${esc(a.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx">${mlc(['مميّز', 'À la une', 'Featured'], 'span', 'badge')}<h3>${esc(clean(a.title, 60))}</h3>${meta}${price}</div></a>`;
+          })
+          .join('');
+        html = html.replace(
+          '<!--MARSA_ADS-->',
+          `<section style="padding-bottom:0"><div class="in"><div class="head"><div>${ml(['إعلانات مميّزة', 'Annonces à la une', 'Featured listings'], 'h2')}${mlc(['إعلانات مموّلة. افتح التطبيق للتواصل مع أصحابها.', 'Annonces sponsorisées. Ouvrez l’application pour contacter les annonceurs.', 'Sponsored listings. Open the app to contact the sellers.'], 'p', 'sub')}</div><a class="more" href="${APP}">${ml(['شوف كل الإعلانات', 'Voir toutes les annonces', 'See all listings'])}</a></div><div class="grid">${adCards}</div></div></section>`,
+        );
+      }
 
-      const section = `<style>.grid-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:14px 0}
-.grid-mini .card{padding:0;border-radius:18px;overflow:hidden;display:block;color:var(--fg);text-decoration:none;background:rgba(5,28,44,.7);border:1px solid var(--bd)}
-.grid-mini .im{height:120px;background:#0b2536 center/cover no-repeat}.grid-mini .tx{padding:10px 14px}.grid-mini h3{font-size:16px;margin:0 0 2px}.grid-mini p{margin:0;font-size:13px}
-.grid.cats{align-items:start}.chips a{border:1px solid var(--bd);border-radius:999px;padding:6px 18px;background:var(--gl);color:var(--fg);text-decoration:none}</style>
-${adHtml}<section><div class="in"><h2 data-i18n="cats_t">تصفّح الأنشطة</h2><p data-i18n="cats_p">آخر الأنشطة المسجّلة في كل فئة.</p><div class="grid cats">${catHtml}</div>${bareHtml}</div></section>`;
+      // ---- latest registered businesses ----
+      if (Array.isArray(latest) && latest.length) {
+        const byName = Object.fromEntries(cats.map((c) => [c.slug, categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en)]));
+        const cards = latest
+          .map((p) => {
+            const img = proImage(cfg, p.cover_path);
+            const place = [byName[p.category_slug] ? ml(byName[p.category_slug]) : '', p.wilaya_ar ? ml(wilayaNames(p.wilaya_ar)) : ''].filter(Boolean).join(' · ');
+            return `<a class="pc" href="/a/${esc(p.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${place}</p></div></a>`;
+          })
+          .join('');
+        html = html.replace(
+          '<!--MARSA_LATEST-->',
+          `<section style="padding-top:0"><div class="in"><div class="head">${ml(['آخر الأنشطة المسجّلة', 'Dernières activités inscrites', 'Latest registered businesses'], 'h2')}</div><div class="grid">${cards}</div></div></section>`,
+        );
+      }
 
       const jsonld = ld({
         '@context': 'https://schema.org',
         '@graph': [
-          { '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/marsa-poster.jpg` },
+          {
+            '@type': 'Organization', name: 'مرسى', alternateName: 'Marsa', url: SITE, logo: `${SITE}/marsa-poster.jpg`,
+            email: 'marsadz@gmail.com', telephone: '+213776437374',
+            contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', telephone: '+213776437374', email: 'marsadz@gmail.com', areaServed: 'DZ', availableLanguage: ['ar', 'fr', 'en'] },
+            sameAs: ['https://www.instagram.com/marsa_dz/', 'https://www.facebook.com/profile.php?id=100064427423141'],
+          },
           { '@type': 'WebSite', name: 'مرسى', url: SITE, inLanguage: 'ar' },
         ],
       });
-      let html = await base.clone().text();
-      html = html.replace('<!--MARSA_DYNAMIC-->', section).replace('</head>', `${jsonld}</head>`);
+      html = html.replace('</head>', `${jsonld}</head>`);
       return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=300' } });
     } catch {
       return base.clone();

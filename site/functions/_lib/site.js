@@ -96,6 +96,9 @@ export const placeHtml = (wilayaAr, address, max = 70) =>
 export const T = {
   open_app: ['افتح التطبيق', 'Ouvrir l’application', 'Open the app'],
   support: ['الدعم الفني', 'Support technique', 'Technical support'],
+  wa: ['واتساب', 'WhatsApp', 'WhatsApp'],
+  privacy: ['سياسة الخصوصية', 'Confidentialité', 'Privacy policy'],
+  terms: ['شروط الاستخدام', 'Conditions d’utilisation', 'Terms of use'],
   home: ['الرئيسية', 'Accueil', 'Home'],
   back_home: ['العودة إلى الرئيسية', 'Retour à l’accueil', 'Back to home'],
   count: ['نشاط مسجّل', 'activité(s) inscrite(s)', 'registered business(es)'],
@@ -126,7 +129,7 @@ const CSS = `:root{--bg:#03121c;--fg:#eaf6ff;--mut:#bcd7e8;--ac:#f58b0b;--gl:rgb
 *{box-sizing:border-box}html{background:#03121c}body{margin:0;min-height:100vh;background:#03121c linear-gradient(#0b3a5c,#03121c 60%);background-attachment:fixed;color:var(--fg);font-family:Cairo,Tahoma,sans-serif;line-height:1.7}
 a{color:#9fd8ff}.wrap{max-width:1000px;margin:auto;padding:20px 5vw 60px}
 header{display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;max-width:1000px;margin:auto}
-header a.logo{font-weight:900;font-size:26px;color:#fff;text-decoration:none}
+header a.logo{font-weight:900;font-size:26px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}header a.logo img{border-radius:9px;display:block}
 h1{font-size:clamp(26px,5vw,42px);margin:10px 0;font-weight:900;line-height:1.25}h2{font-size:22px;margin:28px 0 10px}
 p{color:var(--mut);margin:0 0 14px}.crumbs{font-size:14px;color:var(--mut)}.crumbs a{color:var(--mut)}
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:700;text-decoration:none;background:var(--ac);color:#1b1000;margin:6px 0}
@@ -141,7 +144,9 @@ footer{text-align:center;color:var(--mut);font-size:14px;padding:30px 5vw}
 header .hr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .langsw{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--gl);border:1px solid var(--bd)}
 .langsw button{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:999px;padding:5px 11px;background:none;color:var(--fg);cursor:pointer}
-.langsw button.on{background:var(--ac);color:#1b1000}`;
+.langsw button.on{background:var(--ac);color:#1b1000}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 22px}.chips a{border:1px solid var(--bd);border-radius:999px;padding:6px 16px;color:var(--fg);text-decoration:none;font-size:15px;min-height:40px;display:inline-flex;align-items:center}.chips a.on{background:var(--ac);border-color:var(--ac);color:#1b1000;font-weight:700}
+.card[hidden]{display:none}`;
 
 // Full HTML page. title/description/image are escaped here; `body` and `jsonld` are built by the callers with esc()/ld().
 // `titles` = [ar, fr, en] when the title has a translation (the tab title then follows the chosen language).
@@ -154,15 +159,15 @@ export function page({ title, titles, description, path, image, body, jsonld = '
   return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(t)}</title><meta name="description" content="${esc(d)}">${noindex ? '<meta name="robots" content="noindex">' : ''}
 <meta name="ml-title" data-ar="${esc(tt[0])}" data-fr="${esc(tt[1])}" data-en="${esc(tt[2])}">
-<link rel="canonical" href="${esc(url)}"><meta name="theme-color" content="#03121c">
+<link rel="canonical" href="${esc(url)}"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#03121c">
 <meta property="og:type" content="website"><meta property="og:locale" content="ar_DZ"><meta property="og:site_name" content="مرسى">
 <meta property="og:title" content="${esc(t)}"><meta property="og:description" content="${esc(d)}"><meta property="og:url" content="${esc(url)}"><meta property="og:image" content="${esc(img)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(t)}"><meta name="twitter:description" content="${esc(d)}"><meta name="twitter:image" content="${esc(img)}">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>${CSS}</style>${jsonld}</head><body>
-<header><a class="logo" href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a><div class="hr"><div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" role="radio" data-lang="ar" lang="ar">ع</button><button type="button" role="radio" data-lang="fr" lang="fr">FR</button><button type="button" role="radio" data-lang="en" lang="en">EN</button></div><a class="btn alt" href="${APP}">${tr('open_app')}</a></div></header>
+<header><a class="logo" href="/"><img src="/logo.png" width="36" height="36" alt="">${ml(['مرسى', 'Marsa', 'Marsa'])}</a><div class="hr"><div class="langsw" role="radiogroup" aria-label="Langue / اللغة / Language"><button type="button" role="radio" data-lang="ar" lang="ar">ع</button><button type="button" role="radio" data-lang="fr" lang="fr">FR</button><button type="button" role="radio" data-lang="en" lang="en">EN</button></div><a class="btn alt" href="${APP}">${tr('open_app')}</a></div></header>
 <main class="wrap">${body}</main>
-<footer><a href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a> · marsadz.app · <a href="${APP}/support">${tr('support')}</a></footer>${LANG_SCRIPT}</body></html>`;
+<footer><a href="/">${ml(['مرسى', 'Marsa', 'Marsa'])}</a> · marsadz.app · <a href="${APP}/support">${tr('support')}</a> · <a href="https://wa.me/213776437374" target="_blank" rel="noopener noreferrer">${tr('wa')}</a> · <a href="tel:+213776437374" dir="ltr">0776 43 73 74</a> · <a href="mailto:marsadz@gmail.com" dir="ltr">marsadz@gmail.com</a> · <a href="${APP}/privacy.html">${tr('privacy')}</a> · <a href="${APP}/terms.html">${tr('terms')}</a></footer>${LANG_SCRIPT}</body></html>`;
 }
 
 // 404 page shared by /a/* and /c/* (same wording as site/404.html)
@@ -177,9 +182,19 @@ export function htmlResponse(html, status = 200) {
 }
 
 // Card of one activity (used on the home page, the category page)
+// Icons of the six guide branches (same as the static cards of site/index.html)
+export const CAT_ICONS = {
+  "fishermen": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z\"/><path d=\"M2 12l-0 0M6 9l-2-3M6 15l-2 3\"/><circle cx=\"16\" cy=\"11\" r=\"1\"/></svg>",
+  "naval_mechanics": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1\"/></svg>",
+  "gear_shops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9l1.5-5h15L21 9\"/><path d=\"M4 9v11h16V9\"/><path d=\"M3 9h18\"/><path d=\"M9 20v-6h6v6\"/></svg>",
+  "cold_rooms": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7\"/><path d=\"M9 4l3 2 3-2M9 20l3-2 3 2\"/></svg>",
+  "inox_workshops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z\"/></svg>",
+  "shipyards": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 20h20\"/><path d=\"M4 16l2-6h12l2 6z\"/><path d=\"M12 10V4l5 3-5 0\"/></svg>"
+};
+
 export function proCard(cfg, p) {
   const img = proImage(cfg, p.cover_path);
-  return `<a class="card" href="/a/${esc(p.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${placeHtml(p.wilaya_ar, p.address, 50)}</p></div></a>`;
+  return `<a class="card" href="/a/${esc(p.id)}" data-w="${esc(p.wilaya_ar || '')}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${placeHtml(p.wilaya_ar, p.address, 50)}</p></div></a>`;
 }
 
 // Caches the rendered page for 5 minutes at the edge, so new / stopped activities show up within minutes
