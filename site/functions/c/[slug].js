@@ -1,4 +1,7 @@
-import { APP, SLUG_RE, SITE, T, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, proCard, proImage, rest, supabaseConfig, tr } from '../_lib/site.js';
+import { APP, SLUG_RE, SITE, T, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, proCard, proImage, rest, supabaseConfig, tr, wilayaNames } from '../_lib/site.js';
+
+// ?w=<Arabic wilaya name> (from the search box of the home page) shows only that wilaya; done in the browser so the cached page stays the same
+const FILTER = `<script>(function(){var w=new URLSearchParams(location.search).get('w'),n=0;document.querySelectorAll('.chips a[data-w]').forEach(function(a){a.classList.toggle('on',(a.getAttribute('data-w')||'')===(w||''))});if(!w)return;document.querySelectorAll('.grid .card[data-w]').forEach(function(c){var on=c.getAttribute('data-w')===w;c.hidden=!on;if(on)n++});var b=document.getElementById('n');if(b)b.textContent=n})();</script>`;
 
 // /c/:slug — one guide category with its active activities (Arabic in the HTML, French / English swapped in the browser)
 export async function onRequestGet(context) {
@@ -16,9 +19,9 @@ export async function onRequestGet(context) {
     const description = clean(`${name} في الجزائر: ${pros.length} نشاط مسجّل في مرسى. تصفّح الأنشطة وافتح التطبيق للتواصل.`, 190);
     const empty = ['لا توجد أنشطة بعد. كن أول من يسجّل نشاطه.', 'Aucune activité pour le moment. Soyez le premier à inscrire la vôtre.', 'No businesses yet. Be the first to register yours.'];
     const body = `<p class="crumbs"><a href="/">${tr('home')}</a> › ${ml(names)}</p>${ml(names, 'h1')}
-<p>${pros.length ? `${pros.length} ${tr('count')}` : ml(empty)}</p>
-<div class="grid">${pros.map((p) => proCard(cfg, p)).join('')}</div>
-<div class="cta">${tr('own_t', 'b')}${tr('own_p', 'p')}<a class="btn" href="${APP}/register-business?cat=${esc(slug)}">${tr('register')}</a></div>`;
+<p>${pros.length ? `<b id="n">${pros.length}</b> ${tr('count')}` : ml(empty)}</p>
+${wilayaChips(slug, pros)}<div class="grid">${pros.map((p) => proCard(cfg, p)).join('')}</div>
+<div class="cta">${tr('own_t', 'b')}${tr('own_p', 'p')}<a class="btn" href="${APP}/register-business?cat=${esc(slug)}">${tr('register')}</a></div>${FILTER}`;
     const jsonld = ld({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
@@ -29,4 +32,14 @@ export async function onRequestGet(context) {
     });
     return htmlResponse(page({ title: name, titles: names, description, path: `/c/${slug}`, image: pros[0]?.cover_path ? proImage(cfg, pros[0].cover_path) : '', body, jsonld }));
   });
+}
+
+// One chip per wilaya that has businesses in this category (only when there are at least two wilayas)
+function wilayaChips(slug, pros) {
+  const count = new Map();
+  for (const p of pros) if (p.wilaya_ar) count.set(p.wilaya_ar, (count.get(p.wilaya_ar) || 0) + 1);
+  if (count.size < 2) return '';
+  const all = ['كل الولايات', 'Toutes les wilayas', 'All wilayas'];
+  const chips = [...count.entries()].sort((a, b) => b[1] - a[1]).map(([w, n]) => `<a href="/c/${esc(slug)}?w=${encodeURIComponent(w)}" data-w="${esc(w)}">${ml(wilayaNames(w))} (${n})</a>`);
+  return `<nav class="chips" aria-label="Wilaya"><a href="/c/${esc(slug)}" data-w="">${ml(all)}</a>${chips.join('')}</nav>`;
 }

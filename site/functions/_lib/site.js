@@ -142,7 +142,9 @@ footer{text-align:center;color:var(--mut);font-size:14px;padding:30px 5vw}
 header .hr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .langsw{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--gl);border:1px solid var(--bd)}
 .langsw button{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:999px;padding:5px 11px;background:none;color:var(--fg);cursor:pointer}
-.langsw button.on{background:var(--ac);color:#1b1000}`;
+.langsw button.on{background:var(--ac);color:#1b1000}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 22px}.chips a{border:1px solid var(--bd);border-radius:999px;padding:6px 16px;color:var(--fg);text-decoration:none;font-size:15px;min-height:40px;display:inline-flex;align-items:center}.chips a.on{background:var(--ac);border-color:var(--ac);color:#1b1000;font-weight:700}
+.card[hidden]{display:none}`;
 
 // Full HTML page. title/description/image are escaped here; `body` and `jsonld` are built by the callers with esc()/ld().
 // `titles` = [ar, fr, en] when the title has a translation (the tab title then follows the chosen language).
@@ -178,9 +180,19 @@ export function htmlResponse(html, status = 200) {
 }
 
 // Card of one activity (used on the home page, the category page)
+// Icons of the six guide branches (same as the static cards of site/index.html)
+export const CAT_ICONS = {
+  "fishermen": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z\"/><path d=\"M2 12l-0 0M6 9l-2-3M6 15l-2 3\"/><circle cx=\"16\" cy=\"11\" r=\"1\"/></svg>",
+  "naval_mechanics": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1\"/></svg>",
+  "gear_shops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9l1.5-5h15L21 9\"/><path d=\"M4 9v11h16V9\"/><path d=\"M3 9h18\"/><path d=\"M9 20v-6h6v6\"/></svg>",
+  "cold_rooms": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7\"/><path d=\"M9 4l3 2 3-2M9 20l3-2 3 2\"/></svg>",
+  "inox_workshops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z\"/></svg>",
+  "shipyards": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 20h20\"/><path d=\"M4 16l2-6h12l2 6z\"/><path d=\"M12 10V4l5 3-5 0\"/></svg>"
+};
+
 export function proCard(cfg, p) {
   const img = proImage(cfg, p.cover_path);
-  return `<a class="card" href="/a/${esc(p.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${placeHtml(p.wilaya_ar, p.address, 50)}</p></div></a>`;
+  return `<a class="card" href="/a/${esc(p.id)}" data-w="${esc(p.wilaya_ar || '')}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${placeHtml(p.wilaya_ar, p.address, 50)}</p></div></a>`;
 }
 
 // Caches the rendered page for 5 minutes at the edge, so new / stopped activities show up within minutes
