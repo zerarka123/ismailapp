@@ -22,7 +22,9 @@ export default function ListingFeed({ filters, emptyText }) {
         </div>
       )}
       {loading && items.length > 0 && <p className="muted center">{t('common.loading')}</p>}
-      {error && (
+      {error && typeof error === 'string' && /restricted|quota|egress|spend cap/i.test(error) ? (
+        <p className="msg info">{t('common.maintenance')}</p>
+      ) : error && (
         <p className="msg err">
           {t('common.load_failed')} <button className="linkbtn" onClick={reload}>{t('common.retry')}</button>
           {typeof error === 'string' && <small dir="ltr" style={{ display: 'block', marginTop: 6, opacity: 0.75 }}>{error}</small>}

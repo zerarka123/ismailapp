@@ -14,7 +14,8 @@ export const MESSAGES = {
   // common
   'common.loading': ['جارٍ التحميل…', 'Chargement…', 'Loading…'],
   'common.load_failed': ['تعذّر التحميل.', 'Échec du chargement.', 'Could not load.'],
-  'common.retry': ['أعد المحاولة', 'Réessayer', 'Try again'],
+  'common.maintenance': ['نعتذر عن تعذّر المتابعة، نقوم حاليًا بإعادة تحميل البيانات. قد يستغرق ذلك من 24 إلى 48 ساعة. شكرًا لتفهّمكم.', 'Nous nous excusons pour l’interruption : les données sont en cours de rechargement. Cela peut prendre de 24 à 48 heures. Merci de votre compréhension.', 'We apologize for the interruption: data is being reloaded. This may take 24 to 48 hours. Thank you for your patience.'],
+  'common.retry':['أعد المحاولة', 'Réessayer', 'Try again'],
   'common.more': ['عرض المزيد', 'Voir plus', 'Show more'],
   'common.back': ['رجوع', 'Retour', 'Back'],
   'common.back_home': ['العودة للرئيسية', 'Retour à l’accueil', 'Back to home'],
