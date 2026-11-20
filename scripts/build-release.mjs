@@ -27,7 +27,10 @@ mkdirSync('release', { recursive: true });
 const out = join('release', `marsa-${version.versionName}-${version.versionCode}.aab`);
 copyFileSync(built, out);
 
-console.log('\nSigning with your upload key — enter the keystore password when asked.');
-run(javaTool('jarsigner'), ['-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-keystore', KEYSTORE, out, ALIAS]);
+// Locally: jarsigner asks for the password. In CI (GitHub Actions): the password comes from the MARSA_KEYSTORE_PASSWORD
+// environment variable (a repository secret), read by jarsigner itself so it is never printed or put in a command line.
+const nonInteractive = !!process.env.MARSA_KEYSTORE_PASSWORD;
+console.log(nonInteractive ? '\nSigning with your upload key (password from MARSA_KEYSTORE_PASSWORD).' : '\nSigning with your upload key — enter the keystore password when asked.');
+run(javaTool('jarsigner'), ['-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-keystore', KEYSTORE, ...(nonInteractive ? ['-storepass:env', 'MARSA_KEYSTORE_PASSWORD'] : []), out, ALIAS]);
 run(javaTool('jarsigner'), ['-verify', out]);
 console.log(`\nDONE ->  ${out}\nUpload this file in Play Console (Testing -> Closed testing -> Create release).`);

@@ -1,0 +1,80 @@
+name: Build Android AAB
+
+# Manual only: GitHub -> Actions -> "Build Android AAB" -> Run workflow.
+# Needs four repository secrets (Settings -> Secrets and variables -> Actions):
+#   VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, KEYSTORE_BASE64, KEYSTORE_PASSWORD
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Increase versionCode / versionName (use for every update after the first upload)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_PUSH_ENABLED: '0'
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      MARSA_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    steps:
+      - name: Check secrets
+        run: |
+          missing=0
+          for v in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY KEYSTORE_BASE64 MARSA_KEYSTORE_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::error::Missing secret for $v"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Android SDK platform 36
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - run: npm ci
+
+      - name: Create the Android project (icons, manifest, gradle)
+        run: npm run android:setup
+
+      - name: Restore upload key
+        run: |
+          mkdir -p keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore/marsa-upload.jks
+
+      - name: Build and sign the AAB
+        run: node scripts/build-release.mjs ${{ inputs.bump && '--bump' || '' }}
+
+      - name: Remove upload key from the runner
+        if: always()
+        run: rm -f keystore/marsa-upload.jks
+
+      - name: Show version
+        run: cat android-version.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marsa-aab
+          path: |
+            release/*.aab
+            android-version.json
+          if-no-files-found: error
+          retention-days: 14
