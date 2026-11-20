@@ -1,5 +1,5 @@
 // One-time (and repeatable) Android project setup:  npm run android:setup
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { capture, javaTool, run } from './lib/run.mjs';
 import { patchGradle, patchManifest, readTargetSdk } from './lib/patch-android.mjs';
 
@@ -12,6 +12,8 @@ if (Number(jv[1]) < 21) throw new Error(`JDK ${jv[1]} found, but Capacitor 8 nee
 
 run('npm', ['run', 'build']);
 if (!existsSync('android')) run('npx', ['cap', 'add', 'android']);
+// The icon / splash sources live in scripts/assets; @capacitor/assets reads them from ./assets
+if (!existsSync('assets') && existsSync('scripts/assets')) cpSync('scripts/assets', 'assets', { recursive: true });
 run('npx', ['capacitor-assets', 'generate', '--android']);
 
 const version = JSON.parse(readFileSync('android-version.json', 'utf8'));
