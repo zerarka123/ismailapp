@@ -4,7 +4,10 @@ import { useI18n } from '../i18n/index.jsx';
 import Icon from '../components/Icon.jsx';
 import SupportLinks from '../components/SupportLinks.jsx';
 
-const TOPICS = ['activation', 'subscription', 'listing', 'account', 'bug'];
+import { IS_NATIVE_APP } from '../lib/platform.js';
+
+// In the Google Play build there is no subscription/renewal topic and the activation answer does not mention payment
+const TOPICS = IS_NATIVE_APP ? ['activation', 'listing', 'account', 'bug'] : ['activation', 'subscription', 'listing', 'account', 'bug'];
 
 // In-app support page (also published as /support.html for the web and the Play Store listing)
 export default function Support() {
@@ -24,7 +27,7 @@ export default function Support() {
         {TOPICS.map((k) => (
           <details key={k} className="faq">
             <summary>{t(`support.q_${k}`)}</summary>
-            <p>{t(`support.a_${k}`)}</p>
+            <p>{t(k === 'activation' && IS_NATIVE_APP ? 'support.a_activation_app' : `support.a_${k}`)}</p>
           </details>
         ))}
       </div>
