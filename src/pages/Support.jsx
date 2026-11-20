@@ -4,7 +4,8 @@ import { useI18n } from '../i18n/index.jsx';
 import Icon from '../components/Icon.jsx';
 import SupportLinks from '../components/SupportLinks.jsx';
 
-const TOPICS = ['activation', 'subscription', 'listing', 'account', 'bug'];
+// No subscription / renewal / payment topics: Google Play's payments policy
+const TOPICS = ['activation', 'listing', 'account', 'bug'];
 
 // In-app support page (also published as /support.html for the web and the Play Store listing)
 export default function Support() {

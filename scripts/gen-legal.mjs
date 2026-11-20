@@ -28,7 +28,7 @@ ${body}
 
 function supportPage() {
   const tr = (k, i) => MESSAGES[k][i];
-  const topics = ['activation', 'subscription', 'listing', 'account', 'bug'];
+  const topics = ['activation', 'listing', 'account', 'bug'];
   const block = (i, lang, dir) => {
     const mail = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(tr('support.subject', i))}`;
     return `<section lang="${lang}" dir="${dir}"><h1>${esc(tr('support.title', i))}</h1><p class="m">${esc(tr('support.intro', i))}</p>
