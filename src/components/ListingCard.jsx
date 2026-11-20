@@ -44,7 +44,7 @@ export default function ListingCard({ item, compact = false, eager = false }) {
         <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}>
           <Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} />
         </button>
-        <span className="price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd)}</span>
+        <span className="price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd, item.price_currency)}</span>
       </div>
       <div className="lcard-body">
         <h3>{item.title}</h3>

@@ -12,31 +12,61 @@ export function viaCdn(url) {
 }
 export const publicUrl = (bucket, path) => viaCdn(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
 
-// Validate, downscale (max 1600px) and re-encode as JPEG: smaller files, no metadata (GPS) leaks.
-export async function prepareImage(file) {
-  if (!ALLOWED.includes(file.type)) throw new Error('bad_type');
-  const bmp = await createImageBitmap(file).catch(() => null);
+// Validate, downscale (max 1600px, same sharpness as before) and re-encode: WebP when the phone can make it
+// (about 30% lighter than JPEG at the same visible quality), JPEG otherwise. No metadata (GPS) leaks.
+const MAX_SIDE = 1600;
+const WEBP_QUALITY = 0.8;
+const JPEG_QUALITY = 0.82;
+
+function toBlob(canvas, type, quality) {
+  return new Promise((res) => canvas.toBlob(res, type, quality));
+}
+
+async function drawScaled(source, maxSide) {
+  const bmp = await createImageBitmap(source).catch(() => null);
   if (!bmp) throw new Error('bad_image');
-  const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
   const c = document.createElement('canvas');
   c.width = Math.max(1, Math.round(bmp.width * scale));
   c.height = Math.max(1, Math.round(bmp.height * scale));
   c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
   if (bmp.close) bmp.close();
-  const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', 0.82));
+  return c;
+}
+
+export async function prepareImage(file) {
+  if (!ALLOWED.includes(file.type)) throw new Error('bad_type');
+  const c = await drawScaled(file, MAX_SIDE);
+  // a browser that cannot encode WebP silently returns PNG: then use JPEG
+  let blob = await toBlob(c, 'image/webp', WEBP_QUALITY);
+  if (!blob || blob.type !== 'image/webp') blob = await toBlob(c, 'image/jpeg', JPEG_QUALITY);
   if (!blob || blob.size > MAX_IMAGE_BYTES) throw new Error('too_big');
   return blob;
 }
 
+// Same picture as JPEG, for a storage bucket that does not accept WebP yet (see migration 018)
+async function asJpeg(blob) {
+  const c = await drawScaled(blob, MAX_SIDE);
+  const out = await toBlob(c, 'image/jpeg', JPEG_QUALITY);
+  if (!out) throw new Error('bad_image');
+  return out;
+}
+
+const extOf = (type) => (type === 'image/webp' ? 'webp' : 'jpg');
+const isMimeRefused = (error) => /mime|content.?type|not allowed|not supported/i.test(`${error?.message || ''} ${error?.error || ''}`) || String(error?.statusCode) === '415';
+
 // Uploads blobs; pushes each stored path into `uploaded` so callers can clean up on failure.
 export async function uploadImages(bucket, folder, blobs, uploaded = []) {
-  for (const blob of blobs) {
-    const path = `${folder}/${crypto.randomUUID()}.jpg`;
-    const { error } = await supabase.storage.from(bucket).upload(path, blob, {
-      contentType: 'image/jpeg',
-      cacheControl: '31536000',
-      upsert: false,
-    });
+  for (let blob of blobs) {
+    const send = (b) => {
+      const path = `${folder}/${crypto.randomUUID()}.${extOf(b.type)}`;
+      return supabase.storage
+        .from(bucket)
+        .upload(path, b, { contentType: b.type === 'image/webp' ? 'image/webp' : 'image/jpeg', cacheControl: '31536000', upsert: false })
+        .then(({ error }) => ({ path, error }));
+    };
+    let { path, error } = await send(blob);
+    if (error && blob.type === 'image/webp' && isMimeRefused(error)) ({ path, error } = await send((blob = await asJpeg(blob))));
     if (error) throw error;
     uploaded.push(path);
   }

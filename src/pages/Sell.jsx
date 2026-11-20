@@ -9,16 +9,19 @@ import { MAX_IMAGES } from '../config';
 import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
 import { inspectVideo } from '../components/PortfolioManage.jsx';
+import { prepareAdVideo } from '../lib/video';
 import { BRANCH_PRODUCT_TYPE, FISH_UNITS, OFFER_DAYS, POST_BRANCHES, defaultBranch, isProActive } from '../lib/pro';
 import { marsaError } from '../lib/marsaErrors';
 import { GEAR_TYPES, safetyKey } from '../lib/safety';
 import ImagePicker from '../components/ImagePicker.jsx';
+import PriceInput from '../components/PriceInput.jsx';
+import { parsePrice } from '../lib/price';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const YEAR = new Date().getFullYear();
-const INIT = { kind: 'boat', gearType: 'spare_part', branch: '', unit: 'kg', quantity: '', offerDays: '1', typeId: '', title: '', price: '', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
+const INIT = { kind: 'boat', gearType: 'spare_part', branch: '', unit: 'kg', quantity: '', offerDays: '1', typeId: '', title: '', price: '', priceUnit: '1', currency: 'DZD', condition: '', length: '', year: '', engine: '', wilayaId: '', place: '', description: '', phone: '', whatsapp: '' };
 
 // equipment = fishing & navigation equipment anyone can sell on the market (migration 003)
 const KINDS = ['boat', 'engine', 'equipment'];
@@ -36,6 +39,7 @@ export default function Sell() {
   const [quota, setQuota] = useState(null);
   const [isFisher, setIsFisher] = useState(false);
   const [video, setVideo] = useState(null);
+  const [packing, setPacking] = useState(null); // 0..1 while the video is being made lighter
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState('');
   const [msg, setMsg] = useState(null);
@@ -86,12 +90,16 @@ export default function Sell() {
   const gearType = branch === 'fish_market' ? 'product' : branch === 'workshop' ? 'service' : f.gearType === 'service' ? 'product' : f.gearType;
   const hasYear = kind === 'boat' || kind === 'engine';
 
-  function pickVideo(file) {
+  // started from the file picker itself: the phone makes the video lighter before it is posted (lib/video.js)
+  async function pickVideo(file) {
     if (!file) return;
-    if (!['video/mp4', 'video/quicktime'].includes(file.type)) return setMsg({ type: 'err', text: t('pf.video_type') });
-    if (file.size > 50 * 1024 * 1024) return setMsg({ type: 'err', text: t('pf.video_too_big') });
     setMsg(null);
-    setVideo(file);
+    setVideo(null);
+    setPacking(0);
+    const res = await prepareAdVideo(file, setPacking);
+    setPacking(null);
+    if (res.error) return setMsg({ type: 'err', text: t(res.error) });
+    setVideo(res.file);
   }
 
   function validate() {
@@ -99,7 +107,8 @@ export default function Sell() {
     const tt = f.title.trim();
     if (tt.length < 5 || tt.length > 120) return t('sell.v_title');
     if (isFish && !f.price) return t('sell.v_price_fish');
-    if (f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return t('sell.v_price');
+    if (isFish && f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return t('sell.v_price');
+    if (!isFish && Number.isNaN(parsePrice(f.price, f.priceUnit, f.currency))) return t('sell.v_price');
     if (kind === 'boat' && f.length) {
       const n = Number(f.length.replace(',', '.'));
       if (!(n >= 1 && n <= 400)) return t('sell.v_length');
@@ -145,7 +154,9 @@ export default function Sell() {
         boat_type_id: kind === 'boat' ? Number(f.typeId) : null,
         title: f.title.trim(),
         description: f.description.trim().slice(0, 4000),
-        price_dzd: f.price ? Number(f.price) : null,
+        price_dzd: isFish ? (f.price ? Number(f.price) : null) : parsePrice(f.price, f.priceUnit, f.currency),
+        // price_currency comes with migration 017; dinar ads leave it out so they also work before the migration
+        ...(!isFish && f.currency !== 'DZD' ? { price_currency: f.currency } : {}),
         length_m: kind === 'boat' && f.length ? Number(f.length.replace(',', '.')) : null,
         year_built: hasYear && f.year ? Number(f.year) : null,
         engine_info: hasYear ? f.engine.trim().slice(0, 200) : null,
@@ -254,6 +265,7 @@ export default function Sell() {
               <Icon name="video" />{video ? `${video.name} (${(video.size / 1048576).toFixed(1)} ${t('unit.mb')})` : t('sell.video_pick')}
               <input type="file" accept="video/mp4,video/quicktime" style={{ display: 'none' }} onChange={(e) => pickVideo(e.target.files?.[0] ?? null)} />
             </label>
+            {packing != null && <small className="muted">{t('video.packing', { n: Math.round(packing * 100) })}</small>}
             {video && <button type="button" className="linkbtn" onClick={() => setVideo(null)}>{t('sell.video_remove')}</button>}
           </div>
         )}
@@ -285,14 +297,16 @@ export default function Sell() {
           </>
         )}
         {!isFish && (
+        <>
+        <PriceInput value={f} onChange={(v) => setF({ ...f, ...v })} />
         <div className="row2">
-          <div className="field"><label>{t('sell.price')}</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder={t('sell.price_hint')} /></div>
           <div className="field"><label>{t('spec.condition')}</label>
             <select className="input" value={f.condition} onChange={set('condition')}>
               <option value="">{t('cond.unset')}</option><option value="new">{t('cond.new')}</option><option value="used">{t('cond.used')}</option>
             </select>
           </div>
         </div>
+        </>
         )}
         {hasYear && (
           <div className="row2">
@@ -323,7 +337,7 @@ export default function Sell() {
 
         {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
         {busy && <p className="msg info">{step}</p>}
-        <button className="btn sand" disabled={busy || full}>{busy ? t('common.wait') : t('sell.publish')}</button>
+        <button className="btn sand" disabled={busy || full || packing != null}>{busy ? t('common.wait') : t('sell.publish')}</button>
         <p className="muted small center" style={{ marginTop: 10 }}>{t('sell.agree')} <Link to="/terms" className="linkbtn">{t('legal.terms')}</Link>.</p>
       </form>
     </>

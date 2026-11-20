@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
@@ -29,7 +29,7 @@ export default function FishRequests() {
   const { user } = useAuth();
   const { t } = useI18n();
   const nav = useNavigate();
-  const [tab, setTab] = useState('mine');
+  const [tab, setTab] = useState(null); // null until we know if the user is a seller (avoids loading the wrong list first)
   const [seller, setSeller] = useState(false);
   const [wilayas, setWilayas] = useState([]);
   const [rows, setRows] = useState([]);
@@ -41,24 +41,38 @@ export default function FishRequests() {
   }, []);
   useEffect(() => {
     if (!user) return;
-    supabase.rpc('is_fish_seller', { p_uid: user.id }).then(({ data }) => {
-      setSeller(!!data);
-      if (data) setTab('incoming');
-    });
+    let alive = true;
+    setTab(null);
+    supabase.rpc('is_fish_seller', { p_uid: user.id }).then(
+      ({ data }) => {
+        if (!alive) return;
+        setSeller(!!data);
+        setTab(data ? 'incoming' : 'mine');
+      },
+      () => alive && setTab('mine')
+    );
+    return () => {
+      alive = false;
+    };
   }, [user?.id]);
 
-  async function load() {
-    if (!user) return;
+  // Each load gets a number: an older answer that arrives late (after a tab switch) is ignored
+  const reqNo = useRef(0);
+  const load = useCallback(async () => {
+    if (!user || !tab) return;
+    const no = ++reqNo.current;
     setLoading(true);
     setError(false);
+    setRows([]);
     let q = supabase.from('fish_requests').select('id, item, quantity, commune, wilaya_id, urgency, created_at, expires_at, status').order('created_at', { ascending: false }).limit(60);
     q = tab === 'mine' ? q.eq('user_id', user.id) : q.neq('user_id', user.id).eq('status', 'open').gt('expires_at', new Date().toISOString());
     const { data, error: err } = await q;
+    if (no !== reqNo.current) return;
     if (err) setError(true);
     else setRows(data || []);
     setLoading(false);
-  }
-  useEffect(() => { load(); }, [tab, user?.id]);
+  }, [tab, user?.id]);
+  useEffect(() => { load(); }, [load]);
 
   if (!user) return <NeedLogin text={t('fish.login_contact')} />;
   return (
@@ -76,7 +90,7 @@ export default function FishRequests() {
       )}
       {loading && <p className="muted center">{t('common.loading')}</p>}
       {error && <p className="msg err">{t('common.load_failed')} <button className="linkbtn" onClick={load}>{t('common.retry')}</button></p>}
-      {!loading && !error && rows.length === 0 && <p className="empty">{tab === 'mine' ? t('fish.req_empty') : t('fish.req_empty_in')}</p>}
+      {tab && !loading && !error && rows.length === 0 && <p className="empty">{tab === 'mine' ? t('fish.req_empty') : t('fish.req_empty_in')}</p>}
       <div className="rlist">{rows.map((r) => <RequestRow key={r.id} r={r} wilayas={wilayas} />)}</div>
     </>
   );

@@ -76,12 +76,18 @@ export function checkVideo(file) {
   if (file.size > MAX_ANNOUNCEMENT_VIDEO_BYTES) throw new Error('ann_video_big');
 }
 
-// Image: compressed to max 1600px JPEG (same as listing photos). Video: stored as is (≤ 20 MB).
+// Image: compressed to max 1600px WebP / JPEG (same as listing photos). Video: stored as is (≤ 20 MB).
 export async function uploadAnnouncementMedia(kind, file) {
   let blob = file;
   let ext = 'jpg';
   let contentType = 'image/jpeg';
-  if (kind === 'image') blob = await prepareImage(file);
+  if (kind === 'image') {
+    blob = await prepareImage(file);
+    if (blob.type === 'image/webp') {
+      contentType = 'image/webp';
+      ext = 'webp';
+    }
+  }
   else {
     checkVideo(file);
     contentType = file.type;

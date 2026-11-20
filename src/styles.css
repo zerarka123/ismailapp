@@ -257,7 +257,25 @@ a.lcard-img { text-decoration: none; }
 
 /* Fish market */
 .iconbtn.weather { position: relative; }
-.iconbtn .wx { font-size: 10px; font-weight: 800; position: absolute; bottom: -2px; inset-inline: 0; text-align: center; white-space: nowrap; direction: ltr; }
+.iconbtn.weather.on { background: var(--primary); color: #fff; }
+
+/* sea-state strip (components/SeaStrip.jsx) */
+.sea { margin-top: 14px; background: #fff; border-radius: 20px; padding: 12px 12px 8px; box-shadow: var(--shadow); }
+.sea-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--deep); }
+.sea-head b { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+.sea-port { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--bg); color: var(--ink); font-weight: 700; font-size: 13px; }
+.sea-days { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 10px 0 6px; }
+.sea-days::-webkit-scrollbar { display: none; }
+.sea-day { flex: none; width: 116px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 3px; padding: 10px; border-radius: 16px; background: var(--bg); font-size: 12px; font-weight: 600; border-top: 4px solid var(--ok); }
+.sea-day.moderate { border-top-color: #e6a700; }
+.sea-day.rough { border-top-color: #e0662c; }
+.sea-day.danger { border-top-color: var(--danger); }
+.sea-date { font-weight: 800; font-size: 13px; color: var(--deep); }
+.sea-lvl { font-weight: 800; font-size: 12px; color: var(--ok); }
+.sea-lvl.moderate { color: #a87a00; }
+.sea-lvl.rough { color: #c2531e; }
+.sea-lvl.danger { color: var(--danger); }
+.sea-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .chips.wrap { flex-wrap: wrap; overflow: visible; padding-top: 4px; }
 .fish-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
 .fish-big { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 130px; text-align: center; padding: 14px 8px; border-radius: 20px; background: linear-gradient(160deg, var(--primary), #0B2A4A); color: #fff; text-decoration: none; }
@@ -361,3 +379,7 @@ img.ann-media { background: #dcecf8; }
 .st-item-nums { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
 .st-silent { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef5fb; }
 .st-silent:last-child { border-bottom: 0; }
+
+/* price field: amount + unit + currency (components/PriceInput.jsx) */
+.price-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+.price-row select.input { padding-inline: 8px; width: auto; }

@@ -5,7 +5,7 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName } from '../i18n/names.js';
 import { useNotifications } from '../notifications.jsx';
-import { MARKET_KINDS, WEATHER_LIVE, WEATHER_URL } from '../config';
+import { MARKET_KINDS } from '../config';
 import { useListings } from '../lib/useListings';
 import Icon from '../components/Icon.jsx';
 import ListingCard from '../components/ListingCard.jsx';
@@ -13,6 +13,16 @@ import ListingFeed from '../components/ListingFeed.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 import { listAnnouncements, readIds } from '../lib/announcements';
 import { getBoatTypes } from '../lib/refData';
+import SeaStrip from '../components/SeaStrip.jsx';
+
+const SEA_OPEN_KEY = 'marsa.sea.open';
+function savedSeaOpen() {
+  try {
+    return localStorage.getItem(SEA_OPEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 // Latest admin announcement (last 30 days) as a small banner that opens "What's new"
 function NewsStrip() {
@@ -60,9 +70,20 @@ function SponsoredStrip() {
 
 // Home = Marsa open market only (boats, engines, fishing equipment). Workshops & pros live in the guides.
 export default function Home() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { t } = useI18n();
   const { unread } = useNotifications();
+  const [seaOpen, setSeaOpen] = useState(savedSeaOpen);
+  function toggleSea() {
+    setSeaOpen((o) => {
+      try {
+        localStorage.setItem(SEA_OPEN_KEY, o ? '0' : '1');
+      } catch {
+        /* storage blocked */
+      }
+      return !o;
+    });
+  }
   const [types, setTypes] = useState([]);
   const [chip, setChip] = useState('all'); // 'all' | 'engine' | 'equipment' | boat type id
 
@@ -79,10 +100,9 @@ export default function Home() {
         <div className="brand"><img src="/logo.png" alt="" />{t('app.name')}</div>
         <div className="head-actions">
           <LanguageSwitcher />
-          <a className="iconbtn weather" href={WEATHER_URL} target="_blank" rel="noopener noreferrer" aria-label={t('fish.weather')}>
+          <button className={`iconbtn weather ${seaOpen ? 'on' : ''}`} onClick={toggleSea} aria-label={t('fish.weather')} aria-expanded={seaOpen}>
             <Icon name="cloud" />
-            {WEATHER_LIVE && <span className="wx">{WEATHER_LIVE.temp}° · {WEATHER_LIVE.wind}</span>}
-          </a>
+          </button>
           <Link className="iconbtn" to={user ? '/notifications' : '/login?next=%2Fnotifications'} aria-label={t('notif.title')}>
             <Icon name="bell" />
             {unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
@@ -92,6 +112,8 @@ export default function Home() {
           </Link>
         </div>
       </header>
+
+      {seaOpen && <SeaStrip wilayaId={profile?.wilaya_id ?? null} />}
 
       <Link to="/search" className="searchbox"><Icon name="search" color="#51708A" />{t('home.search_hint')}</Link>
 

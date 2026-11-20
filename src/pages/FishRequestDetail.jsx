@@ -56,6 +56,10 @@ function AnswerForm({ requestId, onDone }) {
   const [f, setF] = useState({ price: '', quantity: '', phone: profile?.phone || '' });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  // the profile can arrive after the form opens: fill the phone then, unless the seller already typed one
+  useEffect(() => {
+    if (profile?.phone) setF((p) => (p.phone ? p : { ...p, phone: profile.phone }));
+  }, [profile?.phone]);
 
   async function send(available) {
     setMsg(null);
@@ -112,8 +116,9 @@ export default function FishRequestDetail() {
   const [offers, setOffers] = useState([]);
   const [mine, setMine] = useState(null);
   const [contact, setContact] = useState(null);
-  const [seller, setSeller] = useState(false);
+  const [seller, setSeller] = useState(null); // null = still checking (no "sellers only" flash for a seller)
   const [error, setError] = useState(false);
+  const [closeErr, setCloseErr] = useState(null);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -134,10 +139,13 @@ export default function FishRequestDetail() {
       }
       setOffers(rows.map((o) => ({ ...o, business: names[o.seller_id] })));
     } else {
-      const { data: ok } = await supabase.rpc('is_fish_seller', { p_uid: user.id });
-      setSeller(!!ok);
-      const { data: o } = await supabase.from('fish_offers').select('*').eq('request_id', id).eq('seller_id', user.id).maybeSingle();
+      // both answers are set together, so a seller who already answered never sees the answer form flash
+      const [{ data: ok }, { data: o }] = await Promise.all([
+        supabase.rpc('is_fish_seller', { p_uid: user.id }),
+        supabase.from('fish_offers').select('*').eq('request_id', id).eq('seller_id', user.id).maybeSingle(),
+      ]);
       setMine(o);
+      setSeller(!!ok);
       if (o?.available) {
         const { data: c } = await supabase.from('fish_request_contacts').select('phone, whatsapp').eq('request_id', id).maybeSingle();
         setContact(c);
@@ -155,9 +163,13 @@ export default function FishRequestDetail() {
   const hoursLeft = req ? Math.max(0, Math.ceil((new Date(req.expires_at) - Date.now()) / 3600000)) : 0;
 
   async function close() {
-    await supabase.from('fish_requests').update({ status: 'closed' }).eq('id', id);
+    setCloseErr(null);
+    const { error: err } = await supabase.from('fish_requests').update({ status: 'closed' }).eq('id', id);
+    if (err) return setCloseErr(errorText(err));
     load();
   }
+  // "per kg" only makes sense for fish and seafood, not for the "other" category
+  const perKg = req && req.category !== 'other' ? ` ${t('fish.per_kg')}` : '';
 
   return (
     <>
@@ -175,6 +187,7 @@ export default function FishRequestDetail() {
             <span className="muted">{[t(`fish.cat_${req.category}`), req.quantity, req.commune, w ? wilayaName(w) : ''].filter(Boolean).join(' · ')}</span>
             <span className="muted small">{timeAgo(req.created_at, t)} · {ended ? t('fish.req_closed') : t('fish.req_left', { n: hoursLeft })}</span>
             {owner && !ended && <button className="linkbtn" onClick={close}>{t('fish.req_close')}</button>}
+            {closeErr && <p className="msg err">{closeErr}</p>}
             {!owner && <ReportBox type="request" id={req.id} />}
           </div>
 
@@ -185,7 +198,7 @@ export default function FishRequestDetail() {
               {offers.filter((o) => o.available).map((o) => (
                 <div className="card-box" key={o.id}>
                   <b>{o.business || t('sell.default_seller')}</b>
-                  <span>{o.price_dzd != null ? `${fmtPrice(o.price_dzd)} ${t('fish.per_kg')}` : t('fish.no_price')}{o.quantity ? ` · ${o.quantity}` : ''}</span>
+                  <span>{o.price_dzd != null ? `${fmtPrice(o.price_dzd)}${perKg}` : t('fish.no_price')}{o.quantity ? ` · ${o.quantity}` : ''}</span>
                   {o.phone && <ContactButtons phone={o.phone} whatsapp={o.whatsapp} text={`${req.item}`} target={{ type: 'fish_offer', id: o.id }} />}
                   <ReportBox type="offer" id={o.id} />
                 </div>
@@ -195,7 +208,7 @@ export default function FishRequestDetail() {
           )}
 
           {!owner && !ended && !mine && seller && <AnswerForm requestId={id} onDone={load} />}
-          {!owner && !seller && !mine && <p className="msg info">{t('fish.seller_only_answer')}</p>}
+          {!owner && seller === false && !mine && <p className="msg info">{t('fish.seller_only_answer')}</p>}
           {!owner && mine && (
             <div className="card-box">
               <b>{t('fish.answered')}: {mine.available ? t('fish.available') : t('fish.unavailable')}</b>

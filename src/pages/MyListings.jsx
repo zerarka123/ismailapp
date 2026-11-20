@@ -4,12 +4,14 @@ import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
 import { t as tr, useI18n } from '../i18n/index.jsx';
 import { errorText } from '../errors';
-import { daysLeft, fmtPrice } from '../lib/format';
+import { daysLeft, fmtPrice, isMissingSchema } from '../lib/format';
 import { cssUrl, publicUrl, removeFiles } from '../lib/images';
 import { coverOf } from '../components/ListingCard.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
 const SEL = 'id, title, price_dzd, status, expires_at, listing_images(storage_path, sort_order)';
+// price_currency comes with migration 017
+const SEL_CURRENCY = `${SEL}, price_currency`;
 
 function state(it) {
   if (it.status === 'sold') return [tr('mine.sold'), ''];
@@ -26,7 +28,9 @@ export default function MyListings() {
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('listings').select(SEL).eq('seller_id', user.id).order('published_at', { ascending: false });
+    const run = (sel) => supabase.from('listings').select(sel).eq('seller_id', user.id).order('published_at', { ascending: false });
+    let { data, error } = await run(SEL_CURRENCY);
+    if (error && isMissingSchema(error)) ({ data, error } = await run(SEL));
     if (error) return setMsg({ type: 'err', text: errorText(error) });
     setItems(data);
   }, [user?.id]);
@@ -68,7 +72,7 @@ export default function MyListings() {
             <div className="mine-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined} />
             <div className="mine-info">
               <h4>{it.title}</h4>
-              <div className="muted small">{fmtPrice(it.price_dzd)}</div>
+              <div className="muted small">{fmtPrice(it.price_dzd, it.price_currency)}</div>
               <span className={`pill ${tone}`}>{label}</span>
               <div className="mine-actions">
                 {live && daysLeft(it.expires_at) > 0 && <Link className="mini" to={`/listing/${it.id}`}>{t('mine.view')}</Link>}

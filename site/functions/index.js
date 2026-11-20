@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
         rest(cfg, 'site_categories?select=slug,name_ar,name_fr,name_en,sort_order,active_count&order=section.asc,sort_order.asc&limit=40'),
         rest(cfg, 'site_pros?select=category_slug,wilaya_ar&limit=5000', 5000),
         rest(cfg, 'site_pros?select=id,business_name,wilaya_ar,category_slug,cover_path,created_at&order=created_at.desc&limit=8'),
-        rest(cfg, 'site_sponsored?select=id,title,price_dzd,wilaya_ar,cover_path&order=published_at.desc&limit=8'),
+        rest(cfg, 'site_sponsored?select=id,title,price_dzd,price_currency,wilaya_ar,cover_path&order=published_at.desc&limit=8'),
         rest(cfg, 'rpc/site_stats'), // migration 016: users / live listings (counts only). Missing → those two numbers are hidden.
       ]);
       if (!Array.isArray(cats)) return base.clone();
@@ -66,7 +66,7 @@ export async function onRequestGet(context) {
           .map((a) => {
             const img = listingImage(cfg, a.cover_path);
             const meta = a.wilaya_ar ? `<p>${ml(wilayaNames(a.wilaya_ar))}</p>` : '';
-            const price = Number(a.price_dzd) > 0 ? `<span class="pr">${priceHtml(a.price_dzd)}</span>` : '';
+            const price = Number(a.price_dzd) > 0 ? `<span class="pr">${priceHtml(a.price_dzd, a.price_currency)}</span>` : '';
             return `<a class="pc" rel="sponsored" href="${APP}/listing/${esc(a.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx">${mlc(['مميّز', 'À la une', 'Featured'], 'span', 'badge')}<h3>${esc(clean(a.title, 60))}</h3>${meta}${price}</div></a>`;
           })
           .join('');

@@ -9,11 +9,14 @@ import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { removeFiles } from '../lib/images';
 import { GEAR_TYPES } from '../lib/safety';
 import NeedLogin from '../components/NeedLogin.jsx';
+import PriceInput from '../components/PriceInput.jsx';
+import { CURRENCIES, parsePrice, splitPrice } from '../lib/price';
 import Icon from '../components/Icon.jsx';
 import { getWilayas, getBoatTypes } from '../lib/refData';
 
 const YEAR = new Date().getFullYear();
 const SEL = 'id, seller_id, kind, boat_type_id, title, description, price_dzd, length_m, year_built, engine_info, wilaya_id, place_text, condition';
+// price_currency comes with migration 017
 
 // The owner edits his own listing (the photos stay as they are) or deletes it.
 export default function EditListing() {
@@ -38,7 +41,8 @@ export default function EditListing() {
     if (!user) return;
     let alive = true;
     (async () => {
-      let res = await supabase.from('listings').select(`${SEL}, gear_type`).eq('id', id).maybeSingle();
+      let res = await supabase.from('listings').select(`${SEL}, gear_type, price_currency`).eq('id', id).maybeSingle();
+      if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(`${SEL}, gear_type`).eq('id', id).maybeSingle();
       if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SEL).eq('id', id).maybeSingle();
       const row = res.data;
       if (!alive) return;
@@ -48,7 +52,11 @@ export default function EditListing() {
       setItem(row);
       setF({
         title: row.title || '',
-        price: row.price_dzd != null ? String(row.price_dzd) : '',
+        ...(() => {
+          const currency = CURRENCIES.includes(row.price_currency) ? row.price_currency : 'DZD';
+          const { text, unit } = splitPrice(row.price_dzd, currency);
+          return { price: text, priceUnit: unit, currency };
+        })(),
         condition: row.condition || '',
         typeId: row.boat_type_id != null ? String(row.boat_type_id) : '',
         length: row.length_m != null ? String(row.length_m) : '',
@@ -79,7 +87,7 @@ export default function EditListing() {
     if (isBoat && !f.typeId) return t('sell.v_type');
     const tt = f.title.trim();
     if (tt.length < 5 || tt.length > 120) return t('sell.v_title');
-    if (f.price && (!/^\d{1,12}$/.test(f.price) || Number(f.price) <= 0)) return t('sell.v_price');
+    if (Number.isNaN(parsePrice(f.price, f.priceUnit, f.currency))) return t('sell.v_price');
     if (isBoat && f.length) {
       const n = Number(f.length.replace(',', '.'));
       if (!(n >= 1 && n <= 400)) return t('sell.v_length');
@@ -100,11 +108,11 @@ export default function EditListing() {
     const problem = validate();
     if (problem) return setMsg({ type: 'err', text: problem });
     setBusy(true);
-    const { error } = await supabase.rpc('update_my_listing', {
+    const args = {
       p_id: String(item.id),
       p_title: f.title.trim(),
       p_description: f.description.trim().slice(0, 4000),
-      p_price: f.price ? Number(f.price) : null,
+      p_price: parsePrice(f.price, f.priceUnit, f.currency),
       p_wilaya_id: Number(f.wilayaId),
       p_place: f.place.trim(),
       p_condition: f.condition || null,
@@ -115,7 +123,10 @@ export default function EditListing() {
       p_gear_type: isGear ? f.gearType : null,
       p_phone: f.phone ? cleanPhone(f.phone) : null,
       p_whatsapp: f.whatsapp ? cleanPhone(f.whatsapp) : null,
-    });
+    };
+    // p_currency comes with migration 017; a dinar price is also saved on a database without it
+    let { error } = await supabase.rpc('update_my_listing', { ...args, p_currency: f.currency });
+    if (error && isMissingSchema(error) && f.currency === 'DZD') ({ error } = await supabase.rpc('update_my_listing', args));
     setBusy(false);
     if (error) return setMsg({ type: 'err', text: isMissingSchema(error) ? t('edit.unavailable') : errorText(error) });
     nav(`/listing/${item.id}`, { replace: true });
@@ -155,8 +166,8 @@ export default function EditListing() {
           </div>
         )}
         <div className="field"><label>{isGear ? t('sell.gear_name') : t('sell.ad_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={120} /></div>
+        <PriceInput value={f} onChange={(v) => setF({ ...f, ...v })} />
         <div className="row2">
-          <div className="field"><label>{t('sell.price')}</label><input className="input" inputMode="numeric" value={f.price} onChange={set('price')} maxLength={12} placeholder={t('sell.price_hint')} /></div>
           <div className="field"><label>{t('spec.condition')}</label>
             <select className="input" value={f.condition} onChange={set('condition')}>
               <option value="">{t('cond.unset')}</option><option value="new">{t('cond.new')}</option><option value="used">{t('cond.used')}</option>
