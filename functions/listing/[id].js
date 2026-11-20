@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
 
   const rows = await rest(
     cfg,
-    `listings?id=eq.${encodeURIComponent(id)}&status=eq.published&select=id,title,description,price_dzd,wilayas(name_ar),listing_images(storage_path,sort_order)&limit=1`
+    `listings?id=eq.${encodeURIComponent(id)}&status=eq.published&select=id,title,description,price_dzd,price_currency,wilayas(name_ar),listing_images(storage_path,sort_order)&limit=1`
   );
   const item = Array.isArray(rows) ? rows[0] : null;
   const page = await next();

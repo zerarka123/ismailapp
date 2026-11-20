@@ -9,6 +9,7 @@ import { PHONE_RE, cleanPhone } from '../lib/format';
 import { FISH_SPECIES, speciesName } from '../lib/fish';
 import { removeFiles, uploadImages } from '../lib/images';
 import { inspectVideo } from '../components/PortfolioManage.jsx';
+import { prepareAdVideo } from '../lib/video';
 import ImagePicker from '../components/ImagePicker.jsx';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
@@ -25,6 +26,7 @@ export default function FishPost() {
   const [f, setF] = useState({ species: '', custom: '', price: '', quantity: '', wilayaId: '', place: '', phone: '' });
   const [images, setImages] = useState([]);
   const [video, setVideo] = useState(null);
+  const [packing, setPacking] = useState(null); // 0..1 while the video is being made lighter
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -48,12 +50,16 @@ export default function FishPost() {
 
   if (!user) return <NeedLogin text={t('sell.login')} />;
 
-  function pickVideo(file) {
+  // started from the file picker itself: the phone makes the video lighter before it is posted (lib/video.js)
+  async function pickVideo(file) {
     if (!file) return;
-    if (!['video/mp4', 'video/quicktime'].includes(file.type)) return setMsg({ type: 'err', text: t('pf.video_type') });
-    if (file.size > 50 * 1024 * 1024) return setMsg({ type: 'err', text: t('pf.video_too_big') });
     setMsg(null);
-    setVideo(file);
+    setVideo(null);
+    setPacking(0);
+    const res = await prepareAdVideo(file, setPacking);
+    setPacking(null);
+    if (res.error) return setMsg({ type: 'err', text: t(res.error) });
+    setVideo(res.file);
   }
 
   async function submit(e) {
@@ -155,7 +161,8 @@ export default function FishPost() {
           {seller === 'fisherman' && (
             <div className="field"><label>{t('fish.video_opt')}</label>
               <input type="file" accept="video/mp4,video/quicktime" onChange={(e) => pickVideo(e.target.files?.[0])} />
-              {video && <small className="muted"> {video.name}</small>}
+              {packing != null && <small className="muted"> {t('video.packing', { n: Math.round(packing * 100) })}</small>}
+              {video && <small className="muted"> {video.name} ({(video.size / 1048576).toFixed(1)} {t('unit.mb')})</small>}
             </div>
           )}
           <div className="field"><label>{t('field.wilaya')}</label>
@@ -168,7 +175,7 @@ export default function FishPost() {
           <div className="field"><label>{t('field.phone')}</label><input className="input" inputMode="tel" dir="ltr" value={f.phone} onChange={set('phone')} placeholder="05XXXXXXXX" /></div>
           <p className="muted small">{t('fish.expires_note')} {t('fish.price_note')}</p>
           {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
-          <button className="btn" disabled={busy}>{busy ? t('common.loading') : t('fish.post_btn')}</button>
+          <button className="btn" disabled={busy || packing != null}>{busy ? t('common.loading') : t('fish.post_btn')}</button>
         </form>
       )}
     </>

@@ -49,12 +49,16 @@ export const priceText = (p) => {
   const n = Number(p);
   return Number.isFinite(n) && n > 0 ? `${n.toLocaleString('en-US')} دج` : '';
 };
-// Same price with the currency in the visitor's language ("دج" / "DA" / "DZD")
-export const priceHtml = (p) => {
+// Same price with the currency in the visitor's language ("دج" / "DA" / "DZD"), short units like the app
+export const priceHtml = (p, currency = 'DZD') => {
   const n = Number(p);
   if (!Number.isFinite(n) || n <= 0) return '';
-  const v = n.toLocaleString('fr-FR').replace(/[\u202f\u00a0]/g, ' ');
-  return ml([`${v} دج`, `${v} DA`, `${v} DZD`]);
+  const v = (x) => x.toLocaleString('fr-FR', { maximumFractionDigits: 2 }).replace(/[\u202f\u00a0]/g, ' ');
+  if (currency === 'EUR') return `${v(n)} €`;
+  if (currency === 'USD') return `${v(n)} $`;
+  if (n >= 1e9) return ml([`${v(n / 1e9)} مليار دج`, `${v(n / 1e9)} Md DA`, `${v(n / 1e9)} bn DZD`]);
+  if (n >= 1e6) return ml([`${v(n / 1e6)} مليون دج`, `${v(n / 1e6)} M DA`, `${v(n / 1e6)} M DZD`]);
+  return ml([`${v(n)} دج`, `${v(n)} DA`, `${v(n)} DZD`]);
 };
 
 // ---- Languages (same three as the app and the landing page; the choice is kept in localStorage "marsa.lang") ----

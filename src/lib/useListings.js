@@ -7,11 +7,12 @@ import { expandQuery, fuzzyMatch, orFilter } from './smartSearch';
 // Columns the text search looks into, and how many recent ads the typo-tolerant fallback scans
 const SEARCH_COLUMNS = ['title', 'description', 'engine_info'];
 const FUZZY_SCAN = 200;
+const FUZZY_SELECT = 'id, title, engine_info';
 
 const BASE =
   'id, title, price_dzd, length_m, year_built, condition, engine_info, kind, profession, published_at, bumped_at, expires_at, status, seller_id, seller_name, wilayas(*), boat_types!left(*), listing_images(storage_path, sort_order)';
-// gear_type / sponsored_until come with migration 003; the BASE select keeps older databases working
-export const LISTING_SELECT = `${BASE}, gear_type, sponsored_until`;
+// gear_type / sponsored_until come with migration 003, price_currency with 017; the BASE select keeps older databases working
+export const LISTING_SELECT = `${BASE}, gear_type, sponsored_until, price_currency`;
 export const LISTING_SELECT_BASE = BASE;
 // unit / quantity / offer_days / product_type come with migration 006
 export const LISTING_SELECT_EXTRA = `${LISTING_SELECT}, unit, quantity, offer_days, product_type`;
@@ -55,6 +56,8 @@ export function useListings(filters) {
           .gt('expires_at', new Date().toISOString())
           .order('bumped_at', { ascending: false })
           .range(text ? from : 0, text ? from + PAGE_SIZE - 1 : FUZZY_SCAN - 1);
+        // a card shows one photo: download only the cover, the listing page still loads all of them
+        if (select.includes('listing_images(')) q = q.order('sort_order', { referencedTable: 'listing_images' }).limit(1, { referencedTable: 'listing_images' });
 
         // One "or" per typed word: the word in any spelling (Arabic / French / English), in any searched column.
         // Several "or" filters are combined with AND, so every word must be found.
@@ -86,9 +89,14 @@ export function useListings(filters) {
       // Nothing found with the exact spellings: look for close ones (a typo, or a name the dictionary does not know)
       let fuzzy = false;
       if (!err && f.q && reset && data.length === 0) {
-        const wide = await selectListings((select) => build(select, false));
+        // scan only the few text columns of the latest ads, then load the full cards of the matches (at most one page)
+        const wide = await build(FUZZY_SELECT, false);
         if (!wide.error) {
-          data = wide.data.filter((it) => fuzzyMatch(f.q, it.title, it.engine_info));
+          const hits = wide.data.filter((it) => fuzzyMatch(f.q, it.title, it.engine_info)).slice(0, PAGE_SIZE).map((it) => it.id);
+          if (hits.length) {
+            const full = await selectListings((select) => build(select, false).in('id', hits));
+            if (!full.error) data = full.data;
+          }
           fuzzy = true;
         }
       }

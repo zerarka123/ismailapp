@@ -55,16 +55,23 @@ export function imageUrl(cfg, path) {
   return `${SITE_DEFAULT}/m/listing-images/${safe}`;
 }
 
-export function priceText(p) {
+// Same short units as the app (src/lib/price.js): M = million dinars, mi = billion dinars
+export function priceText(p, currency = 'DZD') {
   const n = Number(p);
-  return Number.isFinite(n) && n > 0 ? `${n.toLocaleString('en-US')} دج` : '';
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const fmt = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  if (currency === 'EUR') return `${fmt(n)} €`;
+  if (currency === 'USD') return `${fmt(n)} $`;
+  if (n >= 1e9) return `${fmt(n / 1e9)} مليار دج`;
+  if (n >= 1e6) return `${fmt(n / 1e6)} مليون دج`;
+  return `${fmt(n)} دج`;
 }
 
 // Builds the <head> tags of one listing; every dynamic value is escaped
 export function listingTags({ site, cfg, item }) {
   const id = item.id;
   const wilaya = item.wilayas?.name_ar || '';
-  const price = priceText(item.price_dzd);
+  const price = priceText(item.price_dzd, item.price_currency);
   const title = clean(item.title, 90) || 'إعلان';
   const pageTitle = `${title} | مرسى`;
   const lead = [price, wilaya].filter(Boolean).join(' · ');

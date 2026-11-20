@@ -7,7 +7,7 @@ import { useFavorites } from '../favorites.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
-import { conditionLabel, fmtDate, fmtPrice, isMissingSchema, telLink, waLink } from '../lib/format';
+import { conditionLabel, fmtDate, fmtPrice, fmtPriceExact, isMissingSchema, telLink, waLink } from '../lib/format';
 import { publicUrl, removeFiles } from '../lib/images';
 import { kindKey, safetyKey } from '../lib/safety';
 import Carousel from '../components/Carousel.jsx';
@@ -22,6 +22,8 @@ const SELECT = `${BASE}, gear_type, sponsored_until`;
 const SELECT_EXTRA = `${SELECT}, unit, quantity, offer_days, product_type`;
 // video_path comes with migration 008
 const SELECT_VIDEO = `${SELECT_EXTRA}, video_path`;
+// price_currency comes with migration 017
+const SELECT_CURRENCY = `${SELECT_VIDEO}, price_currency`;
 
 // Admin only: put a listing in the sponsored strip of the home page (migration 003)
 function SponsorControls({ item, onChange }) {
@@ -61,7 +63,8 @@ export default function ListingDetail() {
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
-    let res = await supabase.from('listings').select(SELECT_VIDEO).eq('id', id).maybeSingle();
+    let res = await supabase.from('listings').select(SELECT_CURRENCY).eq('id', id).maybeSingle();
+    if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT_VIDEO).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT_EXTRA).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(SELECT).eq('id', id).maybeSingle();
     if (res.error && isMissingSchema(res.error)) res = await supabase.from('listings').select(BASE).eq('id', id).maybeSingle();
@@ -155,7 +158,8 @@ export default function ListingDetail() {
 
       <div className="sheet">
         <h1>{item.title}</h1>
-        <div className="big-price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd)}</div>
+        <div className="big-price">{isJob && item.price_dzd == null ? t('job.salary_open') : fmtPrice(item.price_dzd, item.price_currency)}</div>
+        {item.price_dzd >= 1e4 && <div className="muted small">{fmtPriceExact(item.price_dzd, item.price_currency)}</div>}
         <span className="where"><Icon name="pin" size={14} /> {wilayaName(item.wilayas)}</span>
 
         {item.video_path && (

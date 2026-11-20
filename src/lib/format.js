@@ -4,10 +4,8 @@ export const PHONE_RE = /^\+?[0-9]{8,15}$/;
 export const cleanPhone = (s) => String(s || '').trim().replace(/[\s-]/g, '');
 export const digits = (s) => String(s || '').replace(/\D/g, '');
 
-// The number sits in a left-to-right isolate (U+2066 ... U+2069) so Arabic text never reorders its digit groups
-// ("1 250 000 دج" used to render as "دج 000 250 1").
-export const fmtPrice = (p) =>
-  p == null ? t('price.negotiable') : `\u2066${Number(p).toLocaleString('fr-FR').replace(/[\u202f\u00a0]/g, ' ')}\u2069 ${t('price.currency')}`;
+// Prices (currency + short units k / M / mi) live in lib/price.js; re-exported here for the existing imports.
+export { fmtPrice, fmtPriceExact } from './price.js';
 
 export const fmtDate = (iso) => new Date(iso).toLocaleDateString(langInfo(getLang()).locale);
 
