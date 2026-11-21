@@ -3,7 +3,6 @@
 // To bring a branch back, just remove its slug from this list.
 export const HIDDEN_BRANCHES = [
   'wood_workshops', // ورشات الخشب ونجارة السفن
-  'parts_suppliers', // موردو قطع الغيار
   'naval_electrics', // merged into naval_mechanics (see MERGED_BRANCHES)
   'fishing_trips', // رحلات الصيد
   'jobs', // البحث عن عمل
