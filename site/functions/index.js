@@ -1,7 +1,7 @@
-import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, proImage, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
+import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
 
 // "/" — the static landing page with live sections filled in from the public views:
-// hero numbers, wilayas of the search box, sponsored ads, the six services with their counts, and the latest businesses.
+// hero numbers, wilayas of the search box, sponsored ads, and the six services with their counts.
 // Each part falls back on its own (the static block stays), and any failure returns the plain landing page untouched.
 
 const num = (n) => Number(n).toLocaleString('fr-FR').replace(/[  ]/g, ' ');
@@ -17,10 +17,9 @@ export async function onRequestGet(context) {
 
   return cached(context, '/__home', async () => {
     try {
-      const [cats, all, latest, ads, stats] = await Promise.all([
+      const [cats, all, ads, stats] = await Promise.all([
         rest(cfg, 'site_categories?select=slug,name_ar,name_fr,name_en,sort_order,active_count&order=section.asc,sort_order.asc&limit=40'),
         rest(cfg, 'site_pros?select=category_slug,wilaya_ar&limit=5000', 5000),
-        rest(cfg, 'site_pros?select=id,business_name,wilaya_ar,category_slug,cover_path,created_at&order=created_at.desc&limit=8'),
         rest(cfg, 'site_sponsored?select=id,title,price_dzd,price_currency,wilaya_ar,cover_path&order=published_at.desc&limit=8'),
         rest(cfg, 'rpc/site_stats'), // migration 016: users / live listings (counts only). Missing → those two numbers are hidden.
       ]);
@@ -73,22 +72,6 @@ export async function onRequestGet(context) {
         html = html.replace(
           '<!--MARSA_ADS-->',
           `<section style="padding-bottom:0"><div class="in"><div class="head"><div>${ml(['إعلانات مميّزة', 'Annonces à la une', 'Featured listings'], 'h2')}${mlc(['إعلانات مموّلة. افتح التطبيق للتواصل مع أصحابها.', 'Annonces sponsorisées. Ouvrez l’application pour contacter les annonceurs.', 'Sponsored listings. Open the app to contact the sellers.'], 'p', 'sub')}</div><a class="more" href="${APP}">${ml(['شوف كل الإعلانات', 'Voir toutes les annonces', 'See all listings'])}</a></div><div class="grid">${adCards}</div></div></section>`,
-        );
-      }
-
-      // ---- latest registered businesses ----
-      if (Array.isArray(latest) && latest.length) {
-        const byName = Object.fromEntries(cats.map((c) => [c.slug, categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en)]));
-        const cards = latest
-          .map((p) => {
-            const img = proImage(cfg, p.cover_path);
-            const place = [byName[p.category_slug] ? ml(byName[p.category_slug]) : '', p.wilaya_ar ? ml(wilayaNames(p.wilaya_ar)) : ''].filter(Boolean).join(' · ');
-            return `<a class="pc" href="/a/${esc(p.id)}"><div class="im"${img ? ` style="background-image:url('${esc(img)}')"` : ''}></div><div class="tx"><h3>${esc(clean(p.business_name, 60))}</h3><p>${place}</p></div></a>`;
-          })
-          .join('');
-        html = html.replace(
-          '<!--MARSA_LATEST-->',
-          `<section style="padding-top:0"><div class="in"><div class="head">${ml(['آخر الأنشطة المسجّلة', 'Dernières activités inscrites', 'Latest registered businesses'], 'h2')}</div><div class="grid">${cards}</div></div></section>`,
         );
       }
 
