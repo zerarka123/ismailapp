@@ -204,7 +204,9 @@ export function proCard(cfg, p) {
 // Caches the rendered page for 5 minutes at the edge, so new / stopped activities show up within minutes
 export async function cached(context, key, build) {
   const cache = caches.default;
-  const k = new Request(new URL(context.request.url).origin + key, { method: 'GET' });
+  // The deploy's commit is part of the key, so a new deploy never serves a page built by the previous one
+  const build_id = (context.env && (context.env.CF_PAGES_COMMIT_SHA || context.env.CF_PAGES_URL)) || '';
+  const k = new Request(new URL(context.request.url).origin + key + (key.includes('?') ? '&' : '?') + 'd=' + encodeURIComponent(build_id.slice(0, 12)), { method: 'GET' });
   const hit = await cache.match(k);
   if (hit) return hit;
   const res = await build();
