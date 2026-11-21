@@ -82,6 +82,7 @@ const CATEGORY_NAMES = {
   gear_shops: ['Magasins de matériel de pêche', 'Fishing gear shops'],
   inox_workshops: ['Ateliers inox', 'Stainless steel workshops'],
   cold_rooms: ['Chambres froides / Poissonnerie', 'Cold rooms / Fish market'],
+  parts_suppliers: ['Fournisseurs de pièces', 'Parts suppliers'],
   fishermen: ['Pêcheur', 'Fisherman'],
 };
 export function categoryNames(slug, ar, fr, en) {
@@ -186,13 +187,14 @@ export function htmlResponse(html, status = 200) {
 }
 
 // Card of one activity (used on the home page, the category page)
-// Icons of the six guide branches (same as the static cards of site/index.html)
+// Icons of the seven guide branches (same as the static cards of site/index.html)
 export const CAT_ICONS = {
   "fishermen": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z\"/><path d=\"M2 12l-0 0M6 9l-2-3M6 15l-2 3\"/><circle cx=\"16\" cy=\"11\" r=\"1\"/></svg>",
   "naval_mechanics": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1\"/></svg>",
   "gear_shops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9l1.5-5h15L21 9\"/><path d=\"M4 9v11h16V9\"/><path d=\"M3 9h18\"/><path d=\"M9 20v-6h6v6\"/></svg>",
   "cold_rooms": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7\"/><path d=\"M9 4l3 2 3-2M9 20l3-2 3 2\"/></svg>",
   "inox_workshops": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z\"/></svg>",
+  "parts_suppliers": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 8l-9-5-9 5 9 5 9-5z\"/><path d=\"M3 8v8l9 5 9-5V8\"/><path d=\"M12 13v8\"/></svg>",
   "shipyards": "<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 20h20\"/><path d=\"M4 16l2-6h12l2 6z\"/><path d=\"M12 10V4l5 3-5 0\"/></svg>"
 };
 

@@ -1,7 +1,7 @@
 import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
 
 // "/" — the static landing page with live sections filled in from the public views:
-// hero numbers, wilayas of the search box, sponsored ads, and the six services with their counts.
+// hero numbers, wilayas of the search box, sponsored ads, and the seven services with their counts.
 // Each part falls back on its own (the static block stays), and any failure returns the plain landing page untouched.
 
 const num = (n) => Number(n).toLocaleString('fr-FR').replace(/[  ]/g, ' ');
