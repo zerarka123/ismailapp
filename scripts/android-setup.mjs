@@ -14,7 +14,8 @@ run('npm', ['run', 'build']);
 if (!existsSync('android')) run('npx', ['cap', 'add', 'android']);
 // The icon / splash sources live in scripts/assets; @capacitor/assets reads them from ./assets
 if (!existsSync('assets') && existsSync('scripts/assets')) cpSync('scripts/assets', 'assets', { recursive: true });
-run('npx', ['capacitor-assets', 'generate', '--android']);
+// @capacitor/assets is not a project dependency: name the real package so npx never fetches a look-alike one
+run('npx', ['--yes', '@capacitor/assets', 'generate', '--android']);
 
 const version = JSON.parse(readFileSync('android-version.json', 'utf8'));
 const mPath = 'android/app/src/main/AndroidManifest.xml';
