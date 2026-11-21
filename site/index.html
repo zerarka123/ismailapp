@@ -177,6 +177,7 @@ dialog .x{float:inline-end;background:none;border:0;color:#eaf6ff;font-size:28px
 <option value="gear_shops" data-i18n="cat_gear_shops">محلات معدات الصيد</option>
 <option value="cold_rooms" data-i18n="cat_cold_rooms">غرف تبريد / مسمكة</option>
 <option value="inox_workshops" data-i18n="cat_inox_workshops">ورشات الإينوكس</option>
+<option value="parts_suppliers" data-i18n="cat_parts_suppliers">موردو قطع الغيار</option>
 <option value="shipyards" data-i18n="cat_shipyards">ورشات بناء وإصلاح السفن</option>
 </select></label>
 <label><span data-i18n="f_wilaya">الولاية</span>
@@ -196,7 +197,7 @@ dialog .x{float:inline-end;background:none;border:0;color:#eaf6ff;font-size:28px
 
 <section id="cats"><div class="in">
 <h2 data-i18n="cats_t">تصفّح حسب الخدمة</h2>
-<p class="sub" data-i18n="cats_p">ست خدمات بحرية، والأنشطة تتزاد كل يوم.</p>
+<p class="sub" data-i18n="cats_p">سبع خدمات بحرية، والأنشطة تتزاد كل يوم.</p>
 <!--MARSA_CATS-->
 <div class="grid cats">
 <a class="cat" href="/c/fishermen"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z"/><path d="M2 12l-0 0M6 9l-2-3M6 15l-2 3"/><circle cx="16" cy="11" r="1"/></svg></span><span><strong data-i18n="cat_fishermen">صيادون</strong></span></a>
@@ -204,6 +205,7 @@ dialog .x{float:inline-end;background:none;border:0;color:#eaf6ff;font-size:28px
 <a class="cat" href="/c/gear_shops"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></svg></span><span><strong data-i18n="cat_gear_shops">محلات معدات الصيد</strong></span></a>
 <a class="cat" href="/c/cold_rooms"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2"/></svg></span><span><strong data-i18n="cat_cold_rooms">غرف تبريد / مسمكة</strong></span></a>
 <a class="cat" href="/c/inox_workshops"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></span><span><strong data-i18n="cat_inox_workshops">ورشات الإينوكس</strong></span></a>
+<a class="cat" href="/c/parts_suppliers"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span><strong data-i18n="cat_parts_suppliers">موردو قطع الغيار</strong></span></a>
 <a class="cat" href="/c/shipyards"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 20h20"/><path d="M4 16l2-6h12l2 6z"/><path d="M12 10V4l5 3-5 0"/></svg></span><span><strong data-i18n="cat_shipyards">ورشات بناء وإصلاح السفن</strong></span></a>
 </div>
 <!--/MARSA_CATS-->
@@ -292,10 +294,10 @@ free_tag:['التسجيل ونشر الإعلانات مجانًا','Inscription
 h1:['كل خدمات البحر في الجزائر، في تطبيق واحد','Tous les services de la mer en Algérie, dans une seule application','Every sea service in Algeria, in one app'],
 lead:['لقى صياد، ميكانيكي، حرفي، محل معدات الصيد ولا غرفة تبريد قريبة منك، وتواصل معاه مباشرة.','Trouvez un pêcheur, un mécanicien, un artisan, un magasin de pêche ou une chambre froide près de chez vous, et contactez-le directement.','Find a fisherman, mechanic, craftsman, fishing-gear shop or cold room near you, and contact them directly.'],
 f_service:['واش تحوس؟','Que cherchez-vous ?','What are you looking for?'],f_pick:['اختار الخدمة','Choisir un service','Choose a service'],f_wilaya:['الولاية','Wilaya','Wilaya'],f_all_w:['كل الولايات','Toutes les wilayas','All wilayas'],f_go:['ابحث','Rechercher','Search'],
-cat_fishermen:['صيادون','Pêcheurs','Fishermen'],cat_naval_mechanics:['ميكانيك وكهرباء السفن','Mécanique et électricité navales','Marine mechanics & electrics'],cat_gear_shops:['محلات معدات الصيد','Magasins de matériel de pêche','Fishing gear shops'],cat_cold_rooms:['غرف تبريد / مسمكة','Chambres froides / Poissonnerie','Cold rooms / Fish market'],cat_inox_workshops:['ورشات الإينوكس','Ateliers inox','Stainless steel workshops'],cat_shipyards:['ورشات بناء وإصلاح السفن','Chantiers navals','Shipyards'],
+cat_fishermen:['صيادون','Pêcheurs','Fishermen'],cat_naval_mechanics:['ميكانيك وكهرباء السفن','Mécanique et électricité navales','Marine mechanics & electrics'],cat_gear_shops:['محلات معدات الصيد','Magasins de matériel de pêche','Fishing gear shops'],cat_cold_rooms:['غرف تبريد / مسمكة','Chambres froides / Poissonnerie','Cold rooms / Fish market'],cat_inox_workshops:['ورشات الإينوكس','Ateliers inox','Stainless steel workshops'],cat_parts_suppliers:['موردو قطع الغيار','Fournisseurs de pièces','Parts suppliers'],cat_shipyards:['ورشات بناء وإصلاح السفن','Chantiers navals','Shipyards'],
 activate:['سجّل نشاطك مجانًا','Inscrire mon activité gratuitement','Register your business for free'],
 hint:['اضغط على البحر باش تحرّك الموج.','Touchez la mer pour faire des vagues.','Tap the sea to make waves.'],
-cats_t:['تصفّح حسب الخدمة','Parcourir par service','Browse by service'],cats_p:['ست خدمات بحرية، والأنشطة تتزاد كل يوم.','Six services maritimes, avec de nouvelles activités chaque jour.','Six sea services, with new businesses every day.'],
+cats_t:['تصفّح حسب الخدمة','Parcourir par service','Browse by service'],cats_p:['سبع خدمات بحرية، والأنشطة تتزاد كل يوم.','Sept services maritimes, avec de nouvelles activités chaque jour.','Seven sea services, with new businesses every day.'],
 how_t:['كيفاش يخدم مرسى؟','Comment fonctionne Marsa ?','How does Marsa work?'],
 s1_t:['اختار الخدمة والولاية','Choisissez le service et la wilaya','Pick the service and wilaya'],s1_p:['صياد، ميكانيكي، حرفي، محل ولا غرفة تبريد.','Pêcheur, mécanicien, artisan, magasin ou chambre froide.','Fisherman, mechanic, craftsman, shop or cold room.'],
 s2_t:['شوف الأنشطة القريبة منك','Voyez les activités près de chez vous','See the businesses near you'],s2_p:['الصور، العنوان، والخدمات اللي يقدموها.','Photos, adresse et services proposés.','Photos, address and the services they offer.'],
