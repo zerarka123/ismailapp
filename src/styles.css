@@ -74,6 +74,11 @@ textarea.input { height: 110px; padding: 12px 16px; resize: vertical; }
 .needlogin { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; background: #fff; border-radius: 24px; padding: 28px 20px; box-shadow: var(--shadow); margin-top: 20px; }
 .needlogin .btn { width: auto; padding: 0 28px; }
 .box { background: #fff; border-radius: 20px; padding: 14px; margin-top: 12px; }
+.notify-prompt { border: 1.5px solid var(--line); }
+.np-head { display: flex; gap: 12px; align-items: flex-start; }
+.np-head p { margin: 4px 0 0; }
+.np-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--bg); color: var(--primary); display: grid; place-items: center; }
+.np-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .menu { display: flex; flex-direction: column; background: #fff; border-radius: 20px; overflow: hidden; margin-top: 14px; }
 .menu a, .menu button { display: flex; align-items: center; gap: 12px; padding: 15px 16px; border: 0; background: none; color: var(--ink); font-weight: 600; font-size: 15px; text-decoration: none; text-align: start; cursor: pointer; border-bottom: 1px solid #eef5fb; }
 .menu a:last-child, .menu button:last-child { border-bottom: 0; }

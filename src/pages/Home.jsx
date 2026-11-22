@@ -11,6 +11,7 @@ import Icon from '../components/Icon.jsx';
 import ListingCard from '../components/ListingCard.jsx';
 import ListingFeed from '../components/ListingFeed.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
+import NotifyPrompt from '../components/NotifyPrompt.jsx';
 import { listAnnouncements, readIds } from '../lib/announcements';
 import { getBoatTypes } from '../lib/refData';
 import SeaStrip from '../components/SeaStrip.jsx';
@@ -116,6 +117,8 @@ export default function Home() {
       {seaOpen && <SeaStrip wilayaId={profile?.wilaya_id ?? null} />}
 
       <Link to="/search" className="searchbox"><Icon name="search" color="#51708A" />{t('home.search_hint')}</Link>
+
+      <NotifyPrompt />
 
       <NewsStrip />
 
