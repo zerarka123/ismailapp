@@ -179,10 +179,19 @@ export function page({ title, titles, description, path, image, body, jsonld = '
 export const notFoundPage = (key = 'nf_t') =>
   htmlResponse(page({ title: T[key][0], titles: T[key], description: T.nf_p[0], path: '/', body: `${tr(key, 'h1')}${tr('nf_p', 'p')}<p><a class="btn" href="/">${tr('back_home')}</a></p>`, noindex: true }), 404);
 
+// Same protection headers as site/_headers (the _headers file does not apply to Functions responses)
+export const SECURITY_HEADERS = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
 export function htmlResponse(html, status = 200) {
   return new Response(html, {
     status,
-    headers: { 'content-type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=300' },
+    headers: { 'content-type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=300', ...SECURITY_HEADERS },
   });
 }
 
