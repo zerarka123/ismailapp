@@ -38,8 +38,9 @@ export default function UserProfile() {
         nav(`/pro/${pros[0].id}`, { replace: true });
         return;
       }
-      const { data } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle();
-      if (alive) setProfile(data ?? null);
+      // Only the public fields of another user (name, type, badge): phone and documents stay private (migration 022)
+      const { data } = await supabase.rpc('public_profile', { p_id: id });
+      if (alive) setProfile((Array.isArray(data) ? data[0] : data) ?? null);
     })();
 
     return () => {

@@ -1,4 +1,4 @@
-import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, supabaseConfig, wilayaNames } from './_lib/site.js';
+import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, SECURITY_HEADERS, supabaseConfig, wilayaNames } from './_lib/site.js';
 
 // "/" — the static landing page with live sections filled in from the public views:
 // hero numbers, wilayas of the search box, sponsored ads, and the seven services with their counts.
@@ -88,7 +88,7 @@ export async function onRequestGet(context) {
         ],
       });
       html = html.replace('</head>', `${jsonld}</head>`);
-      return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=300' } });
+      return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=300', ...SECURITY_HEADERS } });
     } catch {
       return base.clone();
     }
