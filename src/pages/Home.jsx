@@ -69,8 +69,9 @@ function SponsoredStrip() {
   );
 }
 
-// Home = Marsa open market only (boats, engines, fishing equipment). Workshops & pros live in the guides.
-export default function Home() {
+// Top of the home screen, shared by the market and the two guides (pages/HomePager.jsx): logo, language,
+// sea conditions, notifications and account. The sea strip opens right under it.
+export function HomeHeader() {
   const { user, profile } = useAuth();
   const { t } = useI18n();
   const { unread } = useNotifications();
@@ -85,16 +86,6 @@ export default function Home() {
       return !o;
     });
   }
-  const [types, setTypes] = useState([]);
-  const [chip, setChip] = useState('all'); // 'all' | 'engine' | 'equipment' | boat type id
-
-  useEffect(() => {
-    getBoatTypes().then(setTypes);
-  }, []);
-
-  const filters =
-    chip === 'all' ? { kinds: MARKET_KINDS } : chip === 'engine' || chip === 'equipment' ? { kind: chip } : { kind: 'boat', typeId: chip };
-
   return (
     <>
       <header className="head">
@@ -115,7 +106,25 @@ export default function Home() {
       </header>
 
       {seaOpen && <SeaStrip wilayaId={profile?.wilaya_id ?? null} />}
+    </>
+  );
+}
 
+// Home = Marsa open market only (boats, engines, fishing equipment). The two guides are one swipe away (HomePager).
+export default function Home() {
+  const { t } = useI18n();
+  const [types, setTypes] = useState([]);
+  const [chip, setChip] = useState('all'); // 'all' | 'engine' | 'equipment' | boat type id
+
+  useEffect(() => {
+    getBoatTypes().then(setTypes);
+  }, []);
+
+  const filters =
+    chip === 'all' ? { kinds: MARKET_KINDS } : chip === 'engine' || chip === 'equipment' ? { kind: chip } : { kind: 'boat', typeId: chip };
+
+  return (
+    <>
       <Link to="/search" className="searchbox"><Icon name="search" color="#51708A" />{t('home.search_hint')}</Link>
 
       <NotifyPrompt />
@@ -123,8 +132,8 @@ export default function Home() {
       <NewsStrip />
 
       <div className="shortcuts">
-        <Link to="/guide/marine" className="shortcut"><Icon name="compass" size={28} /><span>{t('guide.marine')}</span></Link>
-        <Link to="/guide/fisher" className="shortcut"><Icon name="anchor" size={28} /><span>{t('guide.fisher')}</span></Link>
+        <Link to="/?g=marine" className="shortcut"><Icon name="compass" size={28} /><span>{t('guide.marine')}</span></Link>
+        <Link to="/?g=fisher" className="shortcut"><Icon name="anchor" size={28} /><span>{t('guide.fisher')}</span></Link>
         <Link to="/fish" className="shortcut"><Icon name="fish" size={28} /><span>{t('fish.title')}</span></Link>
       </div>
 

@@ -7,6 +7,8 @@ import { wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone, isMissingSchema } from '../lib/format';
 import { getPosition } from '../lib/geo';
+import { publicUrl, removeFiles, uploadImages } from '../lib/images';
+import AvatarPicker from '../components/AvatarPicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import Icon from '../components/Icon.jsx';
 import { getWilayas } from '../lib/refData';
@@ -20,6 +22,7 @@ export default function EditBusiness() {
   const [f, setF] = useState(null);
   const [wilayas, setWilayas] = useState([]);
   const [geo, setGeo] = useState(null);
+  const [photo, setPhoto] = useState(null); // a new account photo { blob, url }, saved with the form
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -34,7 +37,7 @@ export default function EditBusiness() {
     (async () => {
       const { data: row } = await supabase
         .from('professional_profiles')
-        .select('id, business_name, description, wilaya_id, address, latitude, longitude')
+        .select('id, business_name, description, wilaya_id, address, latitude, longitude, professional_images(id, storage_path, sort_order)')
         .eq('owner_id', user.id)
         .maybeSingle();
       if (!alive) return;
@@ -59,6 +62,8 @@ export default function EditBusiness() {
   if (!user) return <NeedLogin text={t('reg.login')} />;
   if (pro === undefined) return <p className="muted center">{t('common.loading')}</p>;
   if (pro === null) return <Navigate to="/register-business" replace />;
+  const firstImage = [...(pro.professional_images || [])].sort((a, b) => a.sort_order - b.sort_order)[0];
+  const currentPhoto = firstImage ? publicUrl('pro-images', firstImage.storage_path) : null;
 
   async function locate() {
     setMsg(null);
@@ -78,6 +83,23 @@ export default function EditBusiness() {
     if (f.phone && !PHONE_RE.test(cleanPhone(f.phone))) return setMsg({ type: 'err', text: t('v.phone') });
     if (f.whatsapp && !PHONE_RE.test(cleanPhone(f.whatsapp))) return setMsg({ type: 'err', text: t('v.whatsapp') });
     setBusy(true);
+    // the account photo: upload the new one, put it in place of the old one, then delete the old file
+    if (photo) {
+      const uploaded = [];
+      try {
+        await uploadImages('pro-images', `${user.id}/${pro.id}`, [photo.blob], uploaded);
+        const old = [...(pro.professional_images || [])].sort((a, b) => a.sort_order - b.sort_order)[0];
+        const { error: pe } = old
+          ? await supabase.from('professional_images').update({ storage_path: uploaded[0] }).eq('id', old.id)
+          : await supabase.from('professional_images').insert({ professional_id: pro.id, storage_path: uploaded[0], sort_order: 0 });
+        if (pe) throw pe;
+        if (old) await removeFiles('pro-images', [old.storage_path]);
+      } catch (err) {
+        if (uploaded.length) await removeFiles('pro-images', uploaded);
+        setBusy(false);
+        return setMsg({ type: 'err', text: errorText(err) });
+      }
+    }
     const { error } = await supabase.rpc('update_my_professional', {
       p_business_name: n,
       p_description: f.description.trim().slice(0, 3000),
@@ -98,6 +120,7 @@ export default function EditBusiness() {
       <div className="topbar"><h2>{t('edit.business_title')}</h2></div>
       <p className="msg info">{t('edit.business_note')} <Link to="/support" className="linkbtn">{t('support.title')}</Link></p>
       <form onSubmit={save} noValidate>
+        <AvatarPicker value={photo} onChange={setPhoto} currentUrl={currentPhoto} />
         <div className="field"><label>{t('reg.name')}</label><input className="input" value={f.name} onChange={set('name')} maxLength={100} /></div>
         <div className="row2">
           <div className="field"><label>{t('field.wilaya')}</label>
