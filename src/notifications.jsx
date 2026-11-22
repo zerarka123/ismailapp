@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabase';
 import { useAuth } from './auth.jsx';
 import { t as tr, useI18n } from './i18n/index.jsx';
 import { categoryName } from './i18n/names.js';
 import { isMissingSchema } from './lib/format';
-import { isNative, registerNativePush, registerWebPush, showWebNotification } from './lib/push';
+import { isNative, registerNativePush, registerWebPush } from './lib/push';
 
 const Ctx = createContext({ unread: 0, available: true, refresh: () => {}, markAllRead: async () => {} });
 export const useNotifications = () => useContext(Ctx);
@@ -44,12 +44,10 @@ export function NotificationsProvider({ children }) {
   const nav = useNavigate();
   const [unread, setUnread] = useState(0);
   const [available, setAvailable] = useState(true);
-  const [toast, setToast] = useState(null);
-  const toastTimer = useRef(null);
 
   const refresh = useCallback(async () => {
     if (!user) return setUnread(0);
-    const { count, error } = await supabase.from('notifications').select('id', { count: 'exact', head: true }).is('read_at', null);
+    const { count, error } = await supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).is('read_at', null);
     if (error) {
       if (isMissingSchema(error)) setAvailable(false);
       return;
@@ -60,7 +58,7 @@ export function NotificationsProvider({ children }) {
 
   const markAllRead = useCallback(async () => {
     if (!user) return;
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).is('read_at', null);
+    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('user_id', user.id).is('read_at', null);
     setUnread(0);
   }, [user?.id]);
 
@@ -68,27 +66,23 @@ export function NotificationsProvider({ children }) {
     refresh();
   }, [refresh]);
 
-  // Live: a new row for this user arrives through Supabase Realtime
+  // Bell count without Supabase Realtime (Realtime checked every new row for every open app, which made the whole
+  // app slow each time an ad notified hundreds of users). The count is re-read when the app comes back to the screen,
+  // every 3 minutes while it is visible, and as soon as the service worker receives a push (message below).
   useEffect(() => {
     if (!user || !available) return undefined;
-    const channel = supabase
-      .channel(`notifications-${user.id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, async ({ new: row }) => {
-        setUnread((u) => u + 1);
-        const { title, body } = notificationText(row);
-        // Hidden tab / installed PWA: system notification. Visible: small in-app banner.
-        const shown = document.visibilityState === 'hidden' && (await showWebNotification(title, body, row.path));
-        if (!shown) {
-          setToast({ title, body, path: row.path });
-          clearTimeout(toastTimer.current);
-          toastTimer.current = setTimeout(() => setToast(null), 6000);
-        }
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
+    const onShow = () => {
+      if (document.visibilityState === 'visible') refresh();
     };
-  }, [user?.id, available]);
+    document.addEventListener('visibilitychange', onShow);
+    window.addEventListener('focus', onShow);
+    const timer = setInterval(onShow, 3 * 60 * 1000);
+    return () => {
+      document.removeEventListener('visibilitychange', onShow);
+      window.removeEventListener('focus', onShow);
+      clearInterval(timer);
+    };
+  }, [user?.id, available, refresh]);
 
   // Android: register this device with Firebase once signed in
   useEffect(() => {
@@ -103,34 +97,22 @@ export function NotificationsProvider({ children }) {
     supabase.from('profiles').update({ preferred_lang: lang }).eq('id', user.id).then(() => {});
   }, [user?.id, profile, lang]);
 
-  // Clicking a web notification: the service worker posts the path back
+  // Messages from the service worker: a push arrived, or a notification was clicked (it posts the path back)
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return undefined;
     const onMsg = (e) => {
+      if (e.data?.type === 'marsa-push') refresh(); // a push just arrived: update the bell
       if (e.data?.type === 'marsa-open' && typeof e.data.path === 'string' && e.data.path.startsWith('/')) nav(e.data.path);
     };
     navigator.serviceWorker.addEventListener('message', onMsg);
     return () => navigator.serviceWorker.removeEventListener('message', onMsg);
-  }, [nav]);
+  }, [nav, refresh]);
 
   const value = useMemo(() => ({ unread, available, refresh, markAllRead }), [unread, available, refresh, markAllRead]);
 
   return (
     <Ctx.Provider value={value}>
       {children}
-      {toast && (
-        <button
-          type="button"
-          className="toast"
-          onClick={() => {
-            setToast(null);
-            if (toast.path) nav(toast.path);
-          }}
-        >
-          <b>🔔 {toast.title}</b>
-          {toast.body && <span>{toast.body}</span>}
-        </button>
-      )}
     </Ctx.Provider>
   );
 }

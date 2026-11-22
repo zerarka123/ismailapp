@@ -22,8 +22,11 @@ self.addEventListener('push', (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch (e) { d = {}; }
   const title = d.title || 'Marsa';
-  event.waitUntil(
-    self.registration.showNotification(title, {
+  // tell the open app (if any) to update its bell count
+  const tellApp = self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then((list) => list.forEach((c) => c.postMessage({ type: 'marsa-push' })))
+    .catch(() => {});
+  event.waitUntil(Promise.all([tellApp, self.registration.showNotification(title, {
       body: d.body || '',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
@@ -31,6 +34,5 @@ self.addEventListener('push', (event) => {
       data: { path: d.path || '/' },
       // admin announcements may carry a picture (shown by Chrome / Android browsers, ignored elsewhere)
       ...(typeof d.image === 'string' && d.image.startsWith('https://') ? { image: d.image } : {}),
-    })
-  );
+    })]));
 });
