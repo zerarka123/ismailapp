@@ -5,13 +5,12 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
-import { MAX_IMAGES } from '../config';
 import { BRANCHES_BY_KIND as CATS, REGISTERABLE_KINDS, proKindLabel } from '../lib/accountTypes';
 import SupportLinks from '../components/SupportLinks.jsx';
 import { PHONE_RE, cleanPhone } from '../lib/format';
 import { removeFiles, uploadImages } from '../lib/images';
 import { getPosition } from '../lib/geo';
-import ImagePicker from '../components/ImagePicker.jsx';
+import AvatarPicker from '../components/AvatarPicker.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import Icon from '../components/Icon.jsx';
 import { getWilayas } from '../lib/refData';
@@ -24,7 +23,7 @@ export default function ProRegister() {
   const [existing, setExisting] = useState(undefined);
   const [cats, setCats] = useState([]);
   const [wilayas, setWilayas] = useState([]);
-  const [images, setImages] = useState([]);
+  const [photo, setPhoto] = useState(null); // the one account photo: { blob, url }
   const [f, setF] = useState({ type: '', cat: '', name: '', wilayaId: '', address: '', description: '', phone: '', whatsapp: '' });
   const [geo, setGeo] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -95,7 +94,7 @@ export default function ProRegister() {
     if (!f.wilayaId) return t('v.wilaya');
     if (!PHONE_RE.test(cleanPhone(f.phone))) return t('v.phone');
     if (f.whatsapp && !PHONE_RE.test(cleanPhone(f.whatsapp))) return t('v.whatsapp');
-    if (images.length < 1) return t('v.one_image');
+    if (!photo) return t('reg.v_photo');
     return null;
   }
 
@@ -125,7 +124,7 @@ export default function ProRegister() {
         .single();
       if (error) throw error;
       proId = row.id;
-      await uploadImages('pro-images', `${user.id}/${proId}`, images.map((i) => i.blob), uploaded);
+      await uploadImages('pro-images', `${user.id}/${proId}`, [photo.blob], uploaded);
       const { error: e2 } = await supabase.from('professional_images').insert(uploaded.map((p, i) => ({ professional_id: proId, storage_path: p, sort_order: i })));
       if (e2) throw e2;
       const { error: e3 } = await supabase.from('professional_contacts').insert({ professional_id: proId, phone: cleanPhone(f.phone), whatsapp: f.whatsapp ? cleanPhone(f.whatsapp) : null });
@@ -144,6 +143,7 @@ export default function ProRegister() {
       <div className="topbar"><h2>{t('guide.register')}</h2></div>
       <p className="msg info">{t('reg.intro')}</p>
       <form onSubmit={submit} noValidate>
+        <AvatarPicker value={photo} onChange={setPhoto} />
         <div className="field"><label>{t('reg.type')}</label>
           <select className="input" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value, cat: '' })}>
             <option value="">{t('common.choose')}</option>
@@ -168,8 +168,6 @@ export default function ProRegister() {
         </div>
         <button type="button" className="btn alt" onClick={locate} style={{ marginBottom: 14 }}><Icon name="pin" />{geo ? t('reg.located') : t('reg.locate')}</button>
         <div className="field"><label>{t('reg.description')}</label><textarea className="input" value={f.description} onChange={set('description')} maxLength={3000} /></div>
-        <div className="section-title">{t('sell.photos')}</div>
-        <ImagePicker images={images} setImages={setImages} max={MAX_IMAGES} />
         <div className="section-title">{t('field.contacts')}</div>
         <p className="muted small">{t('reg.contacts_note')}</p>
         <div className="row2">

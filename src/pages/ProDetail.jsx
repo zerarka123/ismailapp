@@ -1,6 +1,6 @@
 import { goBack } from '../lib/goBack.js';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
@@ -9,23 +9,25 @@ import { errorText } from '../errors';
 import { mapsLink, mapsSearchLink, telLink, waLink } from '../lib/format';
 import { publicUrl } from '../lib/images';
 import { isLivePro, proKindLabel } from '../lib/accountTypes';
-import Carousel from '../components/Carousel.jsx';
 import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
 import ProfileTabs from '../components/ProfileTabs.jsx';
+import { Avatar, fmtKm } from '../components/GuideFeed.jsx';
 import ShareButton from '../components/ShareButton.jsx';
 import { trackContact, trackView } from '../lib/analytics';
 
 const SELECT =
   'id, owner_id, pro_type, badge_verified, business_name, description, address, latitude, longitude, status, subscription_ends_at, wilayas(*), guide_categories(*), professional_images(storage_path, sort_order)';
 
-// Portfolio page of one account in a guide branch: photos & videos of its work, its products,
-// quick contact (call / WhatsApp), location (wilaya + port/address) and activity status.
+// Page of one account of the guides: round account photo and details, call / WhatsApp with the number shown
+// (to signed-in users, as before), the location opening Google Maps, then its gallery (work, products & services)
+// and its products. Opened from the guide feed, it also shows the distance when the visitor used "near me".
 export default function ProDetail() {
   const { id } = useParams();
   const nav = useNavigate();
   const { user } = useAuth();
   const { t } = useI18n();
+  const { state } = useLocation();
   const [item, setItem] = useState(undefined);
   const [contact, setContact] = useState(undefined);
   const [reportOpen, setReportOpen] = useState(false);
@@ -66,7 +68,9 @@ export default function ProDetail() {
       </div>
     );
 
-  const urls = [...item.professional_images].sort((a, b) => a.sort_order - b.sort_order).map((i) => publicUrl('pro-images', i.storage_path));
+  const first = [...(item.professional_images || [])].sort((a, b) => a.sort_order - b.sort_order)[0];
+  const photoUrl = first ? publicUrl('pro-images', first.storage_path) : null;
+  const distance = typeof state?.km === 'number' && Number.isFinite(state.km) ? state.km : null;
   const here = `/pro/${item.id}`;
   const loginHere = `/login?next=${encodeURIComponent(here)}`;
   const mine = user?.id === item.owner_id;
@@ -90,56 +94,65 @@ export default function ProDetail() {
     setReason('');
   }
 
-  // Quick actions: visitors are sent to login first (contacts are visible to signed-in users only)
-  const callBtn = !user ? (
-    <Link className="qa" to={loginHere}><Icon name="phone" />{t('contact.call')}</Link>
-  ) : contact?.phone ? (
-    <a className="qa" href={telLink(contact.phone)} onClick={onCall('pro_quick')}><Icon name="phone" />{t('contact.call')}</a>
-  ) : (
-    <span className="qa off"><Icon name="phone" />{t('contact.call')}</span>
-  );
+  // Contact rows: visitors are sent to login first (numbers are visible to signed-in users only)
   const waNumber = contact?.whatsapp || contact?.phone;
-  const waBtn = !user ? (
-    <Link className="qa wa" to={loginHere}><Icon name="chat" />{t('contact.whatsapp')}</Link>
-  ) : waNumber ? (
-    <a className="qa wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer" onClick={onWa('pro_quick')}><Icon name="chat" />{t('contact.whatsapp')}</a>
-  ) : (
-    <span className="qa wa off"><Icon name="chat" />{t('contact.whatsapp')}</span>
-  );
+  const row = (cls, icon, label, value, props) => {
+    const inner = (
+      <>
+        <span aria-hidden="true"><Icon name={icon} /></span>
+        <span className="pd-text"><b>{label}</b><small>{/\d/.test(value || '') ? <bdi dir="ltr">{value}</bdi> : value}</small></span>
+      </>
+    );
+    if (props === null) return <div className={`pd-row ${cls} off`}>{inner}</div>;
+    if (props.to) return <Link className={`pd-row ${cls}`} to={props.to}>{inner}</Link>;
+    return <a className={`pd-row ${cls}`} {...props}>{inner}</a>;
+  };
+  const callRow = !user
+    ? row('', 'phone', t('contact.call'), t('pro.login_to_see'), { to: loginHere })
+    : contact?.phone
+      ? row('', 'phone', t('contact.call'), contact.phone, { href: telLink(contact.phone), onClick: onCall('pro_quick') })
+      : row('', 'phone', t('contact.call'), contact === undefined ? t('contact.loading') : t('pro.no_number'), null);
+  const waRow = !user
+    ? row('wa', 'chat', t('contact.whatsapp'), t('pro.login_to_see'), { to: loginHere })
+    : waNumber
+      ? row('wa', 'chat', t('contact.whatsapp'), waNumber, { href: waLink(waNumber, waText), target: '_blank', rel: 'noopener noreferrer', onClick: onWa('pro_quick') })
+      : row('wa', 'chat', t('contact.whatsapp'), contact === undefined ? t('contact.loading') : t('pro.no_number'), null);
 
   return (
     <>
-      <div className="detail-top">
+      <div className="pd-top">
         <button className="iconbtn" onClick={() => goBack(nav)} aria-label={t('common.back')}><Icon name="back" /></button>
         <ShareButton path={here} title={item.business_name} solo />
-        <Carousel urls={urls} />
       </div>
-      <div className="sheet">
-        <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {item.business_name}
-          {item.badge_verified && <VerifiedBadge size={22} />}
-        </h1>
-        <div className="pro-badges">
-          <span className={`pill ${live ? 'ok' : 'warn'}`}>● {live ? t('pro.status_active') : t('pro.status_inactive')}</span>
-          {item.badge_verified && <span className="pill">{t('badge.verified')}</span>}
-          <span className="pill">{categoryName(item.guide_categories)}</span>
-          {item.pro_type && <span className="pill">{proKindLabel(item.pro_type)}</span>}
+      <section className="pd-card">
+        <div className="pd-id">
+          <Avatar url={photoUrl} name={item.business_name} size={76} />
+          <div className="gf-info">
+            <h1 dir="auto">{item.business_name}{item.badge_verified && <VerifiedBadge size={20} />}</h1>
+            <span className="gf-meta">
+              <span className="gf-branch">{categoryName(item.guide_categories)}</span>
+              {place && <span className="gf-where"><Icon name="pin" size={13} />{place}</span>}
+              {distance != null && <span className="gf-km">{t('gf.km_from_you', { n: fmtKm(distance) })}</span>}
+            </span>
+            <div className="pro-badges">
+              <span className={`pill ${live ? 'ok' : 'warn'}`}>● {live ? t('pro.status_active') : t('pro.status_inactive')}</span>
+              {item.badge_verified && <span className="pill">{t('badge.verified')}</span>}
+              {item.pro_type && <span className="pill">{proKindLabel(item.pro_type)}</span>}
+            </div>
+          </div>
         </div>
-        <span className="where"><Icon name="pin" size={14} /> {place}</span>
-
-        <div className="quick-actions">
-          {callBtn}
-          {waBtn}
-          <a className="qa loc" href={mapHref} target="_blank" rel="noopener noreferrer"><Icon name="pin" />{t('contact.location')}</a>
+        {item.description && <p className="pd-desc" dir="auto">{item.description}</p>}
+        <div className="pd-contacts">
+          {callRow}
+          {waRow}
+          <a className="pd-row loc" href={mapHref} target="_blank" rel="noopener noreferrer">
+            <span aria-hidden="true"><Icon name="pin" /></span>
+            <span className="pd-text"><b>{t('pro.location_map')}</b><small>{t('pro.on_maps')}</small></span>
+            <Icon name="external" size={20} color="#0a6eb4" />
+          </a>
         </div>
-        {user && contact === null && <p className="muted small center">{t('contact.none')}</p>}
-
-        <div className="loc-card">
-          <div><small>{t('field.wilaya')}</small><b>{wilayaName(item.wilayas) || '—'}</b></div>
-          <div><small>{t('field.port_address')}</small><b>{item.address || '—'}</b></div>
-        </div>
-
-        {item.description && <p className="desc">{item.description}</p>}
+      </section>
+      <div>
         {msg && <p className={`msg ${msg.type}`} style={{ marginTop: 12 }}>{msg.text}</p>}
         {user && !mine && !reportOpen && (
           <button className="linkbtn" style={{ marginTop: 14 }} onClick={() => setReportOpen(true)}><Icon name="flag" size={14} /> {t('report.business')}</button>
@@ -158,32 +171,12 @@ export default function ProDetail() {
         <ProfileTabs ownerId={item.owner_id} professionalId={item.id} showPortfolio />
       </div>
 
-      <div className="cta">
-        {mine ? (
-          <>
-            <Link className="btn" to="/edit-business"><Icon name="edit" color="#fff" />{t('edit.business_btn')}</Link>
-            <Link className="btn alt" to="/portfolio"><Icon name="image" />{t('pro.manage_mine')}</Link>
-          </>
-        ) : !user ? (
-          <>
-            <Link className="btn" to={loginHere}><Icon name="phone" color="#fff" />{t('contact.contact')}</Link>
-            <p className="note">{t('contact.login_needed')}</p>
-          </>
-        ) : contact === undefined ? (
-          <p className="note">{t('contact.loading')}</p>
-        ) : contact === null ? (
-          <p className="note">{t('contact.none')}</p>
-        ) : (
-          <>
-            {contact.phone && (
-              <a className="btn" href={telLink(contact.phone)} onClick={onCall('pro_page')}><Icon name="phone" color="#fff" />{t('contact.call')}</a>
-            )}
-            {waNumber && (
-              <a className="btn wa" href={waLink(waNumber, waText)} target="_blank" rel="noopener noreferrer" onClick={onWa('pro_page')}><Icon name="chat" color="#fff" />{t('contact.whatsapp')}</a>
-            )}
-          </>
-        )}
-      </div>
+      {mine && (
+        <div className="cta">
+          <Link className="btn" to="/edit-business"><Icon name="edit" color="#fff" />{t('edit.business_btn')}</Link>
+          <Link className="btn alt" to="/portfolio"><Icon name="image" />{t('pro.manage_mine')}</Link>
+        </div>
+      )}
     </>
   );
 }

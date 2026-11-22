@@ -16,7 +16,7 @@ const C = { blue: '#0a6eb8', navy: '#0f2a44', muted: '#5b7488', line: '#cfe6f5',
 const MAX_SIZE = 50 * 1024 * 1024; // 50 MB (Supabase Free plan limit)
 const MAX_SECONDS = 40; // short clips only
 const MAX_VIDEOS = 20;
-const MAX_PHOTOS = 30; // same limit as the portfolio_photos trigger (migration 003)
+const MAX_PHOTOS = 20; // same limit as the portfolio_photos trigger (migration 021)
 
 const input = {
   width: '100%',

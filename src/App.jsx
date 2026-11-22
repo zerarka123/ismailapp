@@ -1,11 +1,11 @@
 import { Component, Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FavoritesProvider } from './favorites.jsx';
 import { I18nProvider, useI18n } from './i18n/index.jsx';
 import { NotificationsProvider } from './notifications.jsx';
 import Icon from './components/Icon.jsx';
-import Home from './pages/Home.jsx';
+import HomePager from './pages/HomePager.jsx';
 import ListingDetail from './pages/ListingDetail.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import AnnouncementGate from './components/AnnouncementGate.jsx';
@@ -54,7 +54,6 @@ const Favorites = page(() => import('./pages/Favorites.jsx'));
 const Account = page(() => import('./pages/Account.jsx'));
 const Login = page(() => import('./pages/Login.jsx'));
 const ResetPassword = page(() => import('./pages/ResetPassword.jsx'));
-const GuideSection = page(() => import('./pages/GuideSection.jsx'));
 const GuideList = page(() => import('./pages/GuideList.jsx'));
 const ProDetail = page(() => import('./pages/ProDetail.jsx'));
 const ProRegister = page(() => import('./pages/ProRegister.jsx'));
@@ -103,6 +102,12 @@ function useUsageTracking(ready, userId) {
   }, [ready, userId]);
 }
 
+// The two guides now live on the home screen (swipe or the bar under the header): old links still work
+function GuideRedirect() {
+  const { section } = useParams();
+  return <Navigate to={section === 'marine' || section === 'fisher' ? `/?g=${section}` : '/'} replace />;
+}
+
 function Shell() {
   const { loading, recovery, user } = useAuth();
   const { t } = useI18n();
@@ -125,7 +130,7 @@ function Shell() {
         <PageBoundary pathname={pathname} text={t('common.load_failed')} retry={t('common.retry')}>
         <Suspense fallback={waiting}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePager />} />
           <Route path="/fish" element={<FishMarket />} />
           <Route path="/fish/today" element={<FishToday />} />
           <Route path="/fish/post" element={<FishPost />} />
@@ -144,7 +149,7 @@ function Shell() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/guide/:section" element={<GuideSection />} />
+          <Route path="/guide/:section" element={<GuideRedirect />} />
           <Route path="/guide/:section/:slug" element={<GuideList />} />
           <Route path="/pro/:id" element={<ProDetail />} />
           <Route path="/register-business" element={<ProRegister />} />
