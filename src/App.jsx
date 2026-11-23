@@ -56,6 +56,7 @@ const Login = page(() => import('./pages/Login.jsx'));
 const ResetPassword = page(() => import('./pages/ResetPassword.jsx'));
 const GuideList = page(() => import('./pages/GuideList.jsx'));
 const ProDetail = page(() => import('./pages/ProDetail.jsx'));
+const SponsorPage = page(() => import('./pages/SponsorPage.jsx'));
 const ProRegister = page(() => import('./pages/ProRegister.jsx'));
 const Admin = page(() => import('./pages/Admin.jsx'));
 const Legal = page(() => import('./pages/Legal.jsx'));
@@ -152,6 +153,7 @@ function Shell() {
           <Route path="/guide/:section" element={<GuideRedirect />} />
           <Route path="/guide/:section/:slug" element={<GuideList />} />
           <Route path="/pro/:id" element={<ProDetail />} />
+          <Route path="/sponsor/:id" element={<SponsorPage />} />
           <Route path="/register-business" element={<ProRegister />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/badges" element={<Navigate to="/admin" replace />} />

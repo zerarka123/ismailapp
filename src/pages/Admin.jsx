@@ -15,6 +15,7 @@ import AdminSocial from '../components/AdminSocial.jsx';
 import AdminAnnouncements from '../components/AdminAnnouncements.jsx';
 import AdminListings from '../components/AdminListings.jsx';
 import AdminStats from '../components/AdminStats.jsx';
+import AdminSponsors from '../components/AdminSponsors.jsx';
 import { getWilayas, getGuideCategories } from '../lib/refData';
 
 const TONE = { pending: 'warn', active: 'ok', suspended: 'bad' };
@@ -210,7 +211,8 @@ export default function Admin() {
         <button className={`btn sm ${tab === 'social' ? '' : 'alt'}`} onClick={() => setTab('social')}>{t('admin.tab_social')}</button>
         <button className={`btn sm seg-wide ${tab === 'listings' ? '' : 'alt'}`} onClick={() => setTab('listings')}>🗂 {t('adl.tab')}</button>
         <button className={`btn sm seg-wide ${tab === 'announce' ? '' : 'alt'}`} onClick={() => setTab('announce')}>📣 {t('ann.admin_tab')}</button>
-        <button className={`btn sm seg-wide ${tab === 'stats' ? '' : 'alt'}`} onClick={() => setTab('stats')}>📊 {t('st.tab')}</button>
+        <button className={`btn sm ${tab === 'sponsors' ? '' : 'alt'}`} onClick={() => setTab('sponsors')}>🏭 {t('sp.tab')}</button>
+        <button className={`btn sm ${tab === 'stats' ? '' : 'alt'}`} onClick={() => setTab('stats')}>📊 {t('st.tab')}</button>
       </div>
       {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
 
@@ -287,6 +289,8 @@ export default function Admin() {
       {tab === 'announce' && <AdminAnnouncements />}
 
       {tab === 'stats' && <AdminStats />}
+
+      {tab === 'sponsors' && <AdminSponsors />}
 
       {tab === 'sponsored' && (
         <>
