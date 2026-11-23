@@ -508,3 +508,8 @@ html, body { overscroll-behavior-x: none; }
 .sp-offer-row { background: #f8fbfe; border-radius: 14px; padding: 10px; }
 .sp-offer-line { display: flex; align-items: center; gap: 10px; }
 .sp-thumb { flex: none; width: 56px; height: 56px; border-radius: 12px; background: #dcefff center / cover no-repeat; }
+
+/* iPhone (Safari) gives date fields a wide minimum size: they overflowed the two-column rows */
+.row2 > * { min-width: 0; }
+input[type='date'].input { display: block; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; line-height: 52px; }
+input[type='date'].input::-webkit-date-and-time-value { text-align: start; }
