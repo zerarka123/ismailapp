@@ -5,21 +5,20 @@ import { useI18n } from '../i18n/index.jsx';
 import { wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone, fmtDate, fmtPrice } from '../lib/format';
-import { parsePrice, splitPrice } from '../lib/price';
 import { prepareImage } from '../lib/images';
 import { getWilayas } from '../lib/refData';
 import {
-  MAX_OFFER_IMAGES,
   adminListSponsors,
   clearSponsorsCache,
   removeSponsorImages,
   sponsorImage,
+  sponsorLogo,
   sponsorState,
   uploadSponsorImages,
 } from '../lib/sponsors';
 import Icon from './Icon.jsx';
-import ImagePicker from './ImagePicker.jsx';
-import PriceInput from './PriceInput.jsx';
+import SponsorOfferForm from './SponsorOfferForm.jsx';
+import AdminMarineCompanies from './AdminMarineCompanies.jsx';
 import { Avatar } from './GuideFeed.jsx';
 
 const DAY = 86400000;
@@ -64,6 +63,7 @@ function SponsorForm({ s, wilayas, onDone, onCancel }) {
     end: s ? toDateInput(s.ends_at) : toDateInput(Date.now() + 30 * DAY),
     order: s ? String(s.sort_order ?? 0) : '0',
     active: s ? !!s.is_active : true,
+    quota: s ? String(s.max_offers ?? 0) : '0',
   });
   const [logo, setLogo] = useState(null); // { blob, url } of a new logo
   const [busy, setBusy] = useState(false);
@@ -111,6 +111,7 @@ function SponsorForm({ s, wilayas, onDone, onCancel }) {
         ends_at: endOfDay(f.end).toISOString(),
         sort_order: Number.parseInt(f.order, 10) || 0,
         is_active: f.active,
+        max_offers: Math.min(50, Math.max(0, Number.parseInt(f.quota, 10) || 0)),
         ...(newLogo ? { logo_path: newLogo } : {}),
       };
       const { error } = s ? await supabase.from('sponsors').update(row).eq('id', s.id) : await supabase.from('sponsors').insert(row);
@@ -125,7 +126,7 @@ function SponsorForm({ s, wilayas, onDone, onCancel }) {
     onDone();
   }
 
-  const logoUrl = logo?.url || sponsorImage(s?.logo_path);
+  const logoUrl = logo?.url || sponsorLogo(s);
   return (
     <form onSubmit={save} className="edit-form sp-form" noValidate>
       <div className="sp-logo-pick">
@@ -138,6 +139,7 @@ function SponsorForm({ s, wilayas, onDone, onCancel }) {
         </div>
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={pickLogo} />
       </div>
+      {s?.professional_profiles && <p className="muted small">{t('sp.linked_to', { name: s.professional_profiles.business_name })}</p>}
       <div className="field"><label>{t('sp.f_name')}</label><input className="input" value={f.name} onChange={set('name')} maxLength={100} /></div>
       <div className="field"><label>{t('sp.f_tagline')}</label><input className="input" value={f.tagline} onChange={set('tagline')} maxLength={140} placeholder={t('sp.f_tagline_ph')} /></div>
       <div className="field"><label>{t('sp.f_description')}</label><textarea className="input" value={f.description} onChange={set('description')} maxLength={3000} /></div>
@@ -160,93 +162,10 @@ function SponsorForm({ s, wilayas, onDone, onCancel }) {
       </div>
       <div className="row2">
         <div className="field"><label>{t('sp.f_order')}</label><input className="input" dir="ltr" inputMode="numeric" value={f.order} onChange={(e) => setF({ ...f, order: e.target.value.replace(/[^\d-]/g, '') })} /></div>
-        <label className="sp-check"><input type="checkbox" checked={f.active} onChange={(e) => setF({ ...f, active: e.target.checked })} /> {t('sp.f_active')}</label>
+        <div className="field"><label>{t('sp.f_quota')}</label><input className="input" dir="ltr" inputMode="numeric" value={f.quota} onChange={(e) => setF({ ...f, quota: e.target.value.replace(/\D/g, '').slice(0, 2) })} /></div>
       </div>
-      {err && <p className="msg err">{err}</p>}
-      <div className="row2">
-        <button className="btn sm" disabled={busy}>{busy ? t('common.wait') : t('common.save')}</button>
-        <button type="button" className="btn alt sm" onClick={onCancel}>{t('common.cancel')}</button>
-      </div>
-    </form>
-  );
-}
-
-// ---------- offer form ----------
-function OfferForm({ sponsorId, o, onDone, onCancel }) {
-  const { t } = useI18n();
-  const currency = o?.price_currency || 'DZD';
-  const sp = splitPrice(o?.price_dzd ?? null, currency);
-  const [f, setF] = useState({
-    title: o?.title || '',
-    description: o?.description || '',
-    price: sp.text,
-    priceUnit: sp.unit,
-    currency,
-    length: o?.length_m != null ? String(o.length_m) : '',
-    engine: o?.engine || '',
-    active: o ? !!o.is_active : true,
-    order: o ? String(o.sort_order ?? 0) : '0',
-  });
-  const [images, setImages] = useState(() => (o?.images || []).map((p) => ({ id: p, path: p, url: sponsorImage(p) })));
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState(null);
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-
-  async function save(e) {
-    e.preventDefault();
-    setErr(null);
-    const title = f.title.trim();
-    if (title.length < 2 || title.length > 100) return setErr(t('sp.v_title'));
-    const price = parsePrice(f.price, f.priceUnit, f.currency);
-    if (Number.isNaN(price)) return setErr(t('sell.v_price'));
-    const length = f.length.trim() ? Number(f.length.replace(',', '.')) : null;
-    if (length != null && !(length > 0 && length <= 200)) return setErr(t('sp.v_length'));
-    setBusy(true);
-    let uploaded = [];
-    try {
-      const fresh = images.filter((im) => im.blob);
-      uploaded = fresh.length ? await uploadSponsorImages(fresh.map((im) => im.blob)) : [];
-      let k = 0;
-      const paths = images.map((im) => (im.blob ? uploaded[k++] : im.path));
-      const row = {
-        sponsor_id: sponsorId,
-        title,
-        description: f.description.trim().slice(0, 2000) || null,
-        price_dzd: price,
-        price_currency: f.currency,
-        length_m: length,
-        engine: f.engine.trim().slice(0, 100) || null,
-        images: paths,
-        is_active: f.active,
-        sort_order: Number.parseInt(f.order, 10) || 0,
-      };
-      const { error } = o ? await supabase.from('sponsor_offers').update(row).eq('id', o.id) : await supabase.from('sponsor_offers').insert(row);
-      if (error) throw error;
-      const removed = (o?.images || []).filter((p) => !paths.includes(p));
-      if (removed.length) await removeSponsorImages(removed);
-    } catch (x) {
-      if (uploaded.length) await removeSponsorImages(uploaded);
-      setBusy(false);
-      return setErr(errorText(x));
-    }
-    setBusy(false);
-    onDone();
-  }
-
-  return (
-    <form onSubmit={save} className="edit-form sp-form" noValidate>
-      <ImagePicker images={images} setImages={setImages} max={MAX_OFFER_IMAGES} />
-      <div className="field"><label>{t('sp.o_title')}</label><input className="input" value={f.title} onChange={set('title')} maxLength={100} placeholder={t('sp.o_title_ph')} /></div>
-      <PriceInput value={f} onChange={(v) => setF({ ...f, ...v })} />
-      <div className="row2">
-        <div className="field"><label>{t('sp.o_length')}</label><input className="input" dir="ltr" inputMode="decimal" value={f.length} onChange={set('length')} maxLength={6} /></div>
-        <div className="field"><label>{t('sp.o_engine')}</label><input className="input" value={f.engine} onChange={set('engine')} maxLength={100} /></div>
-      </div>
-      <div className="field"><label>{t('sp.o_description')}</label><textarea className="input" value={f.description} onChange={set('description')} maxLength={2000} /></div>
-      <div className="row2">
-        <div className="field"><label>{t('sp.f_order')}</label><input className="input" dir="ltr" inputMode="numeric" value={f.order} onChange={(e) => setF({ ...f, order: e.target.value.replace(/[^\d-]/g, '') })} /></div>
-        <label className="sp-check"><input type="checkbox" checked={f.active} onChange={(e) => setF({ ...f, active: e.target.checked })} /> {t('sp.o_active')}</label>
-      </div>
+      <p className="muted small">{t('sp.f_quota_help')}</p>
+      <label className="sp-check"><input type="checkbox" checked={f.active} onChange={(e) => setF({ ...f, active: e.target.checked })} /> {t('sp.f_active')}</label>
       {err && <p className="msg err">{err}</p>}
       <div className="row2">
         <button className="btn sm" disabled={busy}>{busy ? t('common.wait') : t('common.save')}</button>
@@ -266,6 +185,7 @@ export default function AdminSponsors() {
   const [offerEdit, setOfferEdit] = useState(null); // 'new' | offer id
   const [confirmDel, setConfirmDel] = useState(null);
   const [msg, setMsg] = useState(null);
+  const [sub, setSub] = useState('ads'); // 'ads' | 'marine'
 
   const load = useCallback(async () => {
     try {
@@ -281,6 +201,13 @@ export default function AdminSponsors() {
     load();
     getWilayas().then(setWilayas);
   }, [load]);
+
+  // opened from the marine companies list: bring that company into view
+  useEffect(() => {
+    if (!open || sub !== 'ads') return;
+    const el = document.getElementById(`sp-${open}`);
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }, [open, sub, list]);
 
   async function run(promise, okText) {
     setMsg(null);
@@ -327,8 +254,27 @@ export default function AdminSponsors() {
     setMsg(ok ? { type: 'ok', text: t('sp.report_copied') } : { type: 'err', text: text });
   }
 
+  const subTabs = (
+    <div className="seg sp-sub">
+      <button className={`btn sm ${sub === 'ads' ? '' : 'alt'}`} onClick={() => setSub('ads')}>{t('sp.sub_ads')} ({list?.length ?? 0})</button>
+      <button className={`btn sm ${sub === 'marine' ? '' : 'alt'}`} onClick={() => setSub('marine')}>{t('sp.sub_marine')}</button>
+    </div>
+  );
+  if (sub === 'marine')
+    return (
+      <>
+        {subTabs}
+        <AdminMarineCompanies
+          sponsors={list || []}
+          onChanged={load}
+          onManage={(id) => { setSub('ads'); setOpen(id); setEditing(null); setOfferEdit(null); setMsg(null); }}
+        />
+      </>
+    );
+
   return (
     <>
+      {subTabs}
       <p className="muted small">{t('sp.admin_help')}</p>
       {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
       {editing === 'new' ? (
@@ -343,13 +289,16 @@ export default function AdminSponsors() {
         const state = sponsorState(s);
         const st = s.stats || {};
         return (
-          <div key={s.id} className="box sp-admin">
+          <div key={s.id} id={`sp-${s.id}`} className="box sp-admin">
             <div className="admin-head">
-              <Avatar url={sponsorImage(s.logo_path)} name={s.name} size={44} />
+              <Avatar url={sponsorLogo(s)} name={s.name} size={44} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <b dir="auto">{s.name}</b>{' '}
                 <span className={`pill ${STATE_TONE[state]}`}>{t(`sp.state_${state}`)}</span>
                 <div className="muted small">{t('sp.period', { from: fmtDate(s.starts_at), to: fmtDate(s.ends_at) })}</div>
+                {s.professional_id && (
+                  <div className="muted small">🔗 {t('sp.self_service', { used: (s.sponsor_offers || []).length, max: s.max_offers })}</div>
+                )}
               </div>
             </div>
             <div className="sp-stats" title={t('sp.stats_30')}>
@@ -383,13 +332,13 @@ export default function AdminSponsors() {
                 {(s.sponsor_offers || []).map((o) => (
                   <div key={o.id} className="sp-offer-row">
                     {offerEdit === o.id ? (
-                      <OfferForm sponsorId={s.id} o={o} onCancel={() => setOfferEdit(null)} onDone={() => { setOfferEdit(null); setMsg({ type: 'ok', text: t('admin.saved') }); load(); }} />
+                      <SponsorOfferForm sponsorId={s.id} o={o} upload={uploadSponsorImages} onCancel={() => setOfferEdit(null)} onDone={() => { setOfferEdit(null); setMsg({ type: 'ok', text: t('admin.saved') }); load(); }} />
                     ) : (
                       <>
                         <div className="sp-offer-line">
                           <div className="sp-thumb" style={o.images?.[0] ? { backgroundImage: `url("${sponsorImage(o.images[0])}")` } : undefined} />
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <b dir="auto">{o.title}</b>{!o.is_active && <span className="pill bad"> {t('sp.hidden')}</span>}
+                            <b dir="auto">{o.title}</b>{!o.is_active && <span className="pill bad"> {t('sp.hidden')}</span>}{o.created_by && <span className="pill"> {t('sp.by_company')}</span>}
                             <div className="muted small">{o.price_dzd != null ? fmtPrice(o.price_dzd, o.price_currency) : t('sp.price_ask')} · {(o.images || []).length === 1 ? t('sp.one_photo') : t('sp.n_photos', { n: (o.images || []).length })}</div>
                           </div>
                         </div>
@@ -406,7 +355,7 @@ export default function AdminSponsors() {
                   </div>
                 ))}
                 {offerEdit === 'new' ? (
-                  <OfferForm sponsorId={s.id} onCancel={() => setOfferEdit(null)} onDone={() => { setOfferEdit(null); setMsg({ type: 'ok', text: t('admin.saved') }); load(); }} />
+                  <SponsorOfferForm sponsorId={s.id} upload={uploadSponsorImages} onCancel={() => setOfferEdit(null)} onDone={() => { setOfferEdit(null); setMsg({ type: 'ok', text: t('admin.saved') }); load(); }} />
                 ) : (
                   <button className="btn alt sm" onClick={() => setOfferEdit('new')}><Icon name="plus" />{t('sp.add_offer')}</button>
                 )}

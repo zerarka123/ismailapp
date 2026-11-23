@@ -11,6 +11,7 @@ export function errorText(err) {
   if (msg.includes('password should be') || code === 'weak_password') return t('err.weak_password');
   if (msg.includes('rate limit') || code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') return t('err.rate_limit');
   if (msg.includes('listing_limit_reached')) return t('err.listing_limit');
+  if (msg.includes('offer_limit')) return t('sp.limit_reached');
   if (msg.includes('image_limit_reached')) return t('err.image_limit');
   if (msg.includes('too_early')) return t('err.too_early');
   if (msg.includes('not_admin')) return t('err.no_permission');

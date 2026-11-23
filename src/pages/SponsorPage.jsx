@@ -4,7 +4,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { wilayaName } from '../i18n/names.js';
 import { goBack } from '../lib/goBack.js';
 import { fmtPrice, mapsSearchLink, telLink, waLink } from '../lib/format';
-import { getSponsor, sponsorImage, trackSponsor } from '../lib/sponsors';
+import { getSponsor, sponsorImage, sponsorLogo, trackSponsor } from '../lib/sponsors';
 import Icon from '../components/Icon.jsx';
 import Carousel from '../components/Carousel.jsx';
 import ShareButton from '../components/ShareButton.jsx';
@@ -61,7 +61,7 @@ export default function SponsorPage() {
 
       <section className="pd-card">
         <div className="pd-id">
-          <Avatar url={sponsorImage(s.logo_path)} name={s.name} size={76} />
+          <Avatar url={sponsorLogo(s)} name={s.name} size={76} />
           <div className="gf-info">
             <h1 dir="auto">{s.name}</h1>
             <span className="gf-meta">
