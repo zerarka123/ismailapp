@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حمّل تطبيق مرسى</title>
+<meta name="description" content="امسح الرمز أو افتح الرابط لتثبيت تطبيق مرسى مباشرة على هاتفك.">
+<meta name="theme-color" content="#03121c">
+<meta property="og:title" content="حمّل تطبيق مرسى">
+<meta property="og:description" content="السوق البحري الجزائري: قوارب، محركات، معدات الصيد والدليل البحري.">
+<meta property="og:image" content="https://marsadz.app/marsa-qr.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script>
+// Smart install link (marsadz.app/get, printed as a QR code). It sends each phone the shortest way:
+//   Android      → Google Play when PLAY_URL is set, else the app with its one-tap install button (?install=1)
+//   Android inside Facebook / Instagram / TikTok → reopened in Chrome (installing does not work in those browsers)
+//   iPhone Safari → the app, which shows the 3 "Add to Home Screen" steps (Apple allows no one-tap install)
+//   iPhone other browser → this page, with a button that opens Safari
+//   computer     → this page, with the QR code to scan
+(function () {
+  // Set this to the Google Play address once the app is published there, e.g.
+  // 'https://play.google.com/store/apps/details?id=app.marsadz.marsa&referrer=utm_source%3Dqr'
+  var PLAY_URL = '';
+  var ua = navigator.userAgent || '';
+  var l = (navigator.language || 'ar').slice(0, 2).toLowerCase();
+  var lang = l === 'fr' || l === 'en' ? l : 'ar';
+  var app = 'https://app.marsadz.app/?install=1&src=qr&lang=' + lang;
+  var android = /android/i.test(ua);
+  var ios = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var inapp = /FBAN|FBAV|FB_IAB|Instagram|Messenger|TikTok|musical_ly|Snapchat|Line\/|wv\)/i.test(ua);
+  var iosOther = ios && /CriOS|FxiOS|EdgiOS|OPiOS|GSA\//i.test(ua);
+  var g = (window.MARSA_GET = { lang: lang, app: app, ios: ios, android: android, target: null, stay: false });
+  // (tests set window.__noRedirect to read the decision without leaving the page)
+  var go = function (url, replace) {
+    g.target = url;
+    if (window.__noRedirect) return;
+    if (replace) location.replace(url); else location.href = url;
+  };
+  if (android) {
+    if (PLAY_URL) return go(PLAY_URL, true);
+    if (inapp)
+      return go('intent://app.marsadz.app/?install=1&src=qr&lang=' + lang +
+        '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(app) + ';end', false);
+    return go(app, true);
+  }
+  if (ios && !inapp && !iosOther) return go(app, true);
+  g.stay = true;
+})();
+</script>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: linear-gradient(160deg, #03121c, #0a4f86 60%, #2aa3e6); color: #fff; display: grid; place-items: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); }
+.card { width: 100%; max-width: 420px; background: #fff; color: #0e2740; border-radius: 28px; padding: 26px 22px; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); }
+.logo { width: 72px; height: 72px; border-radius: 18px; }
+h1 { font-size: 22px; margin: 12px 0 6px; }
+p { margin: 0 0 14px; color: #51708a; line-height: 1.7; font-size: 15px; }
+.qr { width: 240px; max-width: 80%; height: auto; border-radius: 16px; border: 1px solid #cfe6f5; padding: 8px; background: #fff; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; border-radius: 999px; background: #0a6eb4; color: #fff; font-weight: 800; font-size: 17px; text-decoration: none; margin-top: 12px; border: 0; width: 100%; cursor: pointer; font-family: inherit; }
+.btn.sand { background: #f4c95d; color: #3a2a00; }
+.small { font-size: 13px; color: #51708a; margin-top: 14px; }
+.url { direction: ltr; font-weight: 700; color: #0a6eb4; }
+.hide { display: none; }
+</style>
+</head>
+<body>
+<main class="card">
+  <img class="logo" src="/logo.png" alt="">
+  <h1 id="t">حمّل تطبيق مرسى</h1>
+  <p id="p">جارٍ فتح التطبيق…</p>
+  <div id="desk" class="hide">
+    <img class="qr" src="/marsa-qr.png" width="240" height="240" alt="QR">
+  </div>
+  <a id="go" class="btn" href="https://app.marsadz.app/?install=1&amp;src=qr">افتح مرسى</a>
+  <button id="copy" class="btn sand hide" type="button">نسخ الرابط</button>
+  <div class="small"><span class="url">marsadz.app/get</span></div>
+</main>
+<script>
+(function () {
+  var g = window.MARSA_GET || {};
+  var T = {
+    title: ['حمّل تطبيق مرسى', 'Téléchargez l’application Marsa', 'Get the Marsa app'],
+    opening: ['جارٍ فتح التطبيق…', 'Ouverture de l’application…', 'Opening the app…'],
+    desk: ['امسح الرمز بكاميرا هاتفك لتثبيت مرسى مباشرة.', 'Scannez le code avec l’appareil photo de votre téléphone pour installer Marsa.', 'Scan the code with your phone camera to install Marsa.'],
+    open: ['افتح مرسى', 'Ouvrir Marsa', 'Open Marsa'],
+    iosOther: ['على الآيفون، يتم التثبيت من متصفح Safari. اضغط الزر لفتح مرسى في Safari.', 'Sur iPhone, l’installation se fait depuis Safari. Touchez le bouton pour ouvrir Marsa dans Safari.', 'On iPhone, installing works from Safari. Tap the button to open Marsa in Safari.'],
+    openSafari: ['افتح في Safari', 'Ouvrir dans Safari', 'Open in Safari'],
+    copy: ['نسخ الرابط', 'Copier le lien', 'Copy link'],
+    copied: ['تم النسخ. الصقه في Safari.', 'Copié. Collez-le dans Safari.', 'Copied. Paste it into Safari.']
+  };
+  var i = { ar: 0, fr: 1, en: 2 }[g.lang] || 0;
+  var tr = function (k) { return T[k][i]; };
+  document.documentElement.lang = g.lang || 'ar';
+  document.documentElement.dir = i === 0 ? 'rtl' : 'ltr';
+  document.title = tr('title');
+  var $ = function (id) { return document.getElementById(id); };
+  $('t').textContent = tr('title');
+  $('go').textContent = tr('open');
+  if (g.app) $('go').href = g.app;
+  if (!g.stay) { $('p').textContent = tr('opening'); return; }
+  if (g.ios) {
+    // Chrome / Firefox / an app's browser on iPhone: Safari is needed to add Marsa to the home screen
+    $('p').textContent = tr('iosOther');
+    $('go').textContent = tr('openSafari');
+    $('go').href = 'x-safari-' + g.app;
+    $('copy').textContent = tr('copy');
+    $('copy').classList.remove('hide');
+    $('copy').onclick = function () {
+      var done = function () { $('copy').textContent = tr('copied'); };
+      if (navigator.clipboard) navigator.clipboard.writeText(g.app).then(done, done); else done();
+    };
+    return;
+  }
+  // computer (or unknown device): show the QR code
+  $('p').textContent = tr('desk');
+  $('desk').classList.remove('hide');
+})();
+</script>
+</body>
+</html>
