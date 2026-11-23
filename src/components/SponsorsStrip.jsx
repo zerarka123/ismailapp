@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n/index.jsx';
 import { cssUrl } from '../lib/images';
-import { listLiveSponsors, sponsorImage, trackSponsor } from '../lib/sponsors';
+import { listLiveSponsors, sponsorImage, sponsorLogo, trackSponsor } from '../lib/sponsors';
 import { Avatar } from './GuideFeed.jsx';
 
 // One card; counts an "impression" the first time at least half of it is on screen (once per session).
@@ -34,7 +34,7 @@ function SponsorCard({ s }) {
     <Link ref={ref} to={`/sponsor/${s.id}`} className="sp-card" data-noswipe>
       <div className="sp-cover" style={cover ? { backgroundImage: cssUrl(cover) } : undefined} />
       <div className="sp-body">
-        <Avatar url={sponsorImage(s.logo_path)} name={s.name} size={46} />
+        <Avatar url={sponsorLogo(s)} name={s.name} size={46} />
         <div className="sp-txt">
           <b dir="auto">{s.name}</b>
           {s.tagline && <small dir="auto">{s.tagline}</small>}

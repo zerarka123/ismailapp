@@ -509,6 +509,16 @@ html, body { overscroll-behavior-x: none; }
 .sp-offer-line { display: flex; align-items: center; gap: 10px; }
 .sp-thumb { flex: none; width: 56px; height: 56px; border-radius: 12px; background: #dcefff center / cover no-repeat; }
 
+.msg.warn { background: #fff4d6; color: #8a6200; }
+.sp-sub { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
+.sp-marine .sp-on { color: var(--ok); font-weight: 700; margin-top: 2px; }
+.sp-enable { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.sp-mine { display: flex; flex-direction: column; gap: 6px; }
+.sp-quota { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.sp-quota-bar { flex: 1; height: 10px; border-radius: 999px; background: #e3f1fb; overflow: hidden; }
+.sp-quota-bar span { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+.sp-quota b { font-size: 13px; white-space: nowrap; }
+
 /* iPhone (Safari) gives date fields a wide minimum size: they overflowed the two-column rows */
 .row2 > * { min-width: 0; }
 input[type='date'].input { display: block; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; line-height: 52px; }

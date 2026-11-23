@@ -21,6 +21,7 @@ export default function Account() {
   const [phone, setPhone] = useState('');
   const [wilaya, setWilaya] = useState('');
   const [pro, setPro] = useState(null);
+  const [sponsorId, setSponsorId] = useState(null); // "عروض المصنّعين" enabled by the admin for this account
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const [confirmText, setConfirmText] = useState('');
@@ -37,7 +38,10 @@ export default function Account() {
   }, [profile]);
   useEffect(() => {
     if (!user) return;
-    supabase.from('professional_profiles').select('id, business_name, status').eq('owner_id', user.id).maybeSingle().then(({ data }) => setPro(data));
+    supabase.from('professional_profiles').select('id, business_name, status').eq('owner_id', user.id).maybeSingle().then(({ data }) => {
+      setPro(data);
+      if (data) supabase.from('sponsors').select('id').eq('professional_id', data.id).limit(1).then(({ data: sp }) => setSponsorId(sp?.[0]?.id || null), () => {});
+    });
   }, [user?.id]);
 
   if (!user) {
@@ -107,6 +111,7 @@ export default function Account() {
         )}
         {pro && <Link to="/edit-business"><Icon name="edit" />{t('edit.business_btn')}</Link>}
         {pro?.status === 'active' && <Link to="/portfolio"><Icon name="image" />{t('pf.title')}</Link>}
+        {sponsorId && <Link to="/my-offers"><span aria-hidden="true">🏭</span>{t('sp.my_title')}</Link>}
         {profile?.is_admin && <Link to="/admin"><Icon name="shield" />{t('admin.title')}</Link>}
       </div>
 

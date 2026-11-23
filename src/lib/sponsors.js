@@ -1,16 +1,29 @@
 import { supabase } from '../supabase';
 import { publicUrl, removeFiles, uploadImages } from './images';
 
-// "عروض المصنّعين": companies (boat builders…) that pay to show their offers (migration 024).
-// Photos and logos live in the admin-only "announcements" bucket, folder sponsors/.
+// "عروض المصنّعين": companies (boat builders…) that pay to show their offers (migrations 024, 025).
+// Photos added by the admin live in the admin-only "announcements" bucket, folder sponsors/.
+// A company linked to its guide account adds its own offers (up to max_offers); its photos go to its own
+// folder of pro-images (<uid>/sponsor/...). The folder name tells the bucket apart.
 export const SPONSOR_BUCKET = 'announcements';
 export const SPONSOR_FOLDER = 'sponsors';
 export const MAX_OFFER_IMAGES = 6;
 
-export const sponsorImage = (path) => (path ? publicUrl(SPONSOR_BUCKET, path) : null);
+const OWNER_BUCKET = 'pro-images';
+const bucketOf = (path) => (String(path).startsWith(`${SPONSOR_FOLDER}/`) ? SPONSOR_BUCKET : OWNER_BUCKET);
+export const sponsorImage = (path) => (path ? publicUrl(bucketOf(path), path) : null);
 
-const SPONSOR_FIELDS = 'id, name, tagline, description, logo_path, phone, whatsapp, wilaya_id, address, starts_at, ends_at, is_active, sort_order, wilayas(*)';
-const OFFER_FIELDS = 'id, sponsor_id, title, description, price_dzd, price_currency, length_m, engine, images, is_active, sort_order, created_at';
+// Logo: the one the admin uploaded, else the photo of the linked guide account
+export function sponsorLogo(s) {
+  if (s?.logo_path) return sponsorImage(s.logo_path);
+  const imgs = s?.professional_profiles?.professional_images || [];
+  const first = [...imgs].sort((a, b) => a.sort_order - b.sort_order)[0];
+  return first ? publicUrl(OWNER_BUCKET, first.storage_path) : null;
+}
+
+const SPONSOR_FIELDS =
+  'id, name, tagline, description, logo_path, phone, whatsapp, wilaya_id, address, starts_at, ends_at, is_active, sort_order, professional_id, max_offers, wilayas(*), professional_profiles(id, owner_id, business_name, professional_images(storage_path, sort_order))';
+const OFFER_FIELDS = 'id, sponsor_id, title, description, price_dzd, price_currency, length_m, engine, images, is_active, sort_order, created_at, created_by';
 
 const bySort = (a, b) => a.sort_order - b.sort_order || String(a.created_at || '').localeCompare(String(b.created_at || ''));
 
@@ -80,9 +93,38 @@ export async function adminListSponsors() {
 export async function uploadSponsorImages(blobs) {
   return uploadImages(SPONSOR_BUCKET, SPONSOR_FOLDER, blobs, []);
 }
+// Removes files of either bucket (the admin may delete a company's photos: storage policy of migration 025)
 export async function removeSponsorImages(paths) {
-  const mine = (paths || []).filter((p) => typeof p === 'string' && p.startsWith(`${SPONSOR_FOLDER}/`));
-  if (mine.length) await removeFiles(SPONSOR_BUCKET, mine);
+  const list = (paths || []).filter((p) => typeof p === 'string' && p);
+  const admin = list.filter((p) => bucketOf(p) === SPONSOR_BUCKET);
+  const owner = list.filter((p) => bucketOf(p) === OWNER_BUCKET);
+  if (admin.length) await removeFiles(SPONSOR_BUCKET, admin);
+  if (owner.length) await removeFiles(OWNER_BUCKET, owner);
+}
+
+// ---- the company itself (owner of the linked guide account) ----
+export const uploadOwnerImages = (uid, blobs) => uploadImages(OWNER_BUCKET, `${uid}/sponsor`, blobs, []);
+
+// The placement of the signed-in user's guide account (null when the admin has not enabled it)
+export async function mySponsor(uid) {
+  if (!uid) return null;
+  const pros = await supabase.from('professional_profiles').select('id').eq('owner_id', uid);
+  if (pros.error) throw pros.error;
+  const ids = (pros.data || []).map((p) => p.id);
+  if (!ids.length) return null;
+  const { data, error } = await supabase
+    .from('sponsors')
+    .select(`${SPONSOR_FIELDS}, sponsor_offers(${OFFER_FIELDS})`)
+    .in('professional_id', ids)
+    .limit(1);
+  if (error) throw error;
+  const s = data?.[0];
+  return s ? { ...s, sponsor_offers: (s.sponsor_offers || []).sort(bySort) } : null;
+}
+export async function mySponsorStats() {
+  const { data, error } = await supabase.rpc('my_sponsor_stats', { p_days: 30 });
+  if (error) throw error;
+  return (Array.isArray(data) ? data[0] : null) || null;
 }
 
 export function sponsorState(s) {
