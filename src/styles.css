@@ -523,3 +523,13 @@ html, body { overscroll-behavior-x: none; }
 .row2 > * { min-width: 0; }
 input[type='date'].input { display: block; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; line-height: 52px; }
 input[type='date'].input::-webkit-date-and-time-value { text-align: start; }
+
+/* install help (arrived with ?install=1, e.g. from the QR link marsadz.app/get) */
+.inst-sheet { position: fixed; inset-inline: 12px; bottom: calc(12px + var(--sab)); z-index: 70; background: #fff; color: var(--ink); border-radius: 22px; padding: 16px 18px 14px; box-shadow: 0 12px 40px rgba(3, 18, 28, 0.3); border: 2px solid var(--sand); }
+.inst-sheet b { display: block; font-size: 16px; font-weight: 800; margin-bottom: 6px; padding-inline-end: 30px; }
+.inst-sheet ol { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.6; }
+.inst-sheet p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.inst-x { position: absolute; top: 8px; inset-inline-end: 10px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: #f4f9fd; font-size: 20px; line-height: 1; cursor: pointer; color: var(--ink); }
+.inst-share { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #e3f1fb; color: var(--primary); font-weight: 800; }
+.inst-arrow { text-align: center; color: var(--primary); font-size: 22px; margin-top: 4px; animation: inst-bob 1.2s ease-in-out infinite; }
+@keyframes inst-bob { 50% { transform: translateY(5px); } }

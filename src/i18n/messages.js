@@ -704,6 +704,12 @@ export const MESSAGES = {
   'legal.updated': ['آخر تحديث: {date}', 'Dernière mise à jour : {date}', 'Last updated: {date}'],
   'legal.go_account': ['الذهاب إلى حسابي', 'Aller à mon compte', 'Go to my account'],
   'install.button': ['ثبّت تطبيق مرسى', 'Installer l’application Marsa', 'Install the Marsa app'],
+  'install.ios_title': ['ثبّت مرسى على الآيفون', 'Installer Marsa sur iPhone', 'Install Marsa on iPhone'],
+  'install.ios_1': ['اضغط زر المشاركة أسفل الشاشة', 'Touchez le bouton Partager en bas de l’écran', 'Tap the Share button at the bottom of the screen'],
+  'install.ios_2': ['اختر «إضافة إلى الشاشة الرئيسية»', 'Choisissez « Sur l’écran d’accueil »', 'Choose “Add to Home Screen”'],
+  'install.ios_3': ['اضغط «إضافة»: تظهر أيقونة مرسى مع تطبيقاتك', 'Touchez « Ajouter » : l’icône Marsa apparaît avec vos apps', 'Tap “Add”: the Marsa icon appears with your apps'],
+  'install.menu_title': ['تثبيت مرسى', 'Installer Marsa', 'Install Marsa'],
+  'install.menu_hint': ['افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». إذا كان مرسى مثبّتًا من قبل، افتحه من أيقونته.', 'Ouvrez le menu du navigateur ⋮ puis « Installer l’application » ou « Ajouter à l’écran d’accueil ». Si Marsa est déjà installé, ouvrez-le depuis son icône.', 'Open the browser menu ⋮ then “Install app” or “Add to Home screen”. If Marsa is already installed, open it from its icon.'],
 
   // verification documents
   'verify.pick_one': ['اختر وثيقة واحدة على الأقل.', 'Choisissez au moins un document.', 'Choose at least one document.'],
