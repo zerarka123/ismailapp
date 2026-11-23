@@ -15,6 +15,7 @@ import NotifyPrompt from '../components/NotifyPrompt.jsx';
 import { listAnnouncements, readIds } from '../lib/announcements';
 import { getBoatTypes } from '../lib/refData';
 import SeaStrip from '../components/SeaStrip.jsx';
+import SponsorsStrip from '../components/SponsorsStrip.jsx';
 
 const SEA_OPEN_KEY = 'marsa.sea.open';
 function savedSeaOpen() {
@@ -136,6 +137,8 @@ export default function Home() {
         <Link to="/?g=fisher" className="shortcut"><Icon name="anchor" size={28} /><span>{t('guide.fisher')}</span></Link>
         <Link to="/fish" className="shortcut"><Icon name="fish" size={28} /><span>{t('fish.title')}</span></Link>
       </div>
+
+      <SponsorsStrip />
 
       <SponsoredStrip />
 

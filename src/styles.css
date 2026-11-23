@@ -474,3 +474,37 @@ html, body { overscroll-behavior-x: none; }
 .av-opt b { display: block; font-size: 16px; }
 .av-opt small { display: block; font-size: 12px; color: var(--muted); }
 .pd-top .sharebtn { position: static; box-shadow: 0 2px 8px rgba(10, 110, 180, 0.1); background: #fff; }
+
+/* ---------- "عروض المصنّعين" (paid company placements, migration 024) ---------- */
+.sp-strip { margin-top: 6px; }
+.sp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sp-head .section-title { margin-bottom: 8px; }
+.pill.sp-ad { background: #fff4d6; color: #8a6200; flex: none; }
+.sp-card { flex: none; width: 240px; scroll-snap-align: start; display: flex; flex-direction: column; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); text-decoration: none; color: var(--ink); border: 1.5px solid #f4e2a8; }
+.sp-cover { height: 118px; background: linear-gradient(135deg, #0a4f86, #2aa3e6) center / cover no-repeat; }
+.sp-body { display: flex; align-items: center; gap: 10px; padding: 10px 12px 12px; margin-top: -26px; }
+.sp-body .gf-avatar { border: 3px solid #fff; box-shadow: 0 2px 8px rgba(10, 110, 180, 0.18); background: #fff; }
+.sp-txt { min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-top: 22px; }
+.sp-txt b { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-txt small { font-size: 12px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
+.sp-count { font-size: 12px; font-weight: 700; color: var(--primary); }
+.sp-offer { background: #fff; border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 14px; }
+.sp-offer-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.sp-offer-body h2 { margin: 0; font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+.sp-price { font-size: 18px; font-weight: 800; color: var(--deep); }
+.sp-facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp-ask { background: #1fa855; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+.sp-form { margin-top: 10px; }
+.sp-logo-pick { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.sp-logo-pick b { display: block; font-size: 14px; }
+.sp-logo-btn { border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; }
+.sp-check { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; align-self: end; min-height: 44px; }
+.sp-check input { width: 20px; height: 20px; }
+.sp-admin .admin-head { align-items: center; gap: 10px; }
+.sp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.sp-stats span { background: #f4f9fd; border-radius: 12px; padding: 6px 4px; text-align: center; font-weight: 800; font-size: 15px; }
+.sp-stats small { display: block; font-size: 11px; font-weight: 600; color: var(--muted); }
+.sp-offers-admin { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.sp-offer-row { background: #f8fbfe; border-radius: 14px; padding: 10px; }
+.sp-offer-line { display: flex; align-items: center; gap: 10px; }
+.sp-thumb { flex: none; width: 56px; height: 56px; border-radius: 12px; background: #dcefff center / cover no-repeat; }
