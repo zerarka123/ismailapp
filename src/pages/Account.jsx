@@ -6,7 +6,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone } from '../lib/format';
-import { removeFiles } from '../lib/images';
+import { removeFiles, removeUserFolder } from '../lib/images';
 import Icon from '../components/Icon.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
@@ -84,6 +84,13 @@ export default function Account() {
     // portfolio photos (migration 003); the query simply errors on older databases
     const c = await supabase.from('portfolio_photos').select('storage_path').eq('owner_id', user.id);
     await removeFiles('pro-images', (c.data || []).map((r) => r.storage_path));
+    // sweep everything left under the user's folder (avatars, videos, files not tracked in tables)
+    try {
+      await removeUserFolder(user.id);
+    } catch (e) {
+      setBusy(false);
+      return setMsg({ type: 'err', text: errorText(e) });
+    }
     const { error } = await supabase.rpc('delete_my_account');
     if (error) {
       setBusy(false);
