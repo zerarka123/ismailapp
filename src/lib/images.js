@@ -78,3 +78,29 @@ export async function removeFiles(bucket, paths) {
     await supabase.storage.from(bucket).remove(paths.slice(i, i + 100));
   }
 }
+
+// Deletes every file stored under "<uid>/" (any depth) in the user's buckets.
+// Throws on failure so the account is not deleted while files remain.
+export async function removeUserFolder(uid, buckets = ['listing-images', 'pro-images', 'avatars', 'portfolio-videos', 'verification-docs']) {
+  const walk = async (bucket, prefix) => {
+    const out = [];
+    for (let offset = 0; ; offset += 100) {
+      const { data, error } = await supabase.storage.from(bucket).list(prefix, { limit: 100, offset });
+      if (error) throw error;
+      for (const it of data || []) {
+        const path = `${prefix}/${it.name}`;
+        if (it.id === null) out.push(...(await walk(bucket, path))); // sub-folder
+        else out.push(path);
+      }
+      if (!data || data.length < 100) break;
+    }
+    return out;
+  };
+  for (const bucket of buckets) {
+    const paths = await walk(bucket, uid);
+    for (let i = 0; i < paths.length; i += 100) {
+      const { error } = await supabase.storage.from(bucket).remove(paths.slice(i, i + 100));
+      if (error) throw error;
+    }
+  }
+}
