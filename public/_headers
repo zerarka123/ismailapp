@@ -10,6 +10,26 @@
 /login
   X-Robots-Tag: noindex
 
+# Form pages that need an account: keep them out of search results
+/register-business
+  X-Robots-Tag: noindex
+/sell
+  X-Robots-Tag: noindex
+/fish/post
+  X-Robots-Tag: noindex
+
+# One canonical address per public page, so ?lang= and similar variants are grouped
+/
+  Link: <https://app.marsadz.app/>; rel="canonical"
+/support
+  Link: <https://app.marsadz.app/support>; rel="canonical"
+/privacy
+  Link: <https://app.marsadz.app/privacy>; rel="canonical"
+/terms
+  Link: <https://app.marsadz.app/terms>; rel="canonical"
+/guide/*
+  Link: <https://app.marsadz.app/guide/:splat>; rel="canonical"
+
 # Files built by Vite carry a content hash in their name: the browser can keep them for a year without re-asking
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
