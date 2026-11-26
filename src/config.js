@@ -1,5 +1,5 @@
 // One place for app-wide settings.
-export const SUPPORT_EMAIL = 'support@marsadz.app'; // create this mailbox (Cloudflare Email Routing) before publishing
+export const SUPPORT_EMAIL = 'marsadz@gmail.com'; // same address as the website footer
 // Optional: an Algerian or international number for WhatsApp support (digits only, e.g. 213550000000). Empty = hidden.
 export const SUPPORT_WHATSAPP = import.meta.env?.VITE_SUPPORT_WHATSAPP || '';
 export const SITE_URL = 'https://marsadz.app';

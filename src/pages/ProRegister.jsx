@@ -175,6 +175,7 @@ export default function ProRegister() {
           <div className="field"><label>{t('contact.whatsapp')}</label><input className="input" dir="ltr" inputMode="tel" value={f.whatsapp} onChange={set('whatsapp')} /></div>
         </div>
         {msg && <p className={`msg ${msg.type}`}>{msg.text}</p>}
+        <p className="muted small">{t('reg.public_note')} <a href="/privacy">{t('legal.privacy')}</a></p>
         <button className="btn sand" disabled={busy}>{busy ? t('reg.sending') : t('reg.submit')}</button>
       </form>
     </>
