@@ -48,6 +48,17 @@ export default function ProDetail() {
     };
   }, [id]);
 
+  // each professional page gets its own title (search engines read the rendered one)
+  const businessName = item?.business_name;
+  useEffect(() => {
+    if (!businessName) return undefined;
+    const before = document.title;
+    document.title = `${businessName} | ${t('app.name')}`;
+    return () => {
+      document.title = before;
+    };
+  }, [businessName, t]);
+
   useEffect(() => {
     if (!user || !item) return;
     let alive = true;

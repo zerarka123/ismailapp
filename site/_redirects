@@ -5,4 +5,9 @@
 /support https://app.marsadz.app/support 302
 /privacy https://app.marsadz.app/privacy 302
 /terms https://app.marsadz.app/terms 302
+/delete-account https://app.marsadz.app/delete-account 302
+/search https://app.marsadz.app/search 302
+/favorites https://app.marsadz.app/favorites 302
+/account https://app.marsadz.app/account 302
+/guide/* https://app.marsadz.app/guide/:splat 302
 /index.html / 301
