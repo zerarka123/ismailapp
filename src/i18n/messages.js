@@ -420,6 +420,7 @@ export const MESSAGES = {
   'reg.description': ['وصف النشاط', 'Description de l’activité', 'Business description'],
   'reg.contacts_note': ['تظهر للمستخدمين المسجّلين فقط.', 'Visibles uniquement par les utilisateurs inscrits.', 'Shown to signed-in users only.'],
   'reg.sending': ['جارٍ الإرسال…', 'Envoi…', 'Sending…'],
+  'reg.public_note': ['بعد الموافقة، يظهر اسم نشاطك ووصفه وعنوانه وصوره للعموم في التطبيق، وقد يظهر على موقع marsadz.app ومحركات البحث.', 'Après validation, le nom, la description, l’adresse et les photos de votre activité sont publics dans l’application et peuvent apparaître sur marsadz.app et les moteurs de recherche.', 'Once approved, your business name, description, address and photos are public in the app and may appear on marsadz.app and in search engines.'],
   'reg.submit': ['إرسال الطلب', 'Envoyer la demande', 'Send request'],
   'reg.v_type': ['اختر نوع نشاطك.', 'Choisissez votre type d’activité.', 'Choose your business type.'],
   'reg.v_cat': ['اختر الفرع.', 'Choisissez la branche.', 'Choose the branch.'],
