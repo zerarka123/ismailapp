@@ -200,7 +200,7 @@ dialog .x{float:inline-end;background:none;border:0;color:#eaf6ff;font-size:28px
 <p class="sub" data-i18n="cats_p">سبع خدمات بحرية، والأنشطة تتزاد كل يوم.</p>
 <!--MARSA_CATS-->
 <div class="grid cats">
-<a class="cat" href="/c/fishermen"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z"/><path d="M2 12l-0 0M6 9l-2-3M6 15l-2 3"/><circle cx="16" cy="11" r="1"/></svg></span><span><strong data-i18n="cat_fishermen">صيادون</strong></span></a>
+<a class="cat" href="https://app.marsadz.app/guide/fisher/fishermen"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c3-4.5 7-6.5 11-6.5 4 0 7 3 9 6.5-2 3.5-5 6.5-9 6.5-4 0-8-2-11-6.5z"/><path d="M2 12l-0 0M6 9l-2-3M6 15l-2 3"/><circle cx="16" cy="11" r="1"/></svg></span><span><strong data-i18n="cat_fishermen">صيادون</strong></span></a>
 <a class="cat" href="/c/naval_mechanics"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span><span><strong data-i18n="cat_naval_mechanics">ميكانيك وكهرباء السفن</strong></span></a>
 <a class="cat" href="/c/gear_shops"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></svg></span><span><strong data-i18n="cat_gear_shops">محلات معدات الصيد</strong></span></a>
 <a class="cat" href="/c/cold_rooms"><span class="ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2"/></svg></span><span><strong data-i18n="cat_cold_rooms">غرف تبريد / مسمكة</strong></span></a>
@@ -341,7 +341,7 @@ document.querySelectorAll('.langsw button').forEach(function(b){b.setAttribute('
 apply();
 /* search: service + wilaya → the service page, filtered by wilaya */
 var f=document.getElementById('find'),fs=document.getElementById('fs'),fw=document.getElementById('fw');
-f.addEventListener('submit',function(e){e.preventDefault();if(!fs.value){fs.focus();return}location.href='/c/'+encodeURIComponent(fs.value)+(fw.value?'?w='+encodeURIComponent(fw.value):'')});
+f.addEventListener('submit',function(e){e.preventDefault();if(!fs.value){fs.focus();return}if(fs.value==='fishermen'){location.href=marsaApp('https://app.marsadz.app/guide/fisher/fishermen');return}location.href='/c/'+encodeURIComponent(fs.value)+(fw.value?'?w='+encodeURIComponent(fw.value):'')});
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

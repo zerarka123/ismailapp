@@ -2,6 +2,13 @@
 // Data is read ONLY from the public views site_categories / site_pros / site_sponsored (migration 010).
 export const SITE = 'https://marsadz.app';
 export const APP = 'https://app.marsadz.app';
+
+// Guide branches whose content is shown only in the app, not on the site: their tile stays on the home page but
+// opens the app, and their site pages (/c/<slug>, /a/<id> of their accounts) send visitors to the app.
+export const APP_ONLY_CATS = { fishermen: 'fisher' }; // slug -> section of the app's guide
+export const appCatUrl = (slug) => `${APP}/guide/${APP_ONLY_CATS[slug]}/${slug}`;
+export const isAppOnlyCat = (slug) => Object.prototype.hasOwnProperty.call(APP_ONLY_CATS, slug);
+export const toApp = (url) => new Response(null, { status: 302, headers: { Location: url, 'Cache-Control': 'public, max-age=0, s-maxage=300' } });
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const SLUG_RE = /^[a-z0-9_]{2,40}$/;
 

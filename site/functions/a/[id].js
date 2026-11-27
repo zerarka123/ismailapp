@@ -1,4 +1,4 @@
-import { APP, SITE, T, UUID_RE, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, placeHtml, proImage, rest, supabaseConfig, tr, wilayaNames } from '../_lib/site.js';
+import { APP, SITE, T, UUID_RE, isAppOnlyCat, toApp, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, placeHtml, proImage, rest, supabaseConfig, tr, wilayaNames } from '../_lib/site.js';
 
 // /a/:id — public page of one activity. No phone or e-mail is ever read or shown: contact happens in the app.
 // The business name, address and description stay as the owner wrote them; everything around them follows the language.
@@ -11,6 +11,7 @@ export async function onRequestGet(context) {
     if (!Array.isArray(rows)) return htmlResponse(page({ title: T.retry_t[0], titles: T.retry_t, description: T.retry_p[0], path: `/a/${id}`, body: `${tr('retry_t', 'h1')}${tr('retry_p', 'p')}`, noindex: true }), 503);
     const p = rows[0];
     if (!p) return notFoundPage('gone_t'); // stopped or hidden in the admin panel: the page disappears
+    if (isAppOnlyCat(p.category_slug)) return toApp(`${APP}/pro/${p.id}`); // fishermen: shown in the app only
     const name = clean(p.business_name, 90);
     const imgs = (p.images || []).map((x) => proImage(cfg, x)).filter(Boolean);
     const cat = categoryNames(p.category_slug, p.category_ar);
