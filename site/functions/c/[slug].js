@@ -1,4 +1,4 @@
-import { APP, SLUG_RE, SITE, T, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, proCard, proImage, rest, supabaseConfig, tr, wilayaNames } from '../_lib/site.js';
+import { APP, SLUG_RE, appCatUrl, isAppOnlyCat, toApp, SITE, T, cached, categoryNames, clean, esc, htmlResponse, ld, ml, notFoundPage, page, proCard, proImage, rest, supabaseConfig, tr, wilayaNames } from '../_lib/site.js';
 
 // ?w=<Arabic wilaya name> (from the search box of the home page) shows only that wilaya; done in the browser so the cached page stays the same
 const FILTER = `<script>(function(){var w=new URLSearchParams(location.search).get('w'),n=0;document.querySelectorAll('.chips a[data-w]').forEach(function(a){a.classList.toggle('on',(a.getAttribute('data-w')||'')===(w||''))});if(!w)return;document.querySelectorAll('.grid .card[data-w]').forEach(function(c){var on=c.getAttribute('data-w')===w;c.hidden=!on;if(on)n++});var b=document.getElementById('n');if(b)b.textContent=n})();</script>`;
@@ -7,6 +7,7 @@ const FILTER = `<script>(function(){var w=new URLSearchParams(location.search).g
 export async function onRequestGet(context) {
   const slug = String(context.params.slug || '');
   const cfg = supabaseConfig(context.env);
+  if (isAppOnlyCat(slug)) return toApp(appCatUrl(slug)); // fishermen: shown in the app only
   if (!SLUG_RE.test(slug) || !cfg) return notFoundPage();
   return cached(context, `/c/${slug}`, async () => {
     const cats = await rest(cfg, `site_categories?slug=eq.${encodeURIComponent(slug)}&select=slug,name_ar,name_fr,name_en&limit=1`);

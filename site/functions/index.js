@@ -1,4 +1,4 @@
-import { APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, SECURITY_HEADERS, supabaseConfig, wilayaNames } from './_lib/site.js';
+import { appCatUrl, isAppOnlyCat, APP, CAT_ICONS, SITE, cached, categoryNames, clean, esc, ld, listingImage, ml, priceHtml, rest, SECURITY_HEADERS, supabaseConfig, wilayaNames } from './_lib/site.js';
 
 // "/" — the static landing page with live sections filled in from the public views:
 // hero numbers, wilayas of the search box, sponsored ads, and the seven services with their counts.
@@ -54,7 +54,8 @@ export async function onRequestGet(context) {
         .filter((c) => CAT_ICONS[c.slug])
         .map((c) => {
           const n = Number(c.active_count) || 0;
-          return `<a class="cat" href="/c/${esc(c.slug)}"><span class="ic">${CAT_ICONS[c.slug]}</span><span>${ml(categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en), 'strong')}<small>${n ? `${num(n)} ${ml(unit)}` : ml(first)}</small></span></a>`;
+          const href = isAppOnlyCat(c.slug) ? appCatUrl(c.slug) : `/c/${esc(c.slug)}`;
+          return `<a class="cat" href="${href}"><span class="ic">${CAT_ICONS[c.slug]}</span><span>${ml(categoryNames(c.slug, c.name_ar, c.name_fr, c.name_en), 'strong')}<small>${n ? `${num(n)} ${ml(unit)}` : ml(first)}</small></span></a>`;
         })
         .join('');
       if (catHtml) html = between(html, 'MARSA_CATS', `<div class="grid cats">${catHtml}</div>`);
