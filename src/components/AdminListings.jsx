@@ -5,7 +5,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { daysLeft, fmtDate, fmtPrice, isMissingSchema } from '../lib/format';
-import { cssUrl, publicUrl, removeFiles } from '../lib/images';
+import { cssUrl, removeFiles, thumbUrl } from '../lib/images';
 import { kindKey } from '../lib/safety';
 import { isSponsored } from './ListingCard.jsx';
 import { getWilayas, getBoatTypes } from '../lib/refData';
@@ -194,7 +194,7 @@ export default function AdminListings() {
         const w = wilayaById.get(String(l.wilaya_id));
         return (
           <div key={l.id} className="mine adl">
-            <div className="mine-img" style={l.cover_path ? { backgroundImage: cssUrl(publicUrl('listing-images', l.cover_path)) } : undefined} />
+            <div className="mine-img" style={l.cover_path ? { backgroundImage: cssUrl(thumbUrl('listing-images', l.cover_path)) } : undefined} />
             <div className="mine-info">
               <h4 dir="auto">{l.title}</h4>
               <div className="muted small">{fmtPrice(l.price_dzd)} · {sectionLabel(l)}{w ? ` · ${wilayaName(w)}` : ''}</div>

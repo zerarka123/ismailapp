@@ -6,7 +6,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { wilayaName } from '../i18n/names.js';
 import { useListings } from '../lib/useListings';
 import { fmtPrice, mapsLink, mapsSearchLink, telLink, waLink } from '../lib/format';
-import { cssUrl, publicUrl } from '../lib/images';
+import { cssUrl, thumbUrl } from '../lib/images';
 import { coverOf } from './ListingCard.jsx';
 import { isProActive, offerActive } from '../lib/pro';
 import Icon from './Icon.jsx';
@@ -58,7 +58,7 @@ export default function ColdRoomOffers({ sellerIds, pros, wilayaId, kind = 'gear
               : mapsSearchLink([pro?.address, wilayaName(item.wilayas), 'Algérie'].filter(Boolean).join(', '));
           return (
             <div key={item.id} className="lcard">
-              <Link to={`/listing/${item.id}`} className="lcard-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined}>
+              <Link to={`/listing/${item.id}`} className="lcard-img" style={cover ? { backgroundImage: cssUrl(thumbUrl('listing-images', cover.storage_path)) } : undefined}>
                 {fresh && <span className="tag live">{t('cold.today_tag')}</span>}
                 <span className="price">{fmtPrice(item.price_dzd)}{item.unit ? ` / ${t(`unit.${item.unit}`)}` : ''}</span>
               </Link>

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
-import { prepareImage, publicUrl, removeFiles, uploadImages } from '../lib/images';
+import { cssUrl, prepareImage, publicUrl, removeFiles, thumbUrl, uploadImages } from '../lib/images';
 import { canUsePortfolio, isLivePro } from '../lib/accountTypes';
 import { isMissingSchema } from '../lib/format';
 import { marsaError } from '../lib/marsaErrors';
@@ -137,7 +137,7 @@ function Photos({ user, pro }) {
       {photos === null && <p style={{ color: C.muted }}>{t('common.loading')}</p>}
       <div className="pgrid">
         {photos?.map((ph) => (
-          <div key={ph.id} className="pgrid-item" style={{ backgroundImage: `url("${publicUrl('pro-images', ph.storage_path)}")` }}>
+          <div key={ph.id} className="pgrid-item" style={{ backgroundImage: cssUrl(thumbUrl('pro-images', ph.storage_path)) }}>
             <button type="button" className="thumb-x" onClick={() => onDelete(ph)} aria-label={t('img.remove')}><Icon name="x" size={14} /></button>
             {ph.caption && <span>{ph.caption}</span>}
           </div>

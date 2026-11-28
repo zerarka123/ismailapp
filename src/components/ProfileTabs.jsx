@@ -9,7 +9,7 @@ import BumpButton from './BumpButton.jsx';
 import { Lightbox } from './Carousel.jsx';
 import Icon from './Icon.jsx';
 import { useListings } from '../lib/useListings';
-import { cssUrl, publicUrl } from '../lib/images';
+import { cssUrl, publicUrl, thumbUrl } from '../lib/images';
 import { isMissingSchema } from '../lib/format';
 
 const C = { blue: '#0a6eb8', navy: '#0f2a44', muted: '#5b7488', line: '#cfe6f5' };
@@ -120,7 +120,7 @@ function Gallery({ ownerId, professionalId, mine }) {
           <div className="section-title" style={{ margin: 0 }}><Icon name="image" size={18} /> {t('tabs.photos')} ({photos.length})</div>
           <div className="pgrid">
             {photos.map((ph, n) => (
-              <button key={ph.id} type="button" className="pgrid-item" style={{ backgroundImage: cssUrl(urls[n]) }} onClick={() => setOpen(n)} aria-label={ph.caption || t('photos.n', { n: n + 1 })}>
+              <button key={ph.id} type="button" className="pgrid-item" style={{ backgroundImage: cssUrl(thumbUrl('pro-images', ph.storage_path)) }} onClick={() => setOpen(n)} aria-label={ph.caption || t('photos.n', { n: n + 1 })}>
                 {ph.caption && <span>{ph.caption}</span>}
               </button>
             ))}

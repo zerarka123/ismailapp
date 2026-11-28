@@ -5,7 +5,7 @@ import { useAuth } from '../auth.jsx';
 import { t as tr, useI18n } from '../i18n/index.jsx';
 import { errorText } from '../errors';
 import { daysLeft, fmtPrice, isMissingSchema } from '../lib/format';
-import { cssUrl, publicUrl, removeFiles } from '../lib/images';
+import { cssUrl, removeFiles, thumbUrl } from '../lib/images';
 import { coverOf } from '../components/ListingCard.jsx';
 import NeedLogin from '../components/NeedLogin.jsx';
 
@@ -69,7 +69,7 @@ export default function MyListings() {
         const canRenew = live && daysLeft(it.expires_at) <= 7;
         return (
           <div key={it.id} className="mine">
-            <div className="mine-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined} />
+            <div className="mine-img" style={cover ? { backgroundImage: cssUrl(thumbUrl('listing-images', cover.storage_path)) } : undefined} />
             <div className="mine-info">
               <h4>{it.title}</h4>
               <div className="muted small">{fmtPrice(it.price_dzd, it.price_currency)}</div>
