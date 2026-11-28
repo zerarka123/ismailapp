@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
-import { cssUrl, publicUrl } from '../lib/images';
+import { cssUrl, thumbUrl } from '../lib/images';
 import { coverOf } from '../components/ListingCard.jsx';
 import Icon from '../components/Icon.jsx';
 import VerifiedBadge from '../components/VerifiedBadge.jsx';
@@ -128,7 +128,7 @@ export default function GuideList() {
               const cover = coverOf(p.professional_images);
               return (
                 <Link key={p.id} to={`/pro/${p.id}`} className="lcard">
-                  <div className="lcard-img" style={{ height: 140, ...(cover ? { backgroundImage: cssUrl(publicUrl('pro-images', cover.storage_path)) } : {}) }}>
+                  <div className="lcard-img" style={{ height: 140, ...(cover ? { backgroundImage: cssUrl(thumbUrl('pro-images', cover.storage_path)) } : {}) }}>
                     <span className="tag live">● {t('pro.status_active')}</span>
                   </div>
                   <div className="lcard-body">

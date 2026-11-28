@@ -4,7 +4,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
 import { PHONE_RE, cleanPhone, fmtDate } from '../lib/format';
-import { publicUrl } from '../lib/images';
+import { thumbUrl } from '../lib/images';
 import Icon from './Icon.jsx';
 import VerifiedBadge from './VerifiedBadge.jsx';
 import { Avatar } from './GuideFeed.jsx';
@@ -124,7 +124,7 @@ export default function AdminMarineCompanies({ sponsors, onChanged, onManage }) 
         return (
           <div key={p.id} className="box sp-marine">
             <div className="admin-head">
-              <Avatar url={img ? publicUrl('pro-images', img.storage_path) : null} name={p.business_name} size={44} />
+              <Avatar url={img ? thumbUrl('pro-images', img.storage_path) : null} name={p.business_name} size={44} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <b style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} dir="auto">{p.business_name}{p.badge_verified && <VerifiedBadge size={18} />}</b>
                 <div className="muted small">{categoryName(p.guide_categories)} · {wilayaName(p.wilayas)} · {t(`pstatus.${p.status}`)}</div>

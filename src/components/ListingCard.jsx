@@ -4,7 +4,7 @@ import { useFavorites } from '../favorites.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { boatTypeName, wilayaName } from '../i18n/names.js';
 import { conditionLabel, fmtPrice, isNew } from '../lib/format';
-import { publicUrl } from '../lib/images';
+import { thumbUrl } from '../lib/images';
 import { kindKey } from '../lib/safety';
 
 export function coverOf(images) {
@@ -39,7 +39,7 @@ export default function ListingCard({ item, compact = false, eager = false }) {
   return (
     <Link to={`/listing/${item.id}`} className={`lcard${compact ? ' compact' : ''}`}>
       <div className="lcard-img">
-        {cover && <img className="lcard-photo" src={publicUrl('listing-images', cover.storage_path)} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" draggable={false} />}
+        {cover && <img className="lcard-photo" src={thumbUrl('listing-images', cover.storage_path)} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" draggable={false} />}
         {isSponsored(item) ? <span className="tag sponsored">{t('home.sponsored_tag')}</span> : isNew(item.published_at) && <span className="tag">{t('card.new')}</span>}
         <button className={`fav ${faved ? 'on' : ''}`} onClick={onFav} aria-label={t('nav.favorites')}>
           <Icon name="star" size={20} fill={faved ? 'currentColor' : 'none'} />

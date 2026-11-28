@@ -4,7 +4,7 @@ import { supabase, SUPABASE_HOST } from '../supabase';
 import { useI18n } from '../i18n/index.jsx';
 import { categoryName, wilayaName } from '../i18n/names.js';
 import { errorText } from '../errors';
-import { cssUrl, publicUrl } from '../lib/images';
+import { cssUrl, thumbUrl } from '../lib/images';
 import { getPosition } from '../lib/geo';
 import { getGuideCategories, getWilayas } from '../lib/refData';
 import { MERGED_BRANCHES, isBranchVisible } from '../lib/branches';
@@ -57,7 +57,7 @@ export const fmtKm = (d) => (d < 10 ? d.toFixed(1) : String(Math.round(d)));
 
 const avatarOf = (p) => {
   const first = [...(p.professional_images || [])].sort((a, b) => a.sort_order - b.sort_order)[0];
-  return first ? publicUrl('pro-images', first.storage_path) : null;
+  return first ? thumbUrl('pro-images', first.storage_path) : null;
 };
 const initials = (name) =>
   String(name || '')
@@ -359,7 +359,7 @@ export default function GuideFeed({ section }) {
                   </div>
                   <div className="gf-thumbs">
                     {photos.map((path) => (
-                      <Link key={path} to={`/pro/${p.id}`} className="gf-thumb" style={{ backgroundImage: cssUrl(publicUrl('pro-images', path)) }} aria-label={p.business_name} />
+                      <Link key={path} to={`/pro/${p.id}`} className="gf-thumb" style={{ backgroundImage: cssUrl(thumbUrl('pro-images', path)) }} aria-label={p.business_name} />
                     ))}
                   </div>
                 </div>

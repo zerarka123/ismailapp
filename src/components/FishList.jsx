@@ -7,7 +7,7 @@ import { wilayaName } from '../i18n/names.js';
 import { PAGE_SIZE } from '../config';
 import { fmtPrice } from '../lib/format';
 import { FISH_SPECIES, speciesName, timeAgo } from '../lib/fish';
-import { cssUrl, publicUrl } from '../lib/images';
+import { cssUrl, thumbUrl } from '../lib/images';
 import Icon from './Icon.jsx';
 import { getWilayas } from '../lib/refData';
 
@@ -20,7 +20,7 @@ function FishCard({ item, followed, onFollow }) {
   const where = [item.place_text, item.wilayas ? wilayaName(item.wilayas) : ''].filter(Boolean).join(' · ');
   return (
     <Link to={`/listing/${item.id}`} className="fcard">
-      <div className="fcard-img" style={cover ? { backgroundImage: cssUrl(publicUrl('listing-images', cover.storage_path)) } : undefined}>
+      <div className="fcard-img" style={cover ? { backgroundImage: cssUrl(thumbUrl('listing-images', cover.storage_path)) } : undefined}>
         {!cover && <Icon name="fish" size={34} color="#51708A" />}
         {item.video_path && <span className="tag">▶</span>}
         <button type="button" className={`fcard-follow ${followed ? 'on' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFollow(item.seller_id); }} aria-label={followed ? t('fish.following') : t('fish.follow_seller')}>

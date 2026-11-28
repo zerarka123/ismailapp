@@ -12,6 +12,14 @@ export function viaCdn(url) {
 }
 export const publicUrl = (bucket, path) => viaCdn(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
 
+// Small copies for lists and grids. A photo uploaded with a small copy is stored as ".../t-<id>.<ext>" next to
+// ".../t-<id>.thumb.<ext>"; older photos (no "t-") have no small copy and keep using the full picture.
+const THUMB_SIDE = 480;
+const hasThumb = (path) => typeof path === 'string' && /(^|\/)t-[^/]+$/.test(path) && !/\.thumb\.\w+$/.test(path);
+export const thumbPath = (path) => path.replace(/\.(\w+)$/, '.thumb.$1');
+export const thumbUrl = (bucket, path) => publicUrl(bucket, hasThumb(path) ? thumbPath(path) : path);
+const withThumbs = (paths) => paths.flatMap((p) => (hasThumb(p) ? [p, thumbPath(p)] : [p]));
+
 // Validate, downscale (max 1600px, same sharpness as before) and re-encode: WebP when the phone can make it
 // (about 30% lighter than JPEG at the same visible quality), JPEG otherwise. No metadata (GPS) leaks.
 const MAX_SIDE = 1600;
@@ -56,14 +64,30 @@ const extOf = (type) => (type === 'image/webp' ? 'webp' : 'jpg');
 const isMimeRefused = (error) => /mime|content.?type|not allowed|not supported/i.test(`${error?.message || ''} ${error?.error || ''}`) || String(error?.statusCode) === '415';
 
 // Uploads blobs; pushes each stored path into `uploaded` so callers can clean up on failure.
+// The small copy (THUMB_SIDE px) is uploaded first; if that fails the photo is still saved, just without one.
 export async function uploadImages(bucket, folder, blobs, uploaded = []) {
+  const put = (path, b) =>
+    supabase.storage
+      .from(bucket)
+      .upload(path, b, { contentType: b.type === 'image/webp' ? 'image/webp' : 'image/jpeg', cacheControl: '31536000', upsert: false })
+      .then(({ error }) => error);
   for (let blob of blobs) {
-    const send = (b) => {
-      const path = `${folder}/${crypto.randomUUID()}.${extOf(b.type)}`;
-      return supabase.storage
-        .from(bucket)
-        .upload(path, b, { contentType: b.type === 'image/webp' ? 'image/webp' : 'image/jpeg', cacheControl: '31536000', upsert: false })
-        .then(({ error }) => ({ path, error }));
+    const send = async (b) => {
+      const id = crypto.randomUUID();
+      const ext = extOf(b.type);
+      let small = null;
+      try {
+        const c = await drawScaled(b, THUMB_SIDE);
+        small = await toBlob(c, b.type === 'image/webp' ? 'image/webp' : 'image/jpeg', b.type === 'image/webp' ? WEBP_QUALITY : JPEG_QUALITY);
+        if (small && small.type !== b.type) small = null; // encoder fell back to another format: skip the small copy
+      } catch {
+        small = null;
+      }
+      const thumbErr = small ? await put(`${folder}/t-${id}.thumb.${ext}`, small) : 'none';
+      const path = thumbErr ? `${folder}/${id}.${ext}` : `${folder}/t-${id}.${ext}`;
+      const error = await put(path, b);
+      if (error && !thumbErr) await supabase.storage.from(bucket).remove([thumbPath(path)]).then(() => {}, () => {});
+      return { path, error };
     };
     let { path, error } = await send(blob);
     if (error && blob.type === 'image/webp' && isMimeRefused(error)) ({ path, error } = await send((blob = await asJpeg(blob))));
@@ -73,9 +97,11 @@ export async function uploadImages(bucket, folder, blobs, uploaded = []) {
   return uploaded;
 }
 
+// Also removes the small copy of each photo that has one.
 export async function removeFiles(bucket, paths) {
-  for (let i = 0; i < paths.length; i += 100) {
-    await supabase.storage.from(bucket).remove(paths.slice(i, i + 100));
+  const all = withThumbs(paths);
+  for (let i = 0; i < all.length; i += 100) {
+    await supabase.storage.from(bucket).remove(all.slice(i, i + 100));
   }
 }
 
